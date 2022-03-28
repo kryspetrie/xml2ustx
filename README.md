@@ -1,3 +1,5 @@
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/nicolalandro/xml2ustx/main/src/streamlit_app.py)
+
 # musicxml to USTX
 Transform a music .xml to .ustx for UTAU.
 
