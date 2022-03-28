@@ -1,9 +1,12 @@
+import sys
 import music21
 from src.ustx_utils import generate_ustx
 
-file_path = './data/en_test.xml'
+# file_path = './data/en_test.xml'
 # file_path = './data/jappo_test.xml'
 # file_path = './data/haendel_hallelujah.xml'
+file_path = sys.argv[1]
+print(file_path)
 
 music = music21.converter.parse(file_path)
 
