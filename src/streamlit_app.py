@@ -2,6 +2,13 @@ import tempfile
 
 import streamlit as st
 
+try:
+    import src.main 
+except:
+    import sys
+    sys.path.insert(0, './')
+
+
 from src.main import create_utau
 
 
