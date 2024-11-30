@@ -1,5 +1,7 @@
 TRACKS_LABEL = 'tracks:'
 VOICE_PARTS_LABEL = 'voice_parts:'
+TEMPOS_LABEL = 'tempos:'
+TIME_SIGNATURES_LABEL = 'time_signatures:'
 EMPTY_WAVE_PARTS = 'wave_parts: []'
 
 
@@ -61,21 +63,20 @@ def format_track_header(
     return ustx
 
 
-def format_file_header(
-        name: str = 'Project Name',
-        bpm: int = 120,
-        beat_per_bar: int = 4,
-        beat_unit: int = 4,
-        resolution: int = 480):
+def format_time_signature(position: int, beat_per_bar: int, beat_unit: int):
+    return f'- bar_position: {position}\n  beat_per_bar: {beat_per_bar}\n  beat_unit: {beat_unit}'
+
+
+def format_tempo(position: int, bpm: int):
+    return f'- position: {position}\n  bpm: {bpm}'
+
+
+def format_file_header(name: str, resolution: int):
     return f"""
 name: {name}
-comment: ''
 output_dir: Vocal
 cache_dir: UCache
 ustx_version: 0.6
-bpm: {bpm}
-beat_per_bar: {beat_per_bar}
-beat_unit: {beat_unit}
 resolution: {resolution}
 expressions:
   dyn:

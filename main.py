@@ -5,7 +5,6 @@ from models.ApplicationConfig import ApplicationConfig
 from src.models.JobConfig import JobConfig
 from src.models.Project import Project
 from src.models.TrackConfig import TrackConfig
-from src.models.Voice import Voice
 from src.ustx.UstxExport import export
 from src.ProjectParser import parse
 from typing import List

@@ -7,10 +7,6 @@ from src.models.Tempo import Tempo
 from src.models.TimeSignature import TimeSignature
 from src.models.Event import Event
 
-__DEFAULT_TEMPO = 120
-__DEFAULT_BEAT_PER_BAR = 4
-__DEFAULT_BEAT_UNIT = 4
-
 
 def export(project: Project, outfile: str):
     with open(outfile, 'w') as f:
@@ -24,15 +20,34 @@ def write_to_string(project: Project):
     time_signatures: List[TimeSignature] = project.find_unique_time_signatures()
     tempos: List[Tempo] = project.find_unique_tempos()
 
-    # Find the first elements from these sorted lists
-    first_time_signature = next(iter(time_signatures), None)
-    first_tempo = next(iter(tempos), None)
-
-    ustx_fragments: List[str] = [__header(project, first_tempo, first_time_signature)]
+    ustx_fragments: List[str] = [__header(project)]
     ustx_fragments += __tracks(project)
+    ustx_fragments += __tempos(tempos, project.tick_resolution)
+    ustx_fragments += __time_signatures(time_signatures, project.tick_resolution)
     ustx_fragments += __voices(project)
     ustx_fragments += [Ustx.EMPTY_WAVE_PARTS]
     return '\n'.join(ustx_fragments)
+
+
+def __tempos(tempos: List[Tempo], tick_resolution: int) -> List[str]:
+    tempo_fragments: List[str] = []
+    if tempos is not None and len(tempos) > 0:
+        tempo_fragments.append(Ustx.TEMPOS_LABEL)
+        for tempo in tempos:
+            position: int = int(tempo.position * tick_resolution)
+            tempo_fragments.append(Ustx.format_tempo(position, tempo.beat_per_minute))
+    return tempo_fragments
+
+
+def __time_signatures(time_signatures: List[TimeSignature], tick_resolution: int) -> List[str]:
+    time_signature_fragments: List[str] = []
+    if time_signatures is not None and len(time_signatures) > 0:
+        time_signature_fragments.append(Ustx.TIME_SIGNATURES_LABEL)
+        for time_signature in time_signatures:
+            position: int = int(time_signature.position * tick_resolution)
+            time_signature_fragments.append(
+                Ustx.format_time_signature(position, time_signature.beat_per_bar, time_signature.beat_unit))
+    return time_signature_fragments
 
 
 def __tracks(project: Project) -> List[str]:
@@ -78,23 +93,5 @@ def __event(event: Event, tick_resolution: int) -> Optional[str]:
                             lyric=note_event.lyric)
 
 
-def __header(project: Project, tempo: Tempo, time_signature: TimeSignature) -> str:
-
-    bpm: int = tempo.beat_per_minute \
-        if tempo is not None \
-        else __DEFAULT_TEMPO
-
-    beat_per_bar: int = time_signature.beat_per_bar \
-        if time_signature is not None \
-        else __DEFAULT_BEAT_PER_BAR
-
-    beat_unit: int = time_signature.beat_unit \
-        if time_signature is not None \
-        else __DEFAULT_BEAT_UNIT
-
-    return Ustx.format_file_header(
-        name=project.name,
-        bpm=bpm,
-        beat_per_bar=beat_per_bar,
-        beat_unit=beat_unit,
-        resolution=project.tick_resolution)
+def __header(project: Project) -> str:
+    return Ustx.format_file_header(name=project.name, resolution=project.tick_resolution)
