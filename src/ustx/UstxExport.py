@@ -5,7 +5,7 @@ from src.models.Note import Note
 from src.models.Project import Project
 from src.models.Tempo import Tempo
 from src.models.TimeSignature import TimeSignature
-from src.models.TrackEvent import TrackEvent
+from src.models.Event import Event
 
 __DEFAULT_TEMPO = 120
 __DEFAULT_BEAT_PER_BAR = 4
@@ -19,7 +19,16 @@ def export(project: Project, outfile: str):
 
 
 def write_to_string(project: Project):
-    ustx_fragments: List[str] = [__header(project)]
+
+    # Get time signatures and tempos across all tracks
+    time_signatures: List[TimeSignature] = project.find_unique_time_signatures()
+    tempos: List[Tempo] = project.find_unique_tempos()
+
+    # Find the first elements from these sorted lists
+    first_time_signature = next(iter(time_signatures), None)
+    first_tempo = next(iter(tempos), None)
+
+    ustx_fragments: List[str] = [__header(project, first_tempo, first_time_signature)]
     ustx_fragments += __tracks(project)
     ustx_fragments += __voices(project)
     ustx_fragments += [Ustx.EMPTY_WAVE_PARTS]
@@ -55,7 +64,7 @@ def __voices(project: Project) -> List[str]:
     return ustx_fragments
 
 
-def __event(event: TrackEvent, tick_resolution: int) -> Optional[str]:
+def __event(event: Event, tick_resolution: int) -> Optional[str]:
     if not isinstance(event, Note):
         return None
 
@@ -69,25 +78,23 @@ def __event(event: TrackEvent, tick_resolution: int) -> Optional[str]:
                             lyric=note_event.lyric)
 
 
-def __header(project: Project) -> str:
-    # Get the project-wide initial tempo
-    first_tempo: Tempo = next(filter(lambda it: it is Tempo, project.timeline_events), None)
-    first_bpm: int = first_tempo.beat_per_minute \
-        if first_tempo is not None \
+def __header(project: Project, tempo: Tempo, time_signature: TimeSignature) -> str:
+
+    bpm: int = tempo.beat_per_minute \
+        if tempo is not None \
         else __DEFAULT_TEMPO
 
-    # Get the project-wide initial time signature
-    first_time_signature: TimeSignature = next(filter(lambda it: it is TimeSignature, project.timeline_events), None)
-    first_beat_per_bar: int = first_time_signature.beat_per_bar \
-        if first_time_signature is not None \
+    beat_per_bar: int = time_signature.beat_per_bar \
+        if time_signature is not None \
         else __DEFAULT_BEAT_PER_BAR
-    first_beat_unit: int = first_time_signature.beat_unit \
-        if first_time_signature is not None \
+
+    beat_unit: int = time_signature.beat_unit \
+        if time_signature is not None \
         else __DEFAULT_BEAT_UNIT
 
     return Ustx.format_file_header(
         name=project.name,
-        bpm=first_bpm,
-        beat_per_bar=first_beat_per_bar,
-        beat_unit=first_beat_unit,
+        bpm=bpm,
+        beat_per_bar=beat_per_bar,
+        beat_unit=beat_unit,
         resolution=project.tick_resolution)

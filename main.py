@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     application_config: ApplicationConfig = ConfigParser.parse(CONFIG_FILE_PATH)
 
-    track_configs: List[TrackConfig] = application_config.track_config_map['default']
+    track_configs: List[TrackConfig] = application_config.track_config_map['ttbb-barbershop']
 
     job: JobConfig = JobConfig(
         input_file=input_file,

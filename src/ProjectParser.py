@@ -1,11 +1,8 @@
-from typing import List, cast, Set
-from operator import itemgetter, attrgetter
-
+from typing import List, cast
 
 import music21
 
-from src.models.TimelineEvent import TimelineEvent
-from src.models.TrackEvent import TrackEvent
+from src.models.Event import Event
 from src.models.Tempo import Tempo
 from src.models.TimeSignature import TimeSignature
 from src.models.TrackConfig import TrackConfig
@@ -22,7 +19,6 @@ def parse(job: JobConfig):
     tick_resolution = music21.defaults.ticksPerQuarter
 
     tracks: List[Track] = []
-    timeline_event_set: Set[TimelineEvent] = set()
 
     # Flatten all the different voices to distinct parts
     stream = stream.voicesToParts()
@@ -31,7 +27,7 @@ def parse(job: JobConfig):
     for (index, part) in enumerate(stream.parts, 0):
 
         # Loop over supported events build Event list context
-        track_events: List[TrackEvent] = []
+        track_events: List[Event] = []
         for event in part.flat:
 
             # Add note events
@@ -50,12 +46,12 @@ def parse(job: JobConfig):
                     position=time_signature_event.offset,
                     beat_per_bar=time_signature_event.numerator,
                     beat_unit=time_signature_event.denominator)
-                timeline_event_set.add(time_signature)
+                track_events.append(time_signature)
 
             if isinstance(event, music21.tempo.MetronomeMark):
                 metronome_event: music21.tempo.MetronomeMark = cast(music21.tempo.MetronomeMark, event)
                 tempo: Tempo = Tempo(position=metronome_event.offset, beat_per_minute=metronome_event.number)
-                timeline_event_set.add(tempo)
+                track_events.append(tempo)
 
         # If we have a specific track config for this track, use it. Otherwise, default to first config.
         track_config: TrackConfig = job.track_configs[index] \
@@ -74,9 +70,6 @@ def parse(job: JobConfig):
                              events=track_events)
         tracks.append(track)
 
-    timeline_events: List[TimelineEvent] = sorted(timeline_event_set, key=attrgetter('position'))
-
     return Project(name=job.name,
                    tick_resolution=tick_resolution,
-                   timeline_events=timeline_events,
                    tracks=tracks)
