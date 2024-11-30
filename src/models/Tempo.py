@@ -2,7 +2,6 @@ from src.models.Event import Event
 
 
 class Tempo(Event):
-    __slots__ = 'beat_per_minute'
 
     def __init__(self, position: int, beat_per_minute: int):
         super().__init__(position)

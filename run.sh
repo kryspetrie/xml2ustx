@@ -11,5 +11,5 @@ if [ ! -d "${__dir}/venv" ]; then
 fi
 
 source ${__dir}/venv/bin/activate
-python ${__dir}/main.py $1 $2
+python ${__dir}/main.py $@
 deactivate

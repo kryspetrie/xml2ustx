@@ -1,5 +1,4 @@
 class Event:
-    __slots__ = 'position'
     """
     Base class of all events that will generate track output
     """

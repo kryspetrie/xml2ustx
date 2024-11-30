@@ -5,7 +5,6 @@ from src.models.Voice import Voice
 
 
 class ApplicationConfig:
-    __slots__ = ('voice_config_map', 'track_config_map')
 
     def __init__(self, voice_config_map: Dict[str, Voice], track_config_map: Dict[str, List[TrackConfig]]):
         self.voice_config_map = voice_config_map

@@ -2,7 +2,6 @@ from src.models.Event import Event
 
 
 class TimeSignature(Event):
-    __slots__ = ('beat_per_bar', 'beat_unit')
 
     def __init__(self, position: int, beat_per_bar: int, beat_unit: int):
         super().__init__(position)

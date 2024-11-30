@@ -5,7 +5,6 @@ from src.models.Voice import Voice
 
 
 class Track:
-    __slots__ = ('name', 'voice', 'pan', 'volume', 'events')
 
     def __init__(self, name: str, voice: Voice, pan: float, volume: float, events: List[Event]):
         self.name = name
