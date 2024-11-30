@@ -1,57 +1,82 @@
-def generate_ustx(traks_count, voice_parts):
-    ustx_string = [boilerplate()]
-    ustx_string += ["tracks:"] + [ generate_trak_line() for i in range(traks_count)]
-    
-    ustx_string += ["voice_parts:"]
-    for i, p in enumerate(voice_parts):
-        ustx_string += [generate_part(i)]
-        for n in p:
-            ustx_string += [generate_note(int(n['position'] * 100),int(n['duration'] * 100), n['tone'], n['lyric'])]
+TRACKS_LABEL = 'tracks:'
+VOICE_PARTS_LABEL = 'voice_parts:'
+EMPTY_WAVE_PARTS = 'wave_parts: []'
 
-    ustx_string += [generate_wav_parts()]
-    return '\n'.join(ustx_string)
 
-def generate_part(i):
-    return f"""- name: New Part
+def generate_part(
+        track_number: int,
+        track_name: str):
+    return f"""- name: {track_name}
   comment: ''
-  track_no: {i}
+  track_no: {track_number}
   position: 0
   notes:"""
 
-def generate_note(position, duration, tone, lyric):
-    return """  - position: %s
-    duration: %s
-    tone: %s
-    lyric: %s
+
+def format_note(
+        tick_position: int,
+        tick_duration: int,
+        tone: int,
+        lyric: str):
+    return f"""  - position: {tick_position}
+    duration: {tick_duration}
+    tone: {tone}
+    lyric: {lyric}
     pitch:
       data:
-      - {x: -40, y: 0, shape: io}
-      - {x: 25, y: 0, shape: io}
+      - {{x: -40, y: 0, shape: io}}
+      - {{x: 25, y: 0, shape: io}}
       snap_first: true
-    vibrato: {length: 0, period: 175, depth: 25, in: 10, out: 10, shift: 0, drift: 0}
+    vibrato: {{length: 0, period: 175, depth: 25, in: 10, out: 10, shift: 0, drift: 0}}
     note_expressions: []
     phoneme_expressions: []
-    phoneme_overrides: []""" % (position, duration, tone, lyric)
+    phoneme_overrides: []"""
 
-def generate_trak_line():
-    return """- phonemizer: OpenUtau.Core.DefaultPhonemizer
-  mute: false
+
+def format_track_header(
+        name: str,
+        phonemizer: str,
+        singer: str,
+        renderer: str,
+        volume: float = 0.0,
+        pan: float = 0.0):
+    ustx: str = f"""- mute: false
   solo: false
-  volume: 0"""
+  volume: {volume}
+  pan: {pan}"""
 
-def generate_wav_parts():
-    return "wave_parts: []"
+    if phonemizer is not None:
+        ustx += f'\n  phonemizer: {phonemizer}';
 
-def boilerplate():
-    return """name: New Project
+    if renderer is not None:
+        ustx += f'''\n  renderer_settings:
+    renderer: DIFFSINGER'''
+
+    if singer is not None:
+        ustx += f'\n  singer: {singer}'
+
+    if name is not None or name != "":
+        ustx += f'\n  track_name: {name}'
+
+    return ustx
+
+
+def format_file_header(
+        name: str = 'Project Name',
+        bpm: int = 120,
+        beat_per_bar: int = 4,
+        beat_unit: int = 4,
+        resolution: int = 480):
+    return f"""
+name: {name}
 comment: ''
 output_dir: Vocal
 cache_dir: UCache
-ustx_version: 0.5
-bpm: 120
-beat_per_bar: 4
-beat_unit: 4
-resolution: 480
+ustx_version: 0.6
+bpm: {bpm}
+beat_per_bar: {beat_per_bar}
+beat_unit: {beat_unit}
+resolution: {resolution}
 expressions:
   dyn:
     name: dynamics
@@ -180,4 +205,5 @@ expressions:
     max: 36
     default_value: 0
     is_flag: false
-    flag: ''"""
+    flag: ''
+"""

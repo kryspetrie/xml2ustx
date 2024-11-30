@@ -3,13 +3,13 @@ import tempfile
 import streamlit as st
 
 try:
-    import src.main 
+    import main
 except:
     import sys
-    sys.path.insert(0, './')
+    sys.path.insert(0, 'src/')
 
 
-from src.main import create_utau
+from main import create_utau
 
 
 st.title('Convert .xml to .ustx')
@@ -27,7 +27,7 @@ if uploaded_file is not None:
         with open('output.ustx', 'w') as f:
             f.write(text_ustx)
         with open('output.ustx', 'rb') as f:
-            st.download_button('Downloadd output.ustx', f,file_name="output.ustx", mime="text/yaml")
+            st.download_button('Download output.ustx', f,file_name="output.ustx", mime="text/yaml")
         
         
         

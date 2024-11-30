@@ -1,0 +1,34 @@
+voice_config:
+  - id: 'default'
+    phonemizer: 'OpenUtau.Core.DefaultPhonemizer'
+  - id: 'tiger'
+    singer: 'TIGER_DS_v106'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
+  - id: 'nero'
+    singer: 'Nero_v110/configs'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
+
+track_config:
+  - id: 'default'
+    tracks:
+      - voice_id: 'default'
+  - id: 'ttbb-barbershop'
+    tracks:
+      - track_name: 'Tenor'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Lead'
+        voice_id: 'tiger'
+        pan: -25
+        volume: 3
+      - track_name: 'Bari'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Bass'
+        voice_id: 'nero'
+        pan: 10
+        volume: 6
