@@ -34,6 +34,17 @@ This application can be run via the included wrapper `run.sh`, which will also i
 ```
 ./run.sh infile.mxl outfile.ustx --track-config="ttbb-barbershop"
 ```
+
+## Limitations
+**There are MANY limitations.**
+- No support for gradual tempo changes (e.g. ritardandos)
+  - I think this can only be supported in USTX format by generating virtual tempo marker changes, since I do not think the format supports gradual changes. 
+- Only supports tempos based on quarter-note length
+- Lyrics MUST be defined on **ALL VOICES** on **ALL TRACKS**
+  - This software makes no effort trying to guess the lyric based on other lines
+- Lyrics broken across multiple notes are phonemized as individual words
+  - I am unsure if there is any way to fix this problem since OpenUTAU handles phoneme generation internally
+
 ## Configuration
 Voices and track presets are configured in `config.yml`. 
 
