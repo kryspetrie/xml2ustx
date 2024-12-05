@@ -1,33 +1,40 @@
+import os
 import tempfile
-
 import streamlit as st
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-try:
-    import main
-except:
-    import sys
-    sys.path.insert(0, 'src/')
+from main import run_and_return_string, PROGRAM_DESCRIPTION, CONFIG_FILE_PATH
+from src.ConfigParser import parse
 
+# Yes, we will be parsing this file twice... oh well.
+config = parse(CONFIG_FILE_PATH)
 
-from main import create_utau
+st.title('Convert MusicXML or MIDI to .ustx')
+st.markdown(PROGRAM_DESCRIPTION)
+option = st.radio(label='Track config options:', options=config.track_config_map.keys())
 
-
-st.title('Convert .xml to .ustx')
-st.markdown('This app need a .xml music file as input and convert it into OpenUtau file project. You can generate it from MuseScore or similar software.')
-
-
-uploaded_file = st.file_uploader("Choose a .xml music file", type='xml')
+uploaded_file: UploadedFile = st.file_uploader("Choose a file", type=['xml', 'mxl', 'mid', 'musicxml'])
 
 if uploaded_file is not None:
-    with tempfile.NamedTemporaryFile(suffix=".xml") as f:
-        f.write(uploaded_file.getbuffer())
-        file_path = f.name
+    ext = os.path.splitext(uploaded_file.name)[1]
+    with tempfile.NamedTemporaryFile(suffix=ext) as infile, tempfile.NamedTemporaryFile(suffix="ustx", mode="w") as outFile:
+        infile.write(uploaded_file.getbuffer())
+        infile_path = infile.name
 
-        text_ustx = create_utau(file_path)
-        with open('output.ustx', 'w') as f:
-            f.write(text_ustx)
-        with open('output.ustx', 'rb') as f:
-            st.download_button('Download output.ustx', f,file_name="output.ustx", mime="text/yaml")
-        
+        ustx_string = run_and_return_string(
+            input_file=infile_path,
+            project_name="OpenUTAU Project",
+            config_file=CONFIG_FILE_PATH,
+            track_config_id=option,
+            voice_config_ids=[],
+            volumes=[],
+            pans=[],
+            tracks=[],
+            debug=False)
+
+        outFile.write(ustx_string)
+        with open(outFile.name, 'rb') as read_outfile:
+            st.download_button('Download USTX file', read_outfile, file_name='outfile.ustx', mime='text/yaml')
+
         
         

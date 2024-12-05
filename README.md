@@ -97,3 +97,9 @@ track_config:
         pan: 10
         volume: 6
 ```
+
+## Streamlit App
+You can also run this application as a basic web app using [Streamlit](https://streamlit.io/). It does not currently have all functionality available via the CLI. Launch this app via the runner `./run_app.sh`, or use the following command:
+```
+python3 -m streamlit run app.py
+```

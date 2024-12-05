@@ -1,3 +1,10 @@
+"""
+This file is BAD and is remnants of the original implementation.
+We should NOT be generating this file using string templates and string concatenation.
+TODO: Generate USTX file via the imported yaml library
+"""
+
+
 TRACKS_LABEL = 'tracks:'
 VOICE_PARTS_LABEL = 'voice_parts:'
 TEMPOS_LABEL = 'tempos:'

@@ -1,5 +1,5 @@
 import argparse
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import jsonpickle
 
@@ -9,12 +9,12 @@ from src.models.ApplicationConfig import ApplicationConfig
 from src.models.JobConfig import JobConfig
 from src.models.Project import Project
 from src.models.TrackConfig import TrackConfig
-from src.ustx.UstxExport import export
+from src.ustx.UstxExport import export, write_to_string
 
 CONFIG_FILE_PATH = "./config.yml"
 
 PROGRAM_DESCRIPTION = \
-    'CLI application Transform MusicXML (*.mxl, *.xml, *.musicxml, *.midi)' + \
+    'Application for transforming MusicXML (*.mxl, *.xml, *.musicxml, *.midi)' + \
     ' into OpenUTAU *.ustx for Singing Voice Synthesis'
 
 
@@ -43,7 +43,7 @@ def build_cli_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main():
+def run():
     args = build_cli_parser().parse_args()
 
     input_file: str = args.input_file
@@ -57,8 +57,51 @@ def main():
     tracks: List[str] = args.track
     debug: bool = args.debug
 
+    # Output file should always end with .ustx
+    if not output_file.lower().endswith(".ustx"):
+        output_file = output_file + ".ustx"
+
     if debug:
         print(f'Parsed the following arguments from the CLI: \n{dumps(args)}\n')
+
+    # Generate the job and project file
+    (job, project) = build_job_and_project(
+        input_file, output_file, project_name, config_file, track_config_id,
+        voice_config_ids, volumes, pans, tracks, debug)
+
+    # Export the project as a USTX file
+    export(project, job.output_file)
+
+
+def run_and_return_string(
+        input_file: str,
+        project_name: str,
+        config_file: str,
+        track_config_id: Optional[str],
+        voice_config_ids: List[str],
+        volumes: List[float],
+        pans: List[float],
+        tracks: List[str],
+        debug: bool) -> str:
+
+    (job, project) = build_job_and_project(
+        input_file, None, project_name, config_file,
+        track_config_id, voice_config_ids, volumes, pans, tracks, debug)
+
+    return write_to_string(project)
+
+
+def build_job_and_project(
+        input_file: str,
+        output_file: Optional[str],
+        project_name: str,
+        config_file: str,
+        track_config_id: Optional[str],
+        voice_config_ids: List[str],
+        volumes: List[float],
+        pans: List[float],
+        tracks: List[str],
+        debug: bool) -> Tuple[JobConfig, Project]:
 
     # load application config from the file
     application_config: ApplicationConfig = parse_config(config_file)
@@ -122,11 +165,11 @@ def main():
     # Parse the job into a project context
     project: Project = parse_project(job)
 
-    if (debug):
+    if debug:
         print(f'Parsed the following project:\n{dumps(project)}\n')
 
-    # Export the project as a USTX file
-    export(project, job.output_file)
+    # Return the created job and project
+    return job, project
 
 
 def dumps(obj):
@@ -134,6 +177,6 @@ def dumps(obj):
 
 
 if __name__ == '__main__':
-    main()
+    run()
 
 
