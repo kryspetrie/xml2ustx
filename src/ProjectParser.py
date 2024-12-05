@@ -20,8 +20,8 @@ def parse(job: JobConfig):
 
     tracks: List[Track] = []
 
-    # Flatten all the different voices to distinct parts
-    stream = stream.voicesToParts()
+    # Flatten all the different voices to distinct parts and expand repeats
+    stream = stream.voicesToParts().expandRepeats()
 
     # Loop over the parts and create Track list context
     for (index, part) in enumerate(stream.parts, 0):
@@ -72,4 +72,5 @@ def parse(job: JobConfig):
 
     return Project(name=job.name,
                    tick_resolution=tick_resolution,
-                   tracks=tracks)
+                   tracks=tracks,
+                   default_lyric=job.default_lyric)

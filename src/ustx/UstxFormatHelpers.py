@@ -26,7 +26,7 @@ def format_note(
     return f"""  - position: {tick_position}
     duration: {tick_duration}
     tone: {tone}
-    lyric: {lyric}
+    lyric: "{lyric}"
     pitch:
       data:
       - {{x: -40, y: 0, shape: io}}

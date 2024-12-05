@@ -5,6 +5,8 @@ from src.models.TrackConfig import TrackConfig
 from src.models.Voice import Voice
 from src.models.ApplicationConfig import ApplicationConfig
 
+DEFAULT_LYRIC: str = 'dah'
+
 
 def __parse_voice_config_tuple(voice_config_dict: Dict) -> Tuple[str, Voice]:
     if 'id' not in voice_config_dict:
@@ -41,7 +43,7 @@ def __parse_track_config_tuple(track_config_dict: Dict, voices: Dict[str, Voice]
 
     track_configs: List[TrackConfig] = [__parse_track_config_item(it, voices) for it in track_config_dict['tracks']]
 
-    return (track_group_id, track_configs)
+    return track_group_id, track_configs
 
 
 def parse(file: str) -> ApplicationConfig:
@@ -58,10 +60,12 @@ def parse(file: str) -> ApplicationConfig:
     track_configs_tuple = [__parse_track_config_tuple(it, voice_config_map) for it in config_yaml['track_config']]
     track_config_map = dict((id, tracks) for id, tracks in track_configs_tuple)
 
+    default_lyric = config_yaml['default_lyric'] if 'default_lyric' in config_yaml else DEFAULT_LYRIC
+
     if 'default' not in voice_config_map:
         raise RuntimeError('Did not find \'default\' voice in config file.')
 
     if 'default' not in track_config_map:
         raise RuntimeError('Did not find \'default\' track config in config file.')
 
-    return ApplicationConfig(voice_config_map=voice_config_map, track_config_map=track_config_map)
+    return ApplicationConfig(voice_config_map=voice_config_map, track_config_map=track_config_map, default_lyric=default_lyric)

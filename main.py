@@ -112,7 +112,8 @@ def main():
         input_file=input_file,
         output_file=output_file,
         name=project_name,
-        track_configs=track_configs)
+        track_configs=track_configs,
+        default_lyric=application_config.default_lyric)
 
     # print debug information
     if debug:

@@ -8,10 +8,11 @@ from src.models.Track import Track
 
 class Project:
 
-    def __init__(self, name: str, tick_resolution: int, tracks: List[Track]):
+    def __init__(self, name: str, tick_resolution: int, tracks: List[Track], default_lyric: str):
         self.name = name
         self.tick_resolution = tick_resolution
         self.tracks = tracks
+        self.default_lyric = default_lyric
 
     def find_unique_tempos(self) -> List[Tempo]:
         return find_unique_tempos(self.tracks)

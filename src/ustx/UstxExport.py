@@ -72,14 +72,17 @@ def __voices(project: Project) -> List[str]:
         track_string: str = Ustx.generate_part(track_name=track.name, track_number=index)
         ustx_fragments.append(track_string)
         for event in track.events:
-            note_string: str = __event(event=event, tick_resolution=project.tick_resolution)
+            note_string: str = __event(
+                event=event,
+                tick_resolution=project.tick_resolution,
+                default_lyric=project.default_lyric)
             if note_string is not None:
                 ustx_fragments.append(note_string)
 
     return ustx_fragments
 
 
-def __event(event: Event, tick_resolution: int) -> Optional[str]:
+def __event(event: Event, tick_resolution: int, default_lyric: str) -> Optional[str]:
     if not isinstance(event, Note):
         return None
 
@@ -87,10 +90,12 @@ def __event(event: Event, tick_resolution: int) -> Optional[str]:
     tick_position: int = int(note_event.position * tick_resolution)
     tick_duration: int = int(note_event.duration * tick_resolution)
 
+    lyric = note_event.lyric if note_event.lyric is not None and note_event.lyric.strip() != "" else default_lyric
+
     return Ustx.format_note(tick_position=tick_position,
                             tick_duration=tick_duration,
                             tone=note_event.tone,
-                            lyric=note_event.lyric)
+                            lyric=lyric)
 
 
 def __header(project: Project) -> str:

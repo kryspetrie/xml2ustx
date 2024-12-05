@@ -37,12 +37,15 @@ This application can be run via the included wrapper `run.sh`, which will also i
 
 ## Limitations
 **There are MANY limitations.**
-- No support for gradual tempo changes (e.g. ritardandos)
+- NO SUPPORT for dynamics or volume changes
+- NO SUPPORT for swing annotations / swung songs
+- NO SUPPORT for gradual tempo changes (e.g. ritardandos)
   - I think this can only be supported in USTX format by generating virtual tempo marker changes, since I do not think the format supports gradual changes. 
 - Only supports tempos based on quarter-note length
-- Lyrics MUST be defined on **ALL VOICES** on **ALL TRACKS**
+- Lyrics MUST be defined FULLY on **ALL VOICES** on **ALL TRACKS**
   - This software makes no effort trying to guess the lyric based on other lines
-- Lyrics broken across multiple notes are phonemized as individual words
+- DOES NOT gracefully handle lyrics spanning multiple notes, or tied notes
+- Lyrics broken across multiple notes are phonemized as individual "words"
   - I am unsure if there is any way to fix this problem since OpenUTAU handles phoneme generation internally
 
 ## Configuration
