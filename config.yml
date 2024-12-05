@@ -9,6 +9,14 @@ voice_config:
     singer: 'Nero_v110/configs'
     renderer: 'DIFFSINGER'
     phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
+  - id: 'tiger-fr'
+    singer: 'TIGER_DS_v106'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerFrenchPhonemizer'
+  - id: 'nero-fr'
+    singer: 'Nero_v110/configs'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerFrenchPhonemizer'
 
 track_config:
   - id: 'default'
@@ -30,6 +38,24 @@ track_config:
         volume: 0
       - track_name: 'Bass'
         voice_id: 'nero'
+        pan: 10
+        volume: 6
+  - id: 'ttbb-barbershop-fr'
+    tracks:
+      - track_name: 'Tenor'
+        voice_id: 'tiger-fr'
+        pan: -60
+        volume: 0
+      - track_name: 'Lead'
+        voice_id: 'tiger-fr'
+        pan: -25
+        volume: 3
+      - track_name: 'Bari'
+        voice_id: 'tiger-fr'
+        pan: -60
+        volume: 0
+      - track_name: 'Bass'
+        voice_id: 'nero-fr'
         pan: 10
         volume: 6
 

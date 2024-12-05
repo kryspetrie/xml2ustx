@@ -20,8 +20,16 @@ def parse(job: JobConfig):
 
     tracks: List[Track] = []
 
-    # Flatten all the different voices to distinct parts and expand repeats
-    stream = stream.voicesToParts().expandRepeats()
+    # Flatten all the different voices to distinct parts
+    stream = stream.voicesToParts()
+
+    # Unroll notated repeats
+    stream = stream.expandRepeats()
+
+    # Extend all tied notes into joined objects (e.g. ignore measure divisions)
+    stream.stripTies(inPlace=True, matchByPitch=True)
+
+    # TODO: detect swing annotation and quantize appropriately
 
     # Loop over the parts and create Track list context
     for (index, part) in enumerate(stream.parts, 0):
