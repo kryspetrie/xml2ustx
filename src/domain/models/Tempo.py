@@ -1,4 +1,4 @@
-from src.models.Event import Event
+from src.domain.models.Event import Event
 
 
 class Tempo(Event):

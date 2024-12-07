@@ -1,7 +1,7 @@
 from typing import List, Type, Set
 
-from src.models.Event import Event
-from src.models.Voice import Voice
+from src.domain.models.Event import Event
+from src.domain.models.Voice import Voice
 
 
 class Track:

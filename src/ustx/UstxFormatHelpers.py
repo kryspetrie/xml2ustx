@@ -29,6 +29,7 @@ def format_note(
         lyric: str):
     if lyric is not None:
         lyric = lyric.replace("\n", "")
+        lyric = lyric.replace("\"", "")
 
     return f"""  - position: {tick_position}
     duration: {tick_duration}

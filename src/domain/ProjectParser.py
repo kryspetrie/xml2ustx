@@ -2,17 +2,18 @@ from typing import List, cast
 
 import music21
 
-from src.models.Event import Event
-from src.models.Tempo import Tempo
-from src.models.TimeSignature import TimeSignature
-from src.models.TrackConfig import TrackConfig
-from src.models.Note import Note
-from src.models.Track import Track
-from src.models.Project import Project
-from src.models.JobConfig import JobConfig
+from src.Utils import dumps
+from src.domain.models.Event import Event
+from src.domain.models.Tempo import Tempo
+from src.domain.models.TimeSignature import TimeSignature
+from src.domain.models.TrackConfig import TrackConfig
+from src.domain.models.Note import Note
+from src.domain.models.Track import Track
+from src.domain.models.Project import Project
+from src.domain.models.Job import Job
 
 
-def parse(job: JobConfig):
+def parse(job: Job):
     stream = music21.converter.parse(job.input_file)
 
     # This is a concept in MIDI and USTX, but not MusicXML
@@ -71,14 +72,22 @@ def parse(job: JobConfig):
             if (track_config.name is not None or track_config.name != "") \
             else part.partName
 
-        track: Track = Track(name=track_name,
-                             voice=track_config.voice,
-                             pan=track_config.pan,
-                             volume=track_config.volume,
-                             events=track_events)
+        track: Track = Track(
+            name=track_name,
+            voice=track_config.voice,
+            pan=track_config.pan,
+            volume=track_config.volume,
+            events=track_events)
         tracks.append(track)
 
-    return Project(name=job.name,
-                   tick_resolution=tick_resolution,
-                   tracks=tracks,
-                   default_lyric=job.default_lyric)
+    project = Project(
+        name=job.name,
+        tick_resolution=tick_resolution,
+        tracks=tracks,
+        default_lyric=job.default_lyric)
+
+    if job.debug:
+        print(f'Parsed the following project:\n{dumps(project)}\n')
+
+    return project
+

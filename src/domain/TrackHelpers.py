@@ -1,10 +1,10 @@
 from operator import attrgetter
 from typing import List, Iterable, Set, Type, cast
 
-from src.models.Event import Event
-from src.models.Track import Track
-from src.models.TimeSignature import TimeSignature
-from src.models.Tempo import Tempo
+from src.domain.models.Event import Event
+from src.domain.models.Track import Track
+from src.domain.models.TimeSignature import TimeSignature
+from src.domain.models.Tempo import Tempo
 
 
 def find_unique_time_signatures(tracks: List[Track]) -> List[TimeSignature]:

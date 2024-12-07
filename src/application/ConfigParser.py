@@ -1,11 +1,9 @@
 import yaml
 from typing import Dict, Tuple, List
 
-from src.models.TrackConfig import TrackConfig
-from src.models.Voice import Voice
-from src.models.ApplicationConfig import ApplicationConfig
-
-DEFAULT_LYRIC: str = 'dah'
+from src.domain.models.TrackConfig import TrackConfig
+from src.domain.models.Voice import Voice
+from src.application.ApplicationConfig import ApplicationConfig
 
 
 def __parse_voice_config_tuple(voice_config_dict: Dict) -> Tuple[str, Voice]:
@@ -60,7 +58,7 @@ def parse(file: str) -> ApplicationConfig:
     track_configs_tuple = [__parse_track_config_tuple(it, voice_config_map) for it in config_yaml['track_config']]
     track_config_map = dict((id, tracks) for id, tracks in track_configs_tuple)
 
-    default_lyric = config_yaml['default_lyric'] if 'default_lyric' in config_yaml else DEFAULT_LYRIC
+    default_lyric = config_yaml['default_lyric'] if 'default_lyric' in config_yaml else None
 
     if 'default' not in voice_config_map:
         raise RuntimeError('Did not find \'default\' voice in config file.')

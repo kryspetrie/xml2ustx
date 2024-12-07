@@ -1,9 +1,9 @@
 from typing import List
 
-from src.TrackHelpers import find_unique_tempos, find_unique_time_signatures
-from src.models.Tempo import Tempo
-from src.models.TimeSignature import TimeSignature
-from src.models.Track import Track
+from src.domain.TrackHelpers import find_unique_tempos, find_unique_time_signatures
+from src.domain.models.Tempo import Tempo
+from src.domain.models.TimeSignature import TimeSignature
+from src.domain.models.Track import Track
 
 
 class Project:

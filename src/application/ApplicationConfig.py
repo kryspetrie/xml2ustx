@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from src.models.TrackConfig import TrackConfig
-from src.models.Voice import Voice
+from src.domain.models.TrackConfig import TrackConfig
+from src.domain.models.Voice import Voice
 
 
 class ApplicationConfig:
@@ -11,3 +11,9 @@ class ApplicationConfig:
         self.voice_config_map = voice_config_map
         self.track_config_map = track_config_map
         self.default_lyric = default_lyric
+
+    def default_voice_config(self):
+        return self.voice_config_map['default']
+
+    def default_track_config(self):
+        return self.track_config_map['default']

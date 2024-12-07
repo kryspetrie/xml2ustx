@@ -1,11 +1,11 @@
 from typing import List, Optional, cast
 
 import src.ustx.UstxFormatHelpers as Ustx
-from src.models.Note import Note
-from src.models.Project import Project
-from src.models.Tempo import Tempo
-from src.models.TimeSignature import TimeSignature
-from src.models.Event import Event
+from src.domain.models.Note import Note
+from src.domain.models.Project import Project
+from src.domain.models.Tempo import Tempo
+from src.domain.models.TimeSignature import TimeSignature
+from src.domain.models.Event import Event
 
 
 def export(project: Project, outfile: str):

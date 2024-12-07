@@ -1,4 +1,4 @@
-from src.models.Voice import Voice
+from src.domain.models.Voice import Voice
 
 
 class TrackConfig:
