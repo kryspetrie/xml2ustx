@@ -22,7 +22,12 @@ def __find_duration_by_offset(lines: list[music21.spanner.Line], offset: float) 
         if elements is None or not elements:
             continue
 
-        measure_offset = elements[0].activeSite.offset
+        measures = [it for it in elements[0].containerHierarchy() if isinstance(it, music21.stream.Measure)]
+        if not measures:
+            logging.warning(f"Could not find measure associated with line {line}")
+            return None
+
+        measure_offset = measures[0].offset
         line_offset_in_measure = elements[0].offset
         line_offset = measure_offset + line_offset_in_measure
 
@@ -80,9 +85,54 @@ def parse(job: Job):
     # TODO: rewrite durations and positions for swing
 
     # Unfortunately, Music21 does not provide us with a good mechanism to parse tempos changes.
-    # We need to get these lines to inform us how to deal with "rit." and "accel." text elements
-    # These are stripped out of the stream by stream.voicesToParts() for some reason
-    lines: list[music21.spanner.Line] = [it for it in stream.flat.getElementsByClass(music21.spanner.Line)]
+    # We need to get these lines to inform us how to deal with "rit." and "accel." text elements.
+    # We also need to get tempo markers at this point, since those are also stripped out.
+    # These are stripped out of the stream by stream.voicesToParts() for some reason.
+    flattened = stream.flatten()
+    lines: list[music21.spanner.Line] = [it for it in flattened.parts.srcStreamElements if isinstance(it, music21.spanner.Line)]
+
+    # Loop over the events first to get the tempo and time signature details
+    project_events = []
+    for event in flattened:
+        # Add time signature events
+        if isinstance(event, music21.meter.TimeSignature):
+            time_signature_event: music21.meter.TimeSignature = cast(music21.meter.TimeSignature, event)
+            time_signature: TimeSignature = TimeSignature(
+                position=time_signature_event.offset,
+                beat_per_bar=time_signature_event.numerator,
+                beat_unit=time_signature_event.denominator)
+            project_events.append(time_signature)
+            continue
+
+        if isinstance(event, music21.tempo.MetronomeMark):
+            metronome_event: music21.tempo.MetronomeMark = cast(music21.tempo.MetronomeMark, event)
+            tempo: Tempo = Tempo(position=metronome_event.offset, beats_per_minute=metronome_event.number)
+            project_events.append(tempo)
+            continue
+
+        # Add ritardando events
+        # NOTE: Music21 will never parse Musescore MusicXML 'rit.' into this object type!
+        if isinstance(event, music21.tempo.RitardandoSpanner):
+            rit_spanner: music21.tempo.RitardandoSpanner = cast(music21.tempo.RitardandoSpanner, event)
+            tempo_down: TempoDown = TempoDown(rit_spanner.offset, rit_spanner.quarterLength)
+            project_events.append(tempo_down)
+            continue
+
+        # Add accelerando events
+        # NOTE: Music21 will never parse Musescore MusicXML 'accel.' into this object type!
+        if isinstance(event, music21.tempo.AccelerandoSpanner):
+            acc_spanner: music21.tempo.AccelerandoSpanner = cast(music21.tempo.AccelerandoSpanner, event)
+            tempo_up: TempoUp = TempoUp(acc_spanner.offset, acc_spanner.quarterLength)
+            project_events.append(tempo_up)
+            continue
+
+        # Parse text expressions for 'rit' and 'accel' tempo change indicators
+        if isinstance(event, music21.expressions.TextExpression):
+            expression: music21.expressions.TextExpression = cast(music21.expressions.TextExpression, event)
+            parsed = __parse_text_expression(expression, lines)
+            if parsed is not None:
+                project_events.append(parsed)
+            continue
 
     # Flatten all the different voices to distinct parts
     stream = stream.voicesToParts()
@@ -92,31 +142,7 @@ def parse(job: Job):
 
         # Loop over supported events build Event list context
         track_events: List[Event] = []
-        for event in part.flat:
-
-            # Add ritardando events
-            # NOTE: Music21 will never parse Musescore MusicXML 'rit.' into this object type!
-            if isinstance(event, music21.tempo.RitardandoSpanner):
-                rit_spanner: music21.tempo.RitardandoSpanner = cast(music21.tempo.RitardandoSpanner, event)
-                tempo_down: TempoDown = TempoDown(rit_spanner.offset, rit_spanner.quarterLength)
-                track_events.append(tempo_down)
-                continue
-
-            # Add accelerando events
-            # NOTE: Music21 will never parse Musescore MusicXML 'accel.' into this object type!
-            if isinstance(event, music21.tempo.AccelerandoSpanner):
-                acc_spanner: music21.tempo.AccelerandoSpanner = cast(music21.tempo.AccelerandoSpanner, event)
-                tempo_up: TempoUp = TempoUp(acc_spanner.offset, acc_spanner.quarterLength)
-                track_events.append(tempo_up)
-                continue
-
-            # Parse text expressions for 'rit' and 'accel' tempo change indicators
-            if isinstance(event, music21.expressions.TextExpression):
-                expression: music21.expressions.TextExpression = cast(music21.expressions.TextExpression, event)
-                parsed = __parse_text_expression(expression, lines)
-                if parsed is not None:
-                    track_events.append(parsed)
-                continue
+        for event in part.flatten():
 
             # Add note events
             if isinstance(event, music21.note.Note) and event.isNote:
@@ -126,22 +152,6 @@ def parse(job: Job):
                                   tone=note_event.pitch.midi,
                                   lyrics=note_event.lyric)
                 track_events.append(note)
-                continue
-
-            # Add time signature events
-            if isinstance(event, music21.meter.TimeSignature):
-                time_signature_event: music21.meter.TimeSignature = cast(music21.meter.TimeSignature, event)
-                time_signature: TimeSignature = TimeSignature(
-                    position=time_signature_event.offset,
-                    beat_per_bar=time_signature_event.numerator,
-                    beat_unit=time_signature_event.denominator)
-                track_events.append(time_signature)
-                continue
-
-            if isinstance(event, music21.tempo.MetronomeMark):
-                metronome_event: music21.tempo.MetronomeMark = cast(music21.tempo.MetronomeMark, event)
-                tempo: Tempo = Tempo(position=metronome_event.offset, beats_per_minute=metronome_event.number)
-                track_events.append(tempo)
                 continue
 
         # If we have a specific track config for this track, use it. Otherwise, default to first config.
@@ -166,6 +176,7 @@ def parse(job: Job):
         name=job.name,
         tick_resolution=tick_resolution,
         tracks=tracks,
+        project_events=project_events,
         default_lyric=job.default_lyric)
 
     if job.debug:

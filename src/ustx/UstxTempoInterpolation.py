@@ -146,6 +146,10 @@ def interpolate_tempos(
         events: list[Event],
         tempo_change_amount: float = 0.2,
         tempo_change_interval: float = 0.25) -> List[Tempo]:
+    if not events:
+        logging.warning("Could not find ANY tempo events in this piece.")
+        return []
+
     # Convert to our internal format for interpolation
     changes = __to_tempo_changes(events)
 
@@ -169,7 +173,7 @@ def __to_tempo_changes(events: list[Event]) -> list[TempoChange]:
 
     # If there are NO fixed tempos at all, default to 120bpm
     if not any(isinstance(item, Tempo) for item in events):
-        changes += TempoChange.default()
+        changes += [TempoChange.default()]
 
     changes += [TempoChange.from_event(it) for it in events]
     return changes
