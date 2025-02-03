@@ -78,11 +78,11 @@ def format_time_signature(position: int, beat_per_bar: int, beat_unit: int):
     return f'- bar_position: {position}\n  beat_per_bar: {beat_per_bar}\n  beat_unit: {beat_unit}'
 
 
-def format_tempo(position: int, bpm: int):
+def format_tempo(position: int, bpm: float):
     return f'- position: {position}\n  bpm: {bpm}'
 
 
-def format_file_header(name: str, resolution: int):
+def format_file_header(name: str, resolution: float):
     return f"""
 name: {name}
 output_dir: Vocal

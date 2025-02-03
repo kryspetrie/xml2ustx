@@ -6,7 +6,7 @@ from src.domain.models.Project import Project
 from src.domain.models.Tempo import Tempo
 from src.domain.models.TimeSignature import TimeSignature
 from src.domain.models.Event import Event
-
+from src.ustx.UstxTempoInterpolation import interpolate_tempos
 
 def export(project: Project, outfile: str):
     with open(outfile, 'w') as f:
@@ -18,7 +18,8 @@ def write_to_string(project: Project):
 
     # Get time signatures and tempos across all tracks
     time_signatures: List[TimeSignature] = project.find_unique_time_signatures()
-    tempos: List[Tempo] = project.find_unique_tempos()
+    tempo_events: List[Event] = project.find_unique_tempos_and_changes()
+    tempos = interpolate_tempos(tempo_events)
 
     ustx_fragments: List[str] = [__header(project)]
     ustx_fragments += __tracks(project)
@@ -35,7 +36,7 @@ def __tempos(tempos: List[Tempo], tick_resolution: int) -> List[str]:
         tempo_fragments.append(Ustx.TEMPOS_LABEL)
         for tempo in tempos:
             position: int = int(tempo.position * tick_resolution)
-            tempo_fragments.append(Ustx.format_tempo(position, tempo.beat_per_minute))
+            tempo_fragments.append(Ustx.format_tempo(position, int(tempo.beats_per_minute)))
     return tempo_fragments
 
 
@@ -69,6 +70,9 @@ def __tracks(project: Project) -> List[str]:
 def __voices(project: Project) -> List[str]:
     ustx_fragments: List[str] = [Ustx.VOICE_PARTS_LABEL]
     for index, track in enumerate(project.tracks, 0):
+        # If this track does not have any note events associated with it, skip it.
+        if track.events is None or not any(isinstance(it, Note) for it in track.events):
+            continue
         track_string: str = Ustx.generate_part(track_name=track.name, track_number=index)
         ustx_fragments.append(track_string)
         for event in track.events:

@@ -1,4 +1,4 @@
 music21==7.1.0
 pyyaml==6.0.2
 jsonpickle==4.0.0
-streamlitp
+streamlit

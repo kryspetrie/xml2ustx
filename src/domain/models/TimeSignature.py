@@ -12,7 +12,8 @@ class TimeSignature(Event):
         return hash((self.position, self.beat_per_bar, self.beat_unit))
 
     def __eq__(self, other):
-        return (self.position == other.position and
+        return (other is TimeSignature and
+                self.position == other.position and
                 self.beat_per_bar == other.beat_per_bar and
                 self.beat_unit == other.beat_unit)
 
