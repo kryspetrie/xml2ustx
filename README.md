@@ -29,18 +29,24 @@ options:
 ```
 The `track_config` will always override the values defined by `--voice`, `--pan`, `--volume`, and `--track`. The latter can be specified multiple times on the command line to define the configuration for multiple tracks.
 
-### Example
+### Bash Wrapper
 This application can be run via the included wrapper `run.sh`, which will also install the required python dependencies into a `venv` environment.
+```commandline
+./run.sh infile.mxl outfile.ustx --track-config=ttbb-barbershop
 ```
-./run.sh infile.mxl outfile.ustx --track-config="ttbb-barbershop"
+
+### Via Poetry
+```commandline
+poetry install --no-root
+poetry run python main.py --track_config=ttbb-barbershop infile.mxl outfile.ustx 
 ```
 
 ## Limitations
 **There are MANY limitations.**
 - NO SUPPORT for dynamics or volume changes
 - NO SUPPORT for swing annotations / swung songs
-- NO SUPPORT for gradual tempo changes (e.g. ritardandos)
-  - I think this can only be supported in USTX format by generating virtual tempo marker changes, since I do not think the format supports gradual changes. 
+- Basic support for gradual tempo changes
+  - Only supports "rit." and "accel." as output by MuseScore 
 - Only supports tempos based on quarter-note length
 - Lyrics MUST be defined FULLY on **ALL VOICES** on **ALL TRACKS**
   - This software makes no effort trying to guess the lyric based on other lines
