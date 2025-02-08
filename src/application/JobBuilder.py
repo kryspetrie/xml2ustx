@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 
 from src.application.models.UiOptions import UiOptions
@@ -10,9 +11,34 @@ from src.domain.models.TrackConfig import TrackConfig
 
 # Job defaults, when not specified
 DEFAULT_CONFIG_FILE = './config.yml'
-DEFAULT_OUTPUT_FILE = './converted.ustx'
 DEFAULT_PROJECT_NAME = 'New Project'
 DEFAULT_LYRIC = 'doo'
+
+
+def to_output_file(input_file: str) -> str:
+    input_path = Path(input_file)
+    return f'{input_path.parent.as_posix()}/{input_path.stem}.ustx'
+
+
+def output_file_or_default(options: CommandLineOptions) -> str | None:
+    output_file = options.output_file
+    if options.input_file is not None and options.output_file is None:
+        output_file = to_output_file(options.input_file)
+    return output_file
+
+
+def get_output_files_from_input(input_files: list[str]) -> list[str]:
+    return [to_output_file(file) for file in input_files]
+
+
+def get_input_files_from_dir(input_dir: str) -> list[str]:
+    file_type_globs = ['*.xml', '*.musicxml', '*.mxl', '*.midi']
+    input_dir_path = Path(input_dir)
+    paths = []
+    for glob in file_type_globs:
+        found = list(input_dir_path.glob(glob, case_sensitive=False))
+        paths += [it.as_posix() for it in found]
+    return paths
 
 
 def build_cli(options: CommandLineOptions) -> Job:
@@ -68,13 +94,19 @@ def build_cli(options: CommandLineOptions) -> Job:
 
     # Load defaults if needed
     project_name = options.project_name if options.project_name is not None else DEFAULT_PROJECT_NAME
-    output_file = options.output_file if options.output_file is not None else DEFAULT_OUTPUT_FILE
     default_lyric = application_config.default_lyric if application_config.default_lyric is not None else DEFAULT_LYRIC
+    output_file = output_file_or_default(options)
+
+    input_files = get_input_files_from_dir(options.input_dir)
+    output_files = get_output_files_from_input(input_files)
+    if options.input_file:
+        input_files.append(options.input_file)
+        output_files.append(output_file)
 
     # Build a job from our configuration
     job: Job = Job(
-        input_file=options.input_file,
-        output_file=output_file,
+        input_files=input_files,
+        output_files=output_files,
         name=project_name,
         track_configs=track_configs,
         default_lyric=default_lyric,
@@ -100,8 +132,8 @@ def build_ui(options: UiOptions):
         track_configs = application_config.track_config_map[options.track_config_id]
 
     return Job(
-        input_file=options.input_file,
-        output_file=None,
+        input_files=[options.input_file],
+        output_files=[],
         name=DEFAULT_PROJECT_NAME,
         track_configs=track_configs,
         default_lyric=DEFAULT_LYRIC,

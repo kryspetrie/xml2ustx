@@ -3,7 +3,8 @@ from typing import Optional, List
 
 class CommandLineOptions:
     def __init__(self,
-                 input_file: str,
+                 input_file: Optional[str],
+                 input_dir: Optional[str],
                  output_file: Optional[str],
                  config_file: Optional[str],
                  project_name: Optional[str],
@@ -14,6 +15,7 @@ class CommandLineOptions:
                  tracks: Optional[List[str]],
                  debug: bool):
         self.input_file = input_file
+        self.input_dir = input_dir
         self.output_file = output_file
         self.config_file = config_file
         self.project_name = project_name

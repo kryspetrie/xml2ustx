@@ -68,8 +68,13 @@ def __parse_text_expression(
     return None
 
 
-def parse(job: Job):
-    stream = music21.converter.parse(job.input_file)
+def parse(
+        input_file: str,
+        project_name: str,
+        track_configs: list[TrackConfig],
+        default_lyric: str,
+        debug: bool = False):
+    stream = music21.converter.parse(input_file)
 
     # This is a concept in MIDI and USTX, but not MusicXML
     tick_resolution = music21.defaults.ticksPerQuarter
@@ -155,9 +160,9 @@ def parse(job: Job):
                 continue
 
         # If we have a specific track config for this track, use it. Otherwise, default to first config.
-        track_config: TrackConfig = job.track_configs[index] \
-            if index < len(job.track_configs) \
-            else job.track_configs[0]
+        track_config: TrackConfig = track_configs[index] \
+            if index < len(track_configs) \
+            else track_configs[0]
 
         # Override the track name if specified in the config
         track_name = track_config.name \
@@ -173,13 +178,13 @@ def parse(job: Job):
         tracks.append(track)
 
     project = Project(
-        name=job.name,
+        name=project_name,
         tick_resolution=tick_resolution,
         tracks=tracks,
         project_events=project_events,
-        default_lyric=job.default_lyric)
+        default_lyric=default_lyric)
 
-    if job.debug:
+    if debug:
         print(f'Parsed the following project:\n{dumps(project)}\n')
 
     return project

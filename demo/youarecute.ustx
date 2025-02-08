@@ -3,7 +3,7 @@ name: My Project
 output_dir: Vocal
 cache_dir: UCache
 ustx_version: 0.6
-resolution: 1024
+resolution: 10080
 expressions:
   dyn:
     name: dynamics
@@ -173,8 +173,17 @@ tracks:
   track_name: Bass
 tempos:
 - position: 0
-  bpm: 94.0
+  bpm: 94
 time_signatures:
+- bar_position: 0
+  beat_per_bar: 4
+  beat_unit: 4
+- bar_position: 0
+  beat_per_bar: 4
+  beat_unit: 4
+- bar_position: 0
+  beat_per_bar: 4
+  beat_unit: 4
 - bar_position: 0
   beat_per_bar: 4
   beat_unit: 4
@@ -185,7 +194,7 @@ voice_parts:
   position: 0
   notes:
   - position: 0
-    duration: 1024
+    duration: 10080
     tone: 64
     lyric: "you"
     pitch:
@@ -197,8 +206,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 1024
-    duration: 1024
+  - position: 10080
+    duration: 10080
     tone: 62
     lyric: "are"
     pitch:
@@ -210,8 +219,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 2048
-    duration: 2048
+  - position: 20160
+    duration: 20160
     tone: 62
     lyric: "cute"
     pitch:
@@ -223,8 +232,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 4096
-    duration: 1024
+  - position: 40320
+    duration: 10080
     tone: 62
     lyric: "yes"
     pitch:
@@ -236,8 +245,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 5120
-    duration: 1024
+  - position: 50400
+    duration: 10080
     tone: 61
     lyric: "you"
     pitch:
@@ -249,8 +258,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 6144
-    duration: 2048
+  - position: 60480
+    duration: 20160
     tone: 60
     lyric: "are"
     pitch:
@@ -262,8 +271,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 8192
-    duration: 1024
+  - position: 80640
+    duration: 10080
     tone: 60
     lyric: "you"
     pitch:
@@ -275,8 +284,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 9216
-    duration: 1024
+  - position: 90720
+    duration: 10080
     tone: 62
     lyric: "are"
     pitch:
@@ -288,8 +297,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 10240
-    duration: 1536
+  - position: 100800
+    duration: 15120
     tone: 64
     lyric: "veh"
     pitch:
@@ -301,8 +310,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 11776
-    duration: 512
+  - position: 115920
+    duration: 5040
     tone: 62
     lyric: "ree"
     pitch:
@@ -314,8 +323,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 12288
-    duration: 1024
+  - position: 120960
+    duration: 10080
     tone: 60
     lyric: "cute"
     pitch:
@@ -327,8 +336,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 13312
-    duration: 1024
+  - position: 131040
+    duration: 10080
     tone: 61
     lyric: "to"
     pitch:
@@ -340,8 +349,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 14336
-    duration: 2048
+  - position: 141120
+    duration: 20160
     tone: 60
     lyric: "me"
     pitch:
@@ -353,8 +362,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 16384
-    duration: 1024
+  - position: 161280
+    duration: 10080
     tone: 60
     lyric: "and"
     pitch:
@@ -366,8 +375,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 17408
-    duration: 1024
+  - position: 171360
+    duration: 10080
     tone: 62
     lyric: "I'm"
     pitch:
@@ -379,8 +388,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 18432
-    duration: 2048
+  - position: 181440
+    duration: 20160
     tone: 64
     lyric: "cute"
     pitch:
@@ -392,8 +401,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 20480
-    duration: 1024
+  - position: 201600
+    duration: 10080
     tone: 60
     lyric: "just"
     pitch:
@@ -405,8 +414,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 21504
-    duration: 1024
+  - position: 211680
+    duration: 10080
     tone: 61
     lyric: "the"
     pitch:
@@ -418,8 +427,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 22528
-    duration: 2048
+  - position: 221760
+    duration: 20160
     tone: 62
     lyric: "same"
     pitch:
@@ -431,8 +440,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 24576
-    duration: 1024
+  - position: 241920
+    duration: 10080
     tone: 62
     lyric: "may"
     pitch:
@@ -444,8 +453,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 25600
-    duration: 1024
+  - position: 252000
+    duration: 10080
     tone: 62
     lyric: "we"
     pitch:
@@ -457,8 +466,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 26624
-    duration: 1536
+  - position: 262080
+    duration: 15120
     tone: 59
     lyric: "live"
     pitch:
@@ -470,8 +479,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28160
-    duration: 512
+  - position: 277200
+    duration: 5040
     tone: 60
     lyric: "in"
     pitch:
@@ -483,8 +492,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28672
-    duration: 1024
+  - position: 282240
+    duration: 10080
     tone: 55
     lyric: "har"
     pitch:
@@ -496,8 +505,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 29696
-    duration: 1024
+  - position: 292320
+    duration: 10080
     tone: 57
     lyric: "mo"
     pitch:
@@ -509,8 +518,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 30720
-    duration: 2048
+  - position: 302400
+    duration: 20160
     tone: 59
     lyric: "nee"
     pitch:
@@ -522,8 +531,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 32768
-    duration: 1024
+  - position: 322560
+    duration: 10080
     tone: 59
     lyric: "and"
     pitch:
@@ -535,8 +544,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 33792
-    duration: 1024
+  - position: 332640
+    duration: 10080
     tone: 65
     lyric: "not"
     pitch:
@@ -548,8 +557,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 34816
-    duration: 1536
+  - position: 342720
+    duration: 15120
     tone: 60
     lyric: "fight"
     pitch:
@@ -561,8 +570,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36352
-    duration: 512
+  - position: 357840
+    duration: 5040
     tone: 59
     lyric: "ab"
     pitch:
@@ -574,8 +583,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36864
-    duration: 1536
+  - position: 362880
+    duration: 15120
     tone: 55
     lyric: "out"
     pitch:
@@ -587,8 +596,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38400
-    duration: 512
+  - position: 378000
+    duration: 5040
     tone: 62
     lyric: "the"
     pitch:
@@ -600,8 +609,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38912
-    duration: 512
+  - position: 383040
+    duration: 5040
     tone: 60
     lyric: "lit"
     pitch:
@@ -613,8 +622,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39424
-    duration: 512
+  - position: 388080
+    duration: 5040
     tone: 62
     lyric: "tle"
     pitch:
@@ -626,8 +635,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39936
-    duration: 2048
+  - position: 393120
+    duration: 20160
     tone: 64
     lyric: "things"
     pitch:
@@ -639,8 +648,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 41984
-    duration: 1024
+  - position: 413280
+    duration: 10080
     tone: 62
     lyric: "like"
     pitch:
@@ -652,8 +661,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 43008
-    duration: 1536
+  - position: 423360
+    duration: 15120
     tone: 62
     lyric: "who's"
     pitch:
@@ -665,8 +674,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 44544
-    duration: 512
+  - position: 438480
+    duration: 5040
     tone: 59
     lyric: "the"
     pitch:
@@ -678,8 +687,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 45056
-    duration: 1024
+  - position: 443520
+    duration: 10080
     tone: 59
     lyric: "cute"
     pitch:
@@ -691,8 +700,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 46080
-    duration: 1024
+  - position: 453600
+    duration: 10080
     tone: 60
     lyric: "est"
     pitch:
@@ -704,8 +713,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 47104
-    duration: 2048
+  - position: 463680
+    duration: 20160
     tone: 60
     lyric: "one"
     pitch:
@@ -717,8 +726,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 49152
-    duration: 1024
+  - position: 483840
+    duration: 10080
     tone: 60
     lyric: "cuz"
     pitch:
@@ -730,8 +739,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 50176
-    duration: 1024
+  - position: 493920
+    duration: 10080
     tone: 62
     lyric: "we're"
     pitch:
@@ -743,8 +752,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 51200
-    duration: 1024
+  - position: 504000
+    duration: 10080
     tone: 64
     lyric: "cute"
     pitch:
@@ -756,8 +765,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 53248
-    duration: 1024
+  - position: 524160
+    duration: 10080
     tone: 60
     lyric: "yes"
     pitch:
@@ -769,8 +778,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 54272
-    duration: 1024
+  - position: 534240
+    duration: 10080
     tone: 61
     lyric: "us"
     pitch:
@@ -782,8 +791,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 55296
-    duration: 1024
+  - position: 544320
+    duration: 10080
     tone: 60
     lyric: "both"
     pitch:
@@ -795,8 +804,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 57344
-    duration: 2048
+  - position: 564480
+    duration: 20160
     tone: 62
     lyric: "we're"
     pitch:
@@ -808,8 +817,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 59392
-    duration: 2048
+  - position: 584640
+    duration: 20160
     tone: 62
     lyric: "cute"
     pitch:
@@ -827,7 +836,7 @@ voice_parts:
   position: 0
   notes:
   - position: 0
-    duration: 1024
+    duration: 10080
     tone: 55
     lyric: "you"
     pitch:
@@ -839,8 +848,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 1024
-    duration: 1024
+  - position: 10080
+    duration: 10080
     tone: 57
     lyric: "are"
     pitch:
@@ -852,8 +861,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 2048
-    duration: 2048
+  - position: 20160
+    duration: 20160
     tone: 59
     lyric: "cute"
     pitch:
@@ -865,8 +874,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 4096
-    duration: 1024
+  - position: 40320
+    duration: 10080
     tone: 57
     lyric: "yes"
     pitch:
@@ -878,8 +887,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 5120
-    duration: 1024
+  - position: 50400
+    duration: 10080
     tone: 55
     lyric: "you"
     pitch:
@@ -891,8 +900,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 6144
-    duration: 2048
+  - position: 60480
+    duration: 20160
     tone: 52
     lyric: "are"
     pitch:
@@ -904,8 +913,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 8192
-    duration: 1024
+  - position: 80640
+    duration: 10080
     tone: 57
     lyric: "you"
     pitch:
@@ -917,8 +926,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 9216
-    duration: 1024
+  - position: 90720
+    duration: 10080
     tone: 59
     lyric: "are"
     pitch:
@@ -930,8 +939,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 10240
-    duration: 1536
+  - position: 100800
+    duration: 15120
     tone: 60
     lyric: "veh"
     pitch:
@@ -943,8 +952,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 11776
-    duration: 512
+  - position: 115920
+    duration: 5040
     tone: 59
     lyric: "ree"
     pitch:
@@ -956,8 +965,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 12288
-    duration: 1024
+  - position: 120960
+    duration: 10080
     tone: 57
     lyric: "cute"
     pitch:
@@ -969,8 +978,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 13312
-    duration: 1024
+  - position: 131040
+    duration: 10080
     tone: 55
     lyric: "to"
     pitch:
@@ -982,8 +991,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 14336
-    duration: 2048
+  - position: 141120
+    duration: 20160
     tone: 54
     lyric: "me"
     pitch:
@@ -995,8 +1004,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 16384
-    duration: 1024
+  - position: 161280
+    duration: 10080
     tone: 57
     lyric: "and"
     pitch:
@@ -1008,8 +1017,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 17408
-    duration: 1024
+  - position: 171360
+    duration: 10080
     tone: 59
     lyric: "I'm"
     pitch:
@@ -1021,8 +1030,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 18432
-    duration: 2048
+  - position: 181440
+    duration: 20160
     tone: 60
     lyric: "cute"
     pitch:
@@ -1034,8 +1043,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 20480
-    duration: 1024
+  - position: 201600
+    duration: 10080
     tone: 57
     lyric: "just"
     pitch:
@@ -1047,8 +1056,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 21504
-    duration: 1024
+  - position: 211680
+    duration: 10080
     tone: 55
     lyric: "the"
     pitch:
@@ -1060,8 +1069,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 22528
-    duration: 2048
+  - position: 221760
+    duration: 20160
     tone: 54
     lyric: "same"
     pitch:
@@ -1073,8 +1082,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 24576
-    duration: 1024
+  - position: 241920
+    duration: 10080
     tone: 50
     lyric: "may"
     pitch:
@@ -1086,8 +1095,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 25600
-    duration: 1024
+  - position: 252000
+    duration: 10080
     tone: 54
     lyric: "we"
     pitch:
@@ -1099,8 +1108,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 26624
-    duration: 1536
+  - position: 262080
+    duration: 15120
     tone: 55
     lyric: "live"
     pitch:
@@ -1112,8 +1121,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28160
-    duration: 512
+  - position: 277200
+    duration: 5040
     tone: 57
     lyric: "in"
     pitch:
@@ -1125,8 +1134,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28672
-    duration: 1024
+  - position: 282240
+    duration: 10080
     tone: 59
     lyric: "har"
     pitch:
@@ -1138,8 +1147,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 29696
-    duration: 1024
+  - position: 292320
+    duration: 10080
     tone: 60
     lyric: "mo"
     pitch:
@@ -1151,8 +1160,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 30720
-    duration: 2048
+  - position: 302400
+    duration: 20160
     tone: 62
     lyric: "nee"
     pitch:
@@ -1164,8 +1173,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 32768
-    duration: 1024
+  - position: 322560
+    duration: 10080
     tone: 62
     lyric: "and"
     pitch:
@@ -1177,8 +1186,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 33792
-    duration: 1024
+  - position: 332640
+    duration: 10080
     tone: 55
     lyric: "not"
     pitch:
@@ -1190,8 +1199,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 34816
-    duration: 1536
+  - position: 342720
+    duration: 15120
     tone: 64
     lyric: "fight"
     pitch:
@@ -1203,8 +1212,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36352
-    duration: 512
+  - position: 357840
+    duration: 5040
     tone: 62
     lyric: "ab"
     pitch:
@@ -1216,8 +1225,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36864
-    duration: 1536
+  - position: 362880
+    duration: 15120
     tone: 60
     lyric: "out"
     pitch:
@@ -1229,8 +1238,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38400
-    duration: 512
+  - position: 378000
+    duration: 5040
     tone: 59
     lyric: "the"
     pitch:
@@ -1242,8 +1251,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38912
-    duration: 512
+  - position: 383040
+    duration: 5040
     tone: 57
     lyric: "lit"
     pitch:
@@ -1255,8 +1264,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39424
-    duration: 512
+  - position: 388080
+    duration: 5040
     tone: 59
     lyric: "tle"
     pitch:
@@ -1268,8 +1277,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39936
-    duration: 2048
+  - position: 393120
+    duration: 20160
     tone: 60
     lyric: "things"
     pitch:
@@ -1281,8 +1290,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 41984
-    duration: 1024
+  - position: 413280
+    duration: 10080
     tone: 60
     lyric: "like"
     pitch:
@@ -1294,8 +1303,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 43008
-    duration: 1536
+  - position: 423360
+    duration: 15120
     tone: 59
     lyric: "who's"
     pitch:
@@ -1307,8 +1316,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 44544
-    duration: 512
+  - position: 438480
+    duration: 5040
     tone: 55
     lyric: "the"
     pitch:
@@ -1320,8 +1329,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 45056
-    duration: 1024
+  - position: 443520
+    duration: 10080
     tone: 55
     lyric: "cute"
     pitch:
@@ -1333,8 +1342,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 46080
-    duration: 1024
+  - position: 453600
+    duration: 10080
     tone: 66
     lyric: "est"
     pitch:
@@ -1346,8 +1355,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 47104
-    duration: 2048
+  - position: 463680
+    duration: 20160
     tone: 64
     lyric: "one"
     pitch:
@@ -1359,8 +1368,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 49152
-    duration: 1024
+  - position: 483840
+    duration: 10080
     tone: 57
     lyric: "cuz"
     pitch:
@@ -1372,8 +1381,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 50176
-    duration: 1024
+  - position: 493920
+    duration: 10080
     tone: 59
     lyric: "we're"
     pitch:
@@ -1385,8 +1394,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 51200
-    duration: 1024
+  - position: 504000
+    duration: 10080
     tone: 60
     lyric: "cute"
     pitch:
@@ -1398,8 +1407,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 53248
-    duration: 1024
+  - position: 524160
+    duration: 10080
     tone: 57
     lyric: "yes"
     pitch:
@@ -1411,8 +1420,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 54272
-    duration: 1024
+  - position: 534240
+    duration: 10080
     tone: 64
     lyric: "us"
     pitch:
@@ -1424,8 +1433,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 55296
-    duration: 1024
+  - position: 544320
+    duration: 10080
     tone: 62
     lyric: "both"
     pitch:
@@ -1437,8 +1446,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 57344
-    duration: 2048
+  - position: 564480
+    duration: 20160
     tone: 57
     lyric: "we're"
     pitch:
@@ -1450,8 +1459,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 59392
-    duration: 2048
+  - position: 584640
+    duration: 20160
     tone: 55
     lyric: "cute"
     pitch:
@@ -1469,7 +1478,7 @@ voice_parts:
   position: 0
   notes:
   - position: 0
-    duration: 1024
+    duration: 10080
     tone: 59
     lyric: "you"
     pitch:
@@ -1481,8 +1490,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 1024
-    duration: 1024
+  - position: 10080
+    duration: 10080
     tone: 54
     lyric: "are"
     pitch:
@@ -1494,8 +1503,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 2048
-    duration: 2048
+  - position: 20160
+    duration: 20160
     tone: 55
     lyric: "cute"
     pitch:
@@ -1507,8 +1516,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 4096
-    duration: 1024
+  - position: 40320
+    duration: 10080
     tone: 54
     lyric: "yes"
     pitch:
@@ -1520,8 +1529,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 5120
-    duration: 1024
+  - position: 50400
+    duration: 10080
     tone: 59
     lyric: "you"
     pitch:
@@ -1533,8 +1542,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 6144
-    duration: 2048
+  - position: 60480
+    duration: 20160
     tone: 55
     lyric: "are"
     pitch:
@@ -1546,8 +1555,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 8192
-    duration: 1024
+  - position: 80640
+    duration: 10080
     tone: 52
     lyric: "you"
     pitch:
@@ -1559,8 +1568,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 9216
-    duration: 1024
+  - position: 90720
+    duration: 10080
     tone: 54
     lyric: "are"
     pitch:
@@ -1572,8 +1581,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 10240
-    duration: 1536
+  - position: 100800
+    duration: 15120
     tone: 55
     lyric: "veh"
     pitch:
@@ -1585,8 +1594,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 11776
-    duration: 512
+  - position: 115920
+    duration: 5040
     tone: 54
     lyric: "ree"
     pitch:
@@ -1598,8 +1607,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 12288
-    duration: 1024
+  - position: 120960
+    duration: 10080
     tone: 52
     lyric: "cute"
     pitch:
@@ -1611,8 +1620,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 13312
-    duration: 1024
+  - position: 131040
+    duration: 10080
     tone: 59
     lyric: "to"
     pitch:
@@ -1624,8 +1633,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 14336
-    duration: 2048
+  - position: 141120
+    duration: 20160
     tone: 57
     lyric: "me"
     pitch:
@@ -1637,8 +1646,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 16384
-    duration: 1024
+  - position: 161280
+    duration: 10080
     tone: 54
     lyric: "and"
     pitch:
@@ -1650,8 +1659,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 17408
-    duration: 1024
+  - position: 171360
+    duration: 10080
     tone: 56
     lyric: "I'm"
     pitch:
@@ -1663,8 +1672,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 18432
-    duration: 2048
+  - position: 181440
+    duration: 20160
     tone: 55
     lyric: "cute"
     pitch:
@@ -1676,8 +1685,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 20480
-    duration: 1024
+  - position: 201600
+    duration: 10080
     tone: 52
     lyric: "just"
     pitch:
@@ -1689,8 +1698,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 21504
-    duration: 1024
+  - position: 211680
+    duration: 10080
     tone: 59
     lyric: "the"
     pitch:
@@ -1702,8 +1711,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 22528
-    duration: 2048
+  - position: 221760
+    duration: 20160
     tone: 57
     lyric: "same"
     pitch:
@@ -1715,8 +1724,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 24576
-    duration: 1024
+  - position: 241920
+    duration: 10080
     tone: 57
     lyric: "may"
     pitch:
@@ -1728,8 +1737,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 25600
-    duration: 1024
+  - position: 252000
+    duration: 10080
     tone: 60
     lyric: "we"
     pitch:
@@ -1741,8 +1750,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 26624
-    duration: 1536
+  - position: 262080
+    duration: 15120
     tone: 50
     lyric: "live"
     pitch:
@@ -1754,8 +1763,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28160
-    duration: 512
+  - position: 277200
+    duration: 5040
     tone: 54
     lyric: "in"
     pitch:
@@ -1767,8 +1776,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28672
-    duration: 1024
+  - position: 282240
+    duration: 10080
     tone: 50
     lyric: "har"
     pitch:
@@ -1780,8 +1789,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 29696
-    duration: 1024
+  - position: 292320
+    duration: 10080
     tone: 54
     lyric: "mo"
     pitch:
@@ -1793,8 +1802,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 30720
-    duration: 2048
+  - position: 302400
+    duration: 20160
     tone: 55
     lyric: "nee"
     pitch:
@@ -1806,8 +1815,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 32768
-    duration: 1024
+  - position: 322560
+    duration: 10080
     tone: 55
     lyric: "and"
     pitch:
@@ -1819,8 +1828,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 33792
-    duration: 1024
+  - position: 332640
+    duration: 10080
     tone: 59
     lyric: "not"
     pitch:
@@ -1832,8 +1841,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 34816
-    duration: 1536
+  - position: 342720
+    duration: 15120
     tone: 55
     lyric: "fight"
     pitch:
@@ -1845,8 +1854,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36352
-    duration: 512
+  - position: 357840
+    duration: 5040
     tone: 54
     lyric: "ab"
     pitch:
@@ -1858,8 +1867,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36864
-    duration: 1536
+  - position: 362880
+    duration: 15120
     tone: 52
     lyric: "out"
     pitch:
@@ -1871,8 +1880,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38400
-    duration: 512
+  - position: 378000
+    duration: 5040
     tone: 54
     lyric: "the"
     pitch:
@@ -1884,8 +1893,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38912
-    duration: 512
+  - position: 383040
+    duration: 5040
     tone: 52
     lyric: "lit"
     pitch:
@@ -1897,8 +1906,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39424
-    duration: 512
+  - position: 388080
+    duration: 5040
     tone: 54
     lyric: "tle"
     pitch:
@@ -1910,8 +1919,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39936
-    duration: 2048
+  - position: 393120
+    duration: 20160
     tone: 55
     lyric: "things"
     pitch:
@@ -1923,8 +1932,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 41984
-    duration: 1024
+  - position: 413280
+    duration: 10080
     tone: 57
     lyric: "like"
     pitch:
@@ -1936,8 +1945,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 43008
-    duration: 1536
+  - position: 423360
+    duration: 15120
     tone: 55
     lyric: "who's"
     pitch:
@@ -1949,8 +1958,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 44544
-    duration: 512
+  - position: 438480
+    duration: 5040
     tone: 52
     lyric: "the"
     pitch:
@@ -1962,8 +1971,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 45056
-    duration: 1024
+  - position: 443520
+    duration: 10080
     tone: 53
     lyric: "cute"
     pitch:
@@ -1975,8 +1984,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 46080
-    duration: 1024
+  - position: 453600
+    duration: 10080
     tone: 57
     lyric: "est"
     pitch:
@@ -1988,8 +1997,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 47104
-    duration: 2048
+  - position: 463680
+    duration: 20160
     tone: 55
     lyric: "one"
     pitch:
@@ -2001,8 +2010,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 49152
-    duration: 1024
+  - position: 483840
+    duration: 10080
     tone: 52
     lyric: "cuz"
     pitch:
@@ -2014,8 +2023,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 50176
-    duration: 1024
+  - position: 493920
+    duration: 10080
     tone: 54
     lyric: "we're"
     pitch:
@@ -2027,8 +2036,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 51200
-    duration: 1024
+  - position: 504000
+    duration: 10080
     tone: 55
     lyric: "cute"
     pitch:
@@ -2040,8 +2049,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 53248
-    duration: 1024
+  - position: 524160
+    duration: 10080
     tone: 52
     lyric: "yes"
     pitch:
@@ -2053,8 +2062,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 54272
-    duration: 1024
+  - position: 534240
+    duration: 10080
     tone: 55
     lyric: "us"
     pitch:
@@ -2066,8 +2075,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 55296
-    duration: 1024
+  - position: 544320
+    duration: 10080
     tone: 54
     lyric: "both"
     pitch:
@@ -2079,8 +2088,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 57344
-    duration: 2048
+  - position: 564480
+    duration: 20160
     tone: 54
     lyric: "we're"
     pitch:
@@ -2092,8 +2101,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 59392
-    duration: 2048
+  - position: 584640
+    duration: 20160
     tone: 59
     lyric: "cute"
     pitch:
@@ -2111,7 +2120,7 @@ voice_parts:
   position: 0
   notes:
   - position: 0
-    duration: 1024
+    duration: 10080
     tone: 52
     lyric: "you"
     pitch:
@@ -2123,8 +2132,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 1024
-    duration: 1024
+  - position: 10080
+    duration: 10080
     tone: 50
     lyric: "are"
     pitch:
@@ -2136,8 +2145,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 2048
-    duration: 2048
+  - position: 20160
+    duration: 20160
     tone: 43
     lyric: "cute"
     pitch:
@@ -2149,8 +2158,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 4096
-    duration: 1024
+  - position: 40320
+    duration: 10080
     tone: 50
     lyric: "yes"
     pitch:
@@ -2162,8 +2171,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 5120
-    duration: 1024
+  - position: 50400
+    duration: 10080
     tone: 52
     lyric: "you"
     pitch:
@@ -2175,8 +2184,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 6144
-    duration: 2048
+  - position: 60480
+    duration: 20160
     tone: 48
     lyric: "are"
     pitch:
@@ -2188,8 +2197,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 8192
-    duration: 1024
+  - position: 80640
+    duration: 10080
     tone: 48
     lyric: "you"
     pitch:
@@ -2201,8 +2210,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 9216
-    duration: 1024
+  - position: 90720
+    duration: 10080
     tone: 47
     lyric: "are"
     pitch:
@@ -2214,8 +2223,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 10240
-    duration: 1536
+  - position: 100800
+    duration: 15120
     tone: 45
     lyric: "veh"
     pitch:
@@ -2227,8 +2236,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 11776
-    duration: 512
+  - position: 115920
+    duration: 5040
     tone: 47
     lyric: "ree"
     pitch:
@@ -2240,8 +2249,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 12288
-    duration: 1024
+  - position: 120960
+    duration: 10080
     tone: 48
     lyric: "cute"
     pitch:
@@ -2253,8 +2262,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 13312
-    duration: 1024
+  - position: 131040
+    duration: 10080
     tone: 52
     lyric: "to"
     pitch:
@@ -2266,8 +2275,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 14336
-    duration: 2048
+  - position: 141120
+    duration: 20160
     tone: 50
     lyric: "me"
     pitch:
@@ -2279,8 +2288,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 16384
-    duration: 1024
+  - position: 161280
+    duration: 10080
     tone: 50
     lyric: "and"
     pitch:
@@ -2292,8 +2301,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 17408
-    duration: 1024
+  - position: 171360
+    duration: 10080
     tone: 52
     lyric: "I'm"
     pitch:
@@ -2305,8 +2314,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 18432
-    duration: 2048
+  - position: 181440
+    duration: 20160
     tone: 45
     lyric: "cute"
     pitch:
@@ -2318,8 +2327,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 20480
-    duration: 1024
+  - position: 201600
+    duration: 10080
     tone: 48
     lyric: "just"
     pitch:
@@ -2331,8 +2340,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 21504
-    duration: 1024
+  - position: 211680
+    duration: 10080
     tone: 52
     lyric: "the"
     pitch:
@@ -2344,8 +2353,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 22528
-    duration: 2048
+  - position: 221760
+    duration: 20160
     tone: 50
     lyric: "same"
     pitch:
@@ -2357,8 +2366,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 24576
-    duration: 1024
+  - position: 241920
+    duration: 10080
     tone: 54
     lyric: "may"
     pitch:
@@ -2370,8 +2379,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 25600
-    duration: 1024
+  - position: 252000
+    duration: 10080
     tone: 50
     lyric: "we"
     pitch:
@@ -2383,8 +2392,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 26624
-    duration: 1536
+  - position: 262080
+    duration: 15120
     tone: 43
     lyric: "live"
     pitch:
@@ -2396,8 +2405,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28160
-    duration: 512
+  - position: 277200
+    duration: 5040
     tone: 45
     lyric: "in"
     pitch:
@@ -2409,8 +2418,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 28672
-    duration: 1024
+  - position: 282240
+    duration: 10080
     tone: 43
     lyric: "har"
     pitch:
@@ -2422,8 +2431,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 29696
-    duration: 1024
+  - position: 292320
+    duration: 10080
     tone: 45
     lyric: "mo"
     pitch:
@@ -2435,8 +2444,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 30720
-    duration: 2048
+  - position: 302400
+    duration: 20160
     tone: 43
     lyric: "nee"
     pitch:
@@ -2448,8 +2457,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 32768
-    duration: 1024
+  - position: 322560
+    duration: 10080
     tone: 43
     lyric: "and"
     pitch:
@@ -2461,8 +2470,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 33792
-    duration: 1024
+  - position: 332640
+    duration: 10080
     tone: 50
     lyric: "not"
     pitch:
@@ -2474,8 +2483,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 34816
-    duration: 1536
+  - position: 342720
+    duration: 15120
     tone: 48
     lyric: "fight"
     pitch:
@@ -2487,8 +2496,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36352
-    duration: 512
+  - position: 357840
+    duration: 5040
     tone: 47
     lyric: "ab"
     pitch:
@@ -2500,8 +2509,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 36864
-    duration: 1536
+  - position: 362880
+    duration: 15120
     tone: 45
     lyric: "out"
     pitch:
@@ -2513,8 +2522,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38400
-    duration: 512
+  - position: 378000
+    duration: 5040
     tone: 47
     lyric: "the"
     pitch:
@@ -2526,8 +2535,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 38912
-    duration: 512
+  - position: 383040
+    duration: 5040
     tone: 48
     lyric: "lit"
     pitch:
@@ -2539,8 +2548,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39424
-    duration: 512
+  - position: 388080
+    duration: 5040
     tone: 50
     lyric: "tle"
     pitch:
@@ -2552,8 +2561,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 39936
-    duration: 2048
+  - position: 393120
+    duration: 20160
     tone: 52
     lyric: "things"
     pitch:
@@ -2565,8 +2574,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 41984
-    duration: 1024
+  - position: 413280
+    duration: 10080
     tone: 54
     lyric: "like"
     pitch:
@@ -2578,8 +2587,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 43008
-    duration: 1536
+  - position: 423360
+    duration: 15120
     tone: 43
     lyric: "who's"
     pitch:
@@ -2591,8 +2600,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 44544
-    duration: 512
+  - position: 438480
+    duration: 5040
     tone: 49
     lyric: "the"
     pitch:
@@ -2604,8 +2613,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 45056
-    duration: 1024
+  - position: 443520
+    duration: 10080
     tone: 50
     lyric: "cute"
     pitch:
@@ -2617,8 +2626,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 46080
-    duration: 1024
+  - position: 453600
+    duration: 10080
     tone: 50
     lyric: "est"
     pitch:
@@ -2630,8 +2639,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 47104
-    duration: 2048
+  - position: 463680
+    duration: 20160
     tone: 48
     lyric: "one"
     pitch:
@@ -2643,8 +2652,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 49152
-    duration: 1024
+  - position: 483840
+    duration: 10080
     tone: 48
     lyric: "cuz"
     pitch:
@@ -2656,8 +2665,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 50176
-    duration: 1024
+  - position: 493920
+    duration: 10080
     tone: 47
     lyric: "we're"
     pitch:
@@ -2669,8 +2678,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 51200
-    duration: 1024
+  - position: 504000
+    duration: 10080
     tone: 48
     lyric: "cute"
     pitch:
@@ -2682,8 +2691,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 53248
-    duration: 1024
+  - position: 524160
+    duration: 10080
     tone: 45
     lyric: "yes"
     pitch:
@@ -2695,8 +2704,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 54272
-    duration: 1024
+  - position: 534240
+    duration: 10080
     tone: 45
     lyric: "us"
     pitch:
@@ -2708,8 +2717,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 55296
-    duration: 1024
+  - position: 544320
+    duration: 10080
     tone: 45
     lyric: "both"
     pitch:
@@ -2721,8 +2730,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 57344
-    duration: 2048
+  - position: 564480
+    duration: 20160
     tone: 38
     lyric: "we're"
     pitch:
@@ -2734,8 +2743,8 @@ voice_parts:
     note_expressions: []
     phoneme_expressions: []
     phoneme_overrides: []
-  - position: 59392
-    duration: 2048
+  - position: 584640
+    duration: 20160
     tone: 43
     lyric: "cute"
     pitch:

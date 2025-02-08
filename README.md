@@ -2,18 +2,19 @@
 Transforms MusicXML (*.mxl, *.xml, *.musicxml, *.midi) into OpenUTAU *.ustx for Singing Voice Synthesis. A rewrite, based on this project: [nicolalandro/xml2ustx](https://github.com/nicolalandro/xml2ustx)
 ## Usage
 ```
-usage: main.py [-h] [--project_name PROJECT_NAME] [--config_file CONFIG_FILE] [--track_config TRACK_CONFIG] [--voice VOICE] [--pan PAN]
-               [--volume VOLUME] [--track TRACK] [--debug]
-               input_file output_file
+usage: main.py [-h] [--input_file INPUT_FILE] [--input_dir INPUT_DIR] [--output_file OUTPUT_FILE] [--project_name PROJECT_NAME] [--config_file CONFIG_FILE] [--track_config TRACK_CONFIG]
+               [--voice VOICE] [--pan PAN] [--volume VOLUME] [--track TRACK] [--debug]
 
-CLI application Transform MusicXML (*.mxl, *.xml, *.musicxml, *.midi) into OpenUTAU *.ustx for Singing Voice Synthesis
-
-positional arguments:
-  input_file            Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]
-  output_file           Output file to create - example: outfile.ustx
+Application for transforming MusicXML (*.mxl, *.xml, *.musicxml, *.midi) into OpenUTAU *.ustx for Singing Voice Synthesis
 
 options:
   -h, --help            show this help message and exit
+  --input_file INPUT_FILE
+                        Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]
+  --input_dir INPUT_DIR
+                        Input directory with to convertable files: [*.xml, *.musicxml, *.mxl, *.midi]
+  --output_file OUTPUT_FILE
+                        Output file to create - example: outfile.ustx
   --project_name PROJECT_NAME
                         Name of the project, stored in the output file metadata
   --config_file CONFIG_FILE
@@ -25,20 +26,19 @@ options:
   --volume VOLUME       Volume setting used for each track (-10.0 to 10.0)
   --track TRACK         Name used for each track
   --debug               Print debug information
-
 ```
 The `track_config` will always override the values defined by `--voice`, `--pan`, `--volume`, and `--track`. The latter can be specified multiple times on the command line to define the configuration for multiple tracks.
 
 ### Bash Wrapper
 This application can be run via the included wrapper `run.sh`, which will also install the required python dependencies into a `venv` environment.
 ```commandline
-./run.sh infile.mxl outfile.ustx --track-config=ttbb-barbershop
+./run.sh --input_file=infile.mxl --track-config=ttbb-barbershop
 ```
 
 ### Via Poetry
 ```commandline
 poetry install --no-root
-poetry run python main.py --track_config=ttbb-barbershop infile.mxl outfile.ustx 
+poetry run python main.py --track_config=ttbb-barbershop --input_file=infile.mxl
 ```
 
 ## Limitations
