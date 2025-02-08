@@ -8,10 +8,12 @@ from src.domain.models.TimeSignature import TimeSignature
 from src.domain.models.Event import Event
 from src.ustx.UstxTempoInterpolation import interpolate_tempos
 
+
 def export(project: Project, outfile: str):
     with open(outfile, 'w') as f:
         ustx: str = write_to_string(project)
         f.write(ustx)
+        print(f'Wrote output file to {outfile}')
 
 
 def write_to_string(project: Project):

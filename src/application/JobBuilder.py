@@ -1,3 +1,4 @@
+import importlib
 from pathlib import Path
 from typing import List
 
@@ -8,9 +9,10 @@ from src.application.models.CommandLineOptions import CommandLineOptions
 from src.application.ConfigParser import parse as parse_config
 from src.domain.models.Job import Job
 from src.domain.models.TrackConfig import TrackConfig
+from src.resources.Resources import get_resource_path
 
 # Job defaults, when not specified
-DEFAULT_CONFIG_FILE = './config.yml'
+DEFAULT_CONFIG_FILE = get_resource_path("config.yml")
 DEFAULT_PROJECT_NAME = 'New Project'
 DEFAULT_LYRIC = 'doo'
 

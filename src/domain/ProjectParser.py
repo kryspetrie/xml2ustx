@@ -13,7 +13,6 @@ from src.domain.models.TrackConfig import TrackConfig
 from src.domain.models.Note import Note
 from src.domain.models.Track import Track
 from src.domain.models.Project import Project
-from src.domain.models.Job import Job
 
 
 def __find_duration_by_offset(lines: list[music21.spanner.Line], offset: float) -> float | None:
