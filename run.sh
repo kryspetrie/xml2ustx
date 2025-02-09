@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+__dir="$(cd "$(dirname "$0")" && pwd)"
 
 # Check if the virtual environment directory exists
 if [ ! -d "${__dir}/venv" ]; then
