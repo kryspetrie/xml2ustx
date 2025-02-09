@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 function mp3() {
   for process in "$@" ; do;
