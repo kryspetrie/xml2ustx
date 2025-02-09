@@ -83,9 +83,6 @@ def parse(
     # Unroll notated repeats
     stream = stream.expandRepeats()
 
-    # Extend all tied notes into joined objects (e.g. ignore measure divisions)
-    stream.stripTies(inPlace=True, matchByPitch=True)
-
     # TODO: rewrite durations and positions for swing
 
     # Unfortunately, Music21 does not provide us with a good mechanism to parse tempos changes.
@@ -140,6 +137,9 @@ def parse(
 
     # Flatten all the different voices to distinct parts
     stream = stream.voicesToParts()
+
+    # Extend all tied notes into joined objects (e.g. ignore measure divisions)
+    stream.stripTies(matchByPitch=True, inPlace=True)
 
     # Loop over the parts and create Track list context
     for (index, part) in enumerate(stream.parts, 0):
