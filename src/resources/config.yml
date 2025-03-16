@@ -58,5 +58,26 @@ track_config:
         voice_id: 'nero-fr'
         pan: 10
         volume: 6
-
+  - id: '5-part'
+    tracks:
+      - track_name: 'Part 1'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Part 2'
+        voice_id: 'tiger'
+        pan: -25
+        volume: 0
+      - track_name: 'Part 3'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Part 4'
+        voice_id: 'nero'
+        pan: 0
+        volume: 0
+      - track_name: 'Part 5'
+        voice_id: 'nero'
+        pan: 10
+        volume: 6
 default_lyric: 'doo'

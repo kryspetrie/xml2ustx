@@ -8,7 +8,7 @@ function mp3() {
 
 function left() {
   if [ "$#" -ne 5 ]; then
-        echo "Usage: mix.sh left left.wav right1.wav right2.wav right3.wav outfile";
+        echo "Usage: mix left left.wav right1.wav right2.wav right3.wav outfile";
         exit 1
   fi;
   echo "mix left $1 $2 $3 $4 $5"
@@ -17,7 +17,7 @@ function left() {
 
 function stereo() {
   if [ "$#" -ne 5 ]; then
-        echo "Usage: mix.sh stereo tenor.wav lead.wav bari.wav bass.wav outfile";
+        echo "Usage: mix stereo tenor.wav lead.wav bari.wav bass.wav outfile";
         exit 1
   fi;
   echo "mix stereo $1 $2 $3 $4 $5"
@@ -26,7 +26,7 @@ function stereo() {
 
 function all() {
   if [ "$#" -ne 5 ]; then
-        echo "Usage: mix.sh all tenor.wav lead.wav bari.wav bass.wav outname";
+        echo "Usage: mix all tenor.wav lead.wav bari.wav bass.wav outname";
         exit 1
   fi;
 
@@ -39,7 +39,7 @@ function all() {
 
 function here() {
   if [ "$#" -ne 1 ]; then
-    echo "Usage: mix.sh here outname"
+    echo "Usage: mix here outname"
     exit 1
   fi;
 

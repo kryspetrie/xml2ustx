@@ -1,0 +1,57 @@
+#!/bin/zsh
+
+function mp3() {
+  for process in "$@" ; do;
+    ffmpeg -i "${process}" -acodec libmp3lame -ab 320k "${process:r}.mp3"
+  done;
+};
+
+function left() {
+  if [ "$#" -ne 6 ]; then
+        echo "Usage: mix5 left left.wav right1.wav right2.wav right3.wav right4.wav outfile";
+        exit 1
+  fi;
+  echo "mix5 left $1 $2 $3 $4 $5 $6"
+  ffmpeg -i "$1" -i "$2" -i "$3" -i "$4" -i "$5" -filter_complex "[0:a][1:a][2:a][3:a][4:a]amerge=inputs=5,pan=stereo|FL<c0|FR<0.25*c1+0.25*c2+0.25*c3+0.25*c4[a]" -ac 2 -map "[a]" -c:v copy $6.mp3;
+};
+
+function stereo() {
+  if [ "$#" -ne 6 ]; then
+        echo "Usage: mix5 stereo part1.wav part2.wav part3.wav part4.wav part5.wav outfile";
+        exit 1
+  fi;
+  echo "mix5 stereo $1 $2 $3 $4 $5 $6"
+  ffmpeg -i "$1" -i "$2" -i "$3" -i "$4" -i "$5" -filter_complex "[0:a][1:a][2:a][3:a][4:a]amerge=inputs=5,pan=stereo|FL<0.65*c0+0.7*c1+0.35*c2+0.45*c3+0.5*c4|FR<0.35*c0+0.6*c1+0.65*c2+0.6*c3+0.5*c4[a]" -ac 2 -map "[a]" -c:v copy $6.mp3;
+};
+
+function all() {
+  if [ "$#" -ne 6 ]; then
+        echo "Usage: mix5 all part1.wav part2.wav part3.wav part4.wav part5.wav outname";
+        exit 1
+  fi;
+
+  left "$1" "$2" "$3" "$4" "$5" "$6 - Part 1";
+  left "$2" "$1" "$3" "$4" "$5" "$6 - Part 2";
+  left "$3" "$1" "$2" "$4" "$5" "$6 - Part 3";
+  left "$4" "$1" "$2" "$3" "$5" "$6 - Part 4";
+  left "$5" "$1" "$2" "$3" "$4" "$6 - Part 5"
+  stereo "$1" "$2" "$3" "$4" "$5" "$6 - Full Mix";
+};
+
+function here() {
+  if [ "$#" -ne 1 ]; then
+    echo "Usage: mix5.sh here outname"
+    exit 1
+  fi;
+
+  PART1="$(find . -name '*Part 1.wav')"
+  PART2="$(find . -name '*Part 2.wav')"
+  PART3="$(find . -name '*Part 3.wav')"
+  PART4="$(find . -name '*Part 4.wav')"
+  PART5="$(find . -name '*Part 5.wav')"
+
+  echo "Found: $PART1 $PART2 $PART3 $PART4 $PART5"
+  all "$PART1" "$PART2" "$PART3" "$PART4" "$PART5" "$1"
+};
+
+"$@"
