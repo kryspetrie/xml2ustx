@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+function mix() {
+  if [ "$#" -ne 3 ]; then
+        echo "Usage: ./mix2video [image] [audio] [out]";
+        exit 1
+  fi;
+    ffmpeg -loop 1 -i "$1" -i "$2" -af "adelay=1s:all=true" -c:v libx264 -tune stillimage -c:a aac -b:a 192k -vf "scale='iw-mod(iw,2)':'ih-mod(ih,2)',format=yuv420p" -shortest -movflags +faststart "$3.mp4"
+}
+
+mix $@

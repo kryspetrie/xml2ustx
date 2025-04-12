@@ -1,0 +1,71 @@
+#!/bin/zsh
+
+DIR=$( cd -P "$( dirname "$0" )/" >/dev/null 2>&1 && pwd )
+
+function one() {
+  if [ "$#" -ne 2 ]; then
+        echo "Usage: applyverb one [impulse] [file]";
+        exit 1
+  fi;
+  echo "applyverb one $1 $2"
+
+  filename=$(basename -- "$2")
+  extension="${filename##*.}"
+  filename="${filename%.*}"
+
+  padfile="$2.padded.wav"
+
+  ffmpeg -i $2 -af "apad=pad_dur=1" "$padfile"
+  ffmpeg -i "$padfile" -i "$1" -filter_complex '[0] [1] afir=dry=10:wet=10 [reverb]; [0] [reverb] amix=inputs=2:weights=10 2;' -c:v copy "$filename - reverb.$extension"
+  rm $padfile
+};
+
+function all() {
+  if [ "$#" -lt 2 ]; then
+        echo "Usage: applyverb all [impulse] [files...]";
+        exit 1
+  fi;
+
+  impulse=$1
+
+  shift # Remove the first argument ($1)
+  i=2    # Initialize a counter for the original argument position
+  while [[ $# -gt 0 ]]; do # Loop while there are arguments remaining
+    echo "applyverb one $impulse $1"
+    applyverb one "$impulse" "$1"
+    shift
+    ((i++))
+  done
+};
+
+function here() {
+  impulse="$DIR/impulse/mechanics-hall.wav"
+  if [ "$#" -eq 1 ]; then
+    echo "Using impulse: $1"
+    impulse="$DIR/impulse/$1.wav"
+  fi;
+
+  echo $impulse
+
+  TENOR="$(find . -name '*Tenor.*')"
+  LEAD="$(find . -name '*Lead.*')"
+  BARI="$(find . -name '*Bari.*')"
+  BASS="$(find . -name '*Bass.*')"
+  MIX="$(find . -name '*Mix.*')"
+
+  echo "Found:\n\"$TENOR\"\n\"$LEAD\"\n\"$BARI\"\n\"$BASS\"\n\"$MIX\"\n"
+  all "$impulse" "$TENOR" "$LEAD" "$BARI" "$BASS" "$MIX"
+};
+
+function impulses() {
+  cd "$DIR/impulse"
+  for file in *; do
+    if [ -f "$file" ]; then
+      filename=$(basename -- "$file")
+      filename="${filename%.*}"
+      echo "$filename"
+    fi
+  done
+}
+
+"$@"
