@@ -39,7 +39,7 @@ function all() {
 };
 
 function here() {
-  impulse="$DIR/impulse/mechanics-hall.wav"
+  impulse="$DIR/impulse/vocal-plate.wav"
   if [ "$#" -eq 1 ]; then
     echo "Using impulse: $1"
     impulse="$DIR/impulse/$1.wav"
