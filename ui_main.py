@@ -34,10 +34,6 @@ class CollapsibleSection(QWidget):
         self.header_widget.setLayout(self.header_layout)
         self.content_layout = QVBoxLayout()
         self.content_layout.setContentsMargins(0, 0, 0, 0)
-        self.inputs = []
-        self.repeatable = repeatable
-        self.repeatable_widget_type = repeatable_widget_type
-        # Do NOT create a QLineEdit here. Only child widgets should add their own input if needed.
         self.content_widget = QWidget()
         self.content_widget.setLayout(self.content_layout)
         self.content_widget.setVisible(expanded)
@@ -64,91 +60,6 @@ class CollapsibleSection(QWidget):
         else:
             self.content_widget.setMaximumHeight(0)
             self.setMaximumHeight(self.header_widget.sizeHint().height() + 8)
-
-    def isChecked(self):
-        return self.enabled_checkbox.isChecked() if hasattr(self, 'enabled_checkbox') else True
-
-    def get_value(self):
-        # Only return value if a child widget has an input
-        if not self.isChecked():
-            return None
-        # This will only work if a child widget sets self.input
-        val = getattr(self, 'input', None)
-        if val:
-            return val.text().strip() or None
-        return None
-
-    def get_values(self):
-        if hasattr(self, 'inputs'):
-            vals = []
-            for widget in self.inputs:
-                if isinstance(widget, QtWidgets.QSlider):
-                    if widget.minimum() == -100 and widget.maximum() == 100:
-                        vals.append(widget.value())
-                    elif widget.minimum() == -10 and widget.maximum() == 10:
-                        vals.append(widget.value()/10.0)
-                elif isinstance(widget, QtWidgets.QLineEdit):
-                    val = widget.text().strip()
-                    if val:
-                        vals.append(val)
-            return vals
-        return []
-
-    def add_repeatable_row(self):
-        # Add a widget based on repeatable_widget_type
-        if self.repeatable_widget_type == 'slider_pan':
-            slider_layout = QVBoxLayout()
-            pan_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-            pan_slider.setMinimum(-100)
-            pan_slider.setMaximum(100)
-            pan_slider.setValue(0)
-            pan_slider.setTickInterval(10)
-            pan_slider.setSingleStep(1)
-            pan_slider.setPageStep(1)
-            pan_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
-            slider_layout.addWidget(pan_slider)
-            minmax_layout = QHBoxLayout()
-            min_label = QLabel('-100')
-            min_label.setAlignment(QtCore.Qt.AlignLeft)
-            max_label = QLabel('100')
-            max_label.setAlignment(QtCore.Qt.AlignRight)
-            minmax_layout.addWidget(min_label)
-            minmax_layout.addStretch(1)
-            minmax_layout.addWidget(max_label)
-            slider_layout.addLayout(minmax_layout)
-            self.content_layout.insertLayout(self.content_layout.count()-1, slider_layout)
-            self.inputs.append(pan_slider)
-        elif self.repeatable_widget_type == 'slider_volume':
-            slider_layout = QVBoxLayout()
-            volume_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-            volume_slider.setMinimum(-100)
-            volume_slider.setMaximum(100)
-            volume_slider.setValue(10)
-            volume_slider.setTickInterval(10)
-            volume_slider.setSingleStep(1)
-            volume_slider.setPageStep(1)
-            volume_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
-            slider_layout.addWidget(volume_slider)
-            volume_minmax_layout = QHBoxLayout()
-            volume_min_label = QLabel('-10.0')
-            volume_min_label.setAlignment(QtCore.Qt.AlignLeft)
-            volume_max_label = QLabel('10.0')
-            volume_max_label.setAlignment(QtCore.Qt.AlignRight)
-            volume_minmax_layout.addWidget(volume_min_label)
-            volume_minmax_layout.addStretch(1)
-            volume_minmax_layout.addWidget(volume_max_label)
-            slider_layout.addLayout(volume_minmax_layout)
-            self.content_layout.insertLayout(self.content_layout.count()-1, slider_layout)
-            self.inputs.append(volume_slider)
-        elif self.repeatable_widget_type is None:
-            # For tracks, add a QLineEdit
-            line_edit = QtWidgets.QLineEdit()
-            line_edit.setPlaceholderText('Enter track name')
-            self.content_layout.insertWidget(self.content_layout.count()-1, line_edit)
-            self.inputs.append(line_edit)
-        else:
-            # Unknown type, do nothing
-            pass
 
 class InputFileSection(QWidget):
     def __init__(self, expanded=True):
@@ -216,15 +127,6 @@ class ProjectNameSection(QWidget):
         layout.addWidget(self.enabled_checkbox)
         self.setLayout(layout)
 
-    def isChecked(self):
-        return self.enabled_checkbox.isChecked()
-
-    def get_value(self):
-        if not self.isChecked():
-            return None
-        val = self.input.text().strip()
-        return val if val else None
-
 class ConfigFileSection(QWidget):
     def __init__(self):
         super().__init__()
@@ -247,15 +149,6 @@ class ConfigFileSection(QWidget):
         if file_path:
             self.input.setText(file_path)
 
-    def isChecked(self):
-        return self.enabled_checkbox.isChecked()
-
-    def get_value(self):
-        if not self.isChecked():
-            return None
-        val = self.input.text().strip()
-        return val if val else None
-
 class TrackConfigSection(QWidget):
     def __init__(self):
         super().__init__()
@@ -270,14 +163,10 @@ class TrackConfigSection(QWidget):
         layout.addWidget(self.enabled_checkbox)
         self.setLayout(layout)
 
-    def isChecked(self):
-        return self.enabled_checkbox.isChecked()
-
-    def get_value(self):
-        if not self.isChecked():
-            return None
-        val = self.input.text().strip()
-        return val if val else None
+    def choose_config_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 'Choose config file', '', 'YAML Files (*.yml *.yaml)')
+        if file_path:
+            self.input.setText(file_path)
 
 class VoiceSection(QWidget):
     def __init__(self):
@@ -307,93 +196,32 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle('xml2ustx Application')
         self.resize(700, 600)
-        # Create tab widget for main UI
+        self._init_state()
+        self._setup_ui()
+        self._connect_events()
+        self.load_config(self.config_path)
+
+    def _init_state(self):
+        self.voice_widgets = []
+        self.track_widgets = []
+        self.config_data = None
+        self.config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src', 'resources', 'config.yml'))
+
+    def _setup_ui(self):
         self.tabs = QtWidgets.QTabWidget()
-        # --- Run Application tab ---
+        self._setup_run_application_tab()
+        self._setup_voice_config_tab()
+        self._setup_track_config_tab()
+        self.setCentralWidget(self.tabs)
+
+    def _setup_run_application_tab(self):
         run_app_scroll = QScrollArea()
         run_app_scroll.setWidgetResizable(True)
         central_widget = QWidget()
         layout = QVBoxLayout()
-        # Input file
-        self.input_file_section = InputFileSection(expanded=True)
-        self.input_file_collapsible = CollapsibleSection(
-            'Input File', 'Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]', expanded=True, show_checkbox=True, repeatable=False
-        )
-        self.input_file_collapsible.content_widget.layout().addWidget(self.input_file_section)
-        layout.addWidget(self.input_file_collapsible)
-        # Input dir
-        self.input_dir_section = InputDirectorySection(expanded=True)
-        self.input_dir_collapsible = CollapsibleSection(
-            'Input Directory', 'Input directory with convertable files: [*.xml, *.musicxml, *.mxl, *.midi]', expanded=True, show_checkbox=True, repeatable=False
-        )
-        self.input_dir_collapsible.content_widget.layout().addWidget(self.input_dir_section)
-        layout.addWidget(self.input_dir_collapsible)
-        # Ensure only one of input_file/input_dir is enabled
-        self.input_file_collapsible.enabled_checkbox.toggled.connect(lambda checked: self.input_dir_collapsible.enabled_checkbox.setChecked(False) if checked else None)
-        self.input_dir_collapsible.enabled_checkbox.toggled.connect(lambda checked: self.input_file_collapsible.enabled_checkbox.setChecked(False) if checked else None)
-        # Output file
-        self.output_file_section = OutputFileSection()
-        self.output_file_collapsible = CollapsibleSection(
-            'Output File', 'Output file to create - example: outfile.ustx', expanded=False, show_checkbox=True, repeatable=False
-        )
-        self.output_file_collapsible.content_widget.layout().addWidget(self.output_file_section)
-        layout.addWidget(self.output_file_collapsible)
-        # Project name
-        self.project_name_section = ProjectNameSection(default='My Project')
-        self.project_name_collapsible = CollapsibleSection(
-            'Project Name', 'Name of the project, stored in the output file metadata', expanded=False, show_checkbox=True, repeatable=False
-        )
-        self.project_name_collapsible.content_widget.layout().addWidget(self.project_name_section)
-        layout.addWidget(self.project_name_collapsible)
-        # Config file
-        self.config_file_section = ConfigFileSection()
-        self.config_file_collapsible = CollapsibleSection(
-            'Config File', 'Path to the config.yml file you want to use', expanded=False, show_checkbox=True, repeatable=False
-        )
-        self.config_file_collapsible.content_widget.layout().addWidget(self.config_file_section)
-        layout.addWidget(self.config_file_collapsible)
-        # Track config
-        self.track_config_section = TrackConfigSection()
-        self.track_config_collapsible = CollapsibleSection(
-            'Track Config', 'Track config to use for this conversion, from config.yml', expanded=False, show_checkbox=True, repeatable=False
-        )
-        self.track_config_collapsible.content_widget.layout().addWidget(self.track_config_section)
-        layout.addWidget(self.track_config_collapsible)
-        # Voices
-        self.voice_section = VoiceSection()
-        self.voice_collapsible = CollapsibleSection(
-            'Voices', 'Voice id used for each track, from config.yml', expanded=False, show_checkbox=True, repeatable=False
-        )
-        self.voice_collapsible.content_widget.layout().addWidget(self.voice_section)
-        layout.addWidget(self.voice_collapsible)
-        # Pans
-        self.pan_section = CollapsibleSection(
-            'Pan(s)', 'Pan setting used for each track (-100.0 to 100.0)', is_optional=True, repeatable=True, repeatable_widget_type='slider_pan', expanded=False, show_checkbox=True
-        )
-        self.add_pan_btn = QPushButton('Add Pan')
-        self.add_pan_btn.clicked.connect(lambda _: self.pan_section.add_repeatable_row())
-        self.pan_section.content_layout.addWidget(self.add_pan_btn)
-        layout.addWidget(self.pan_section)
-        # Volumes
-        self.volume_section = CollapsibleSection(
-            'Volume(s)', 'Volume setting used for each track (-10.0 to 10.0)', is_optional=True, repeatable=True, repeatable_widget_type='slider_volume', expanded=False, show_checkbox=True
-        )
-        self.add_volume_btn = QPushButton('Add Volume')
-        self.add_volume_btn.clicked.connect(lambda _: self.volume_section.add_repeatable_row())
-        self.volume_section.content_layout.addWidget(self.add_volume_btn)
-        layout.addWidget(self.volume_section)
-        # Tracks
-        self.track_section = CollapsibleSection(
-            'Track(s)', 'Name used for each track', is_optional=True, repeatable=True, repeatable_widget_type=None, expanded=False, show_checkbox=True
-        )
-        self.add_track_btn = QPushButton('Add Track')
-        self.add_track_btn.clicked.connect(lambda _: self.track_section.add_repeatable_row())
-        self.track_section.content_layout.addWidget(self.add_track_btn)
-        layout.addWidget(self.track_section)
-        # Debug checkbox next to Run Application
+        self._add_run_app_sections(layout)
         debug_layout = QHBoxLayout()
         self.run_btn = QPushButton('Run Application')
-        self.run_btn.clicked.connect(self.run_app)
         self.debug_checkbox = QCheckBox('Debug Mode')
         debug_layout.addWidget(self.run_btn)
         debug_layout.addWidget(self.debug_checkbox)
@@ -403,7 +231,72 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(layout)
         run_app_scroll.setWidget(central_widget)
         self.tabs.addTab(run_app_scroll, 'Run Application')
-        # --- Voice Config tab ---
+
+    def _add_run_app_sections(self, layout):
+        self.input_file_section = InputFileSection(expanded=True)
+        self.input_file_collapsible = CollapsibleSection(
+            'Input File', 'Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]', expanded=True, show_checkbox=True, repeatable=False
+        )
+        self.input_file_collapsible.content_widget.layout().addWidget(self.input_file_section)
+        layout.addWidget(self.input_file_collapsible)
+        self.input_dir_section = InputDirectorySection(expanded=True)
+        self.input_dir_collapsible = CollapsibleSection(
+            'Input Directory', 'Input directory with convertable files: [*.xml, *.musicxml, *.mxl, *.midi]', expanded=True, show_checkbox=True, repeatable=False
+        )
+        self.input_dir_collapsible.content_widget.layout().addWidget(self.input_dir_section)
+        layout.addWidget(self.input_dir_collapsible)
+        self.input_file_collapsible.enabled_checkbox.toggled.connect(lambda checked: self.input_dir_collapsible.enabled_checkbox.setChecked(False) if checked else None)
+        self.input_dir_collapsible.enabled_checkbox.toggled.connect(lambda checked: self.input_file_collapsible.enabled_checkbox.setChecked(False) if checked else None)
+        self.output_file_section = OutputFileSection()
+        self.output_file_collapsible = CollapsibleSection(
+            'Output File', 'Output file to create - example: outfile.ustx', expanded=False, show_checkbox=True, repeatable=False
+        )
+        self.output_file_collapsible.content_widget.layout().addWidget(self.output_file_section)
+        layout.addWidget(self.output_file_collapsible)
+        self.project_name_section = ProjectNameSection(default='My Project')
+        self.project_name_collapsible = CollapsibleSection(
+            'Project Name', 'Name of the project, stored in the output file metadata', expanded=False, show_checkbox=True, repeatable=False
+        )
+        self.project_name_collapsible.content_widget.layout().addWidget(self.project_name_section)
+        layout.addWidget(self.project_name_collapsible)
+        self.config_file_section = ConfigFileSection()
+        self.config_file_collapsible = CollapsibleSection(
+            'Config File', 'Path to the config.yml file you want to use', expanded=False, show_checkbox=True, repeatable=False
+        )
+        self.config_file_collapsible.content_widget.layout().addWidget(self.config_file_section)
+        layout.addWidget(self.config_file_collapsible)
+        self.track_config_section = TrackConfigSection()
+        self.track_config_collapsible = CollapsibleSection(
+            'Track Config', 'Track config to use for this conversion, from config.yml', expanded=False, show_checkbox=True, repeatable=False
+        )
+        self.track_config_collapsible.content_widget.layout().addWidget(self.track_config_section)
+        layout.addWidget(self.track_config_collapsible)
+        self.voice_section = VoiceSection()
+        self.voice_collapsible = CollapsibleSection(
+            'Voices', 'Voice id used for each track, from config.yml', expanded=False, show_checkbox=True, repeatable=False
+        )
+        self.voice_collapsible.content_widget.layout().addWidget(self.voice_section)
+        layout.addWidget(self.voice_collapsible)
+        self.pan_section = CollapsibleSection(
+            'Pan(s)', 'Pan setting used for each track (-100.0 to 100.0)', is_optional=True, repeatable=True, repeatable_widget_type='slider_pan', expanded=False, show_checkbox=True
+        )
+        self.add_pan_btn = QPushButton('Add Pan')
+        self.pan_section.content_layout.addWidget(self.add_pan_btn)
+        layout.addWidget(self.pan_section)
+        self.volume_section = CollapsibleSection(
+            'Volume(s)', 'Volume setting used for each track (-10.0 to 10.0)', is_optional=True, repeatable=True, repeatable_widget_type='slider_volume', expanded=False, show_checkbox=True
+        )
+        self.add_volume_btn = QPushButton('Add Volume')
+        self.volume_section.content_layout.addWidget(self.add_volume_btn)
+        layout.addWidget(self.volume_section)
+        self.track_section = CollapsibleSection(
+            'Track(s)', 'Name used for each track', is_optional=True, repeatable=True, repeatable_widget_type=None, expanded=False, show_checkbox=True
+        )
+        self.add_track_btn = QPushButton('Add Track')
+        self.track_section.content_layout.addWidget(self.add_track_btn)
+        layout.addWidget(self.track_section)
+
+    def _setup_voice_config_tab(self):
         self.voice_tab_scroll = QScrollArea()
         self.voice_tab_scroll.setWidgetResizable(True)
         self.voice_tab_content = QWidget()
@@ -411,7 +304,8 @@ class MainWindow(QMainWindow):
         self.voice_tab_content.setLayout(self.voice_tab_layout)
         self.voice_tab_scroll.setWidget(self.voice_tab_content)
         self.tabs.addTab(self.voice_tab_scroll, 'Voice Config')
-        # --- Track Config tab ---
+
+    def _setup_track_config_tab(self):
         self.track_tab_scroll = QScrollArea()
         self.track_tab_scroll.setWidgetResizable(True)
         self.track_tab_content = QWidget()
@@ -419,16 +313,13 @@ class MainWindow(QMainWindow):
         self.track_tab_content.setLayout(self.track_tab_layout)
         self.track_tab_scroll.setWidget(self.track_tab_content)
         self.tabs.addTab(self.track_tab_scroll, 'Track Config')
-        # Set tab widget as central widget
-        self.setCentralWidget(self.tabs)
-        # Remove menu bar and Config button
-        # ...do not add menubar or config_menu...
-        # Initialize config data and load config
-        self.voice_widgets = []
-        self.track_widgets = []
-        self.config_data = None
-        self.config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src', 'resources', 'config.yml'))
-        self.load_config(self.config_path)
+
+    def _connect_events(self):
+        self.run_btn.clicked.connect(self.run_app)
+        self.add_pan_btn.clicked.connect(lambda _: self.add_pan_row())
+        self.add_volume_btn.clicked.connect(lambda _: self.add_volume_row())
+        self.add_track_btn.clicked.connect(lambda _: self.add_track_row())
+        # Other event connections as needed
 
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, 'Open file', '', 'MusicXML/MIDI Files (*.xml *.mxl *.mid *.musicxml)')
