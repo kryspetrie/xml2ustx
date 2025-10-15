@@ -10,17 +10,14 @@ import yaml
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'src' 'resources', 'config.yml')
 
 class CollapsibleSection(QWidget):
-    def __init__(self, title, description, is_optional=True, default=None, repeatable=False, expanded=False, show_checkbox=True, repeatable_widget_type=None):
+    def __init__(self, title, description, is_optional=True, repeatable=False, expanded=False, show_checkbox=True, repeatable_widget_type=None):
         super().__init__()
-        # Revert: Remove custom background/border styling
-        self.enabled_checkbox = QCheckBox()
-        self.enabled_checkbox.setChecked(False)
         self.header_label = QLabel(f"<b>{title}</b>: {description}{' <i>(optional)</i>' if is_optional else ''}")
         self.header_label.setWordWrap(True)
         self.header_label.setStyleSheet('padding: 4px;')
         self.toggle_btn = QPushButton()
         self.toggle_btn.setCheckable(True)
-        self.toggle_btn.setChecked(expanded)  # Collapsed by default unless expanded=True
+        self.toggle_btn.setChecked(expanded)
         self.toggle_btn.setFixedWidth(20)
         self.toggle_btn.setText('▼' if expanded else '▶')
         self.toggle_btn.setStyleSheet('border: none;')
@@ -28,6 +25,8 @@ class CollapsibleSection(QWidget):
         self.header_layout = QHBoxLayout()
         self.header_layout.addWidget(self.toggle_btn)
         if show_checkbox:
+            self.enabled_checkbox = QCheckBox('Enable')
+            self.enabled_checkbox.setChecked(expanded)
             self.header_layout.addWidget(self.enabled_checkbox)
         self.header_layout.addWidget(self.header_label, stretch=1)
         self.header_layout.setContentsMargins(0, 0, 0, 0)
@@ -35,92 +34,19 @@ class CollapsibleSection(QWidget):
         self.header_widget.setLayout(self.header_layout)
         self.content_layout = QVBoxLayout()
         self.content_layout.setContentsMargins(0, 0, 0, 0)
-        if repeatable:
-            self.inputs = []
-            if repeatable_widget_type == 'slider_pan':
-                pan_label_layout = QHBoxLayout()
-                pan_value_label = QLabel(f"Pan: 0")
-                pan_value_label.setFixedWidth(80)
-                pan_label_layout.addWidget(pan_value_label)
-                self.content_layout.addLayout(pan_label_layout)
-                slider_layout = QVBoxLayout()
-                pan_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-                pan_slider.setMinimum(-100)
-                pan_slider.setMaximum(100)
-                pan_slider.setValue(0)
-                pan_slider.setTickInterval(10)
-                pan_slider.setSingleStep(1)
-                pan_slider.setPageStep(1)
-                pan_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
-                slider_layout.addWidget(pan_slider)
-                minmax_layout = QHBoxLayout()
-                min_label = QLabel('-100')
-                min_label.setAlignment(QtCore.Qt.AlignLeft)
-                max_label = QLabel('100')
-                max_label.setAlignment(QtCore.Qt.AlignRight)
-                minmax_layout.addWidget(min_label)
-                minmax_layout.addStretch(1)
-                minmax_layout.addWidget(max_label)
-                slider_layout.addLayout(minmax_layout)
-                self.content_layout.addLayout(slider_layout)
-                self.inputs.append(pan_slider)
-                pan_slider.valueChanged.connect(lambda val: pan_value_label.setText(f"Pan: {val}"))
-                def snap_pan():
-                    snapped = int(round(pan_slider.value()))
-                    pan_slider.setValue(snapped)
-                pan_slider.sliderReleased.connect(snap_pan)
-            elif repeatable_widget_type == 'slider_volume':
-                volume_label_layout = QHBoxLayout()
-                volume_value_label = QLabel(f"Volume: 1.0")
-                volume_value_label.setFixedWidth(100)
-                volume_label_layout.addWidget(volume_value_label)
-                self.content_layout.addLayout(volume_label_layout)
-                slider_layout = QVBoxLayout()
-                volume_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-                volume_slider.setMinimum(-100)
-                volume_slider.setMaximum(100)
-                volume_slider.setValue(10)
-                volume_slider.setTickInterval(10)
-                volume_slider.setSingleStep(1)
-                volume_slider.setPageStep(1)
-                volume_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
-                slider_layout.addWidget(volume_slider)
-                volume_minmax_layout = QHBoxLayout()
-                volume_min_label = QLabel('-10.0')
-                volume_min_label.setAlignment(QtCore.Qt.AlignLeft)
-                volume_max_label = QLabel('10.0')
-                volume_max_label.setAlignment(QtCore.Qt.AlignRight)
-                volume_minmax_layout.addWidget(volume_min_label)
-                volume_minmax_layout.addStretch(1)
-                volume_minmax_layout.addWidget(volume_max_label)
-                slider_layout.addLayout(volume_minmax_layout)
-                self.content_layout.addLayout(slider_layout)
-                self.inputs.append(volume_slider)
-                volume_slider.valueChanged.connect(lambda val: volume_value_label.setText(f"Volume: {val/10:.1f}"))
-                def snap_volume():
-                    snapped = int(round(volume_slider.value() / 1) * 1)
-                    volume_slider.setValue(snapped)
-                volume_slider.sliderReleased.connect(snap_volume)
-            else:
-                self.input = QtWidgets.QLineEdit()
-                self.input.setPlaceholderText("Comma-separated values")
-                self.content_layout.addWidget(self.input)
-                self.inputs.append(self.input)
-        else:
-            self.input = QtWidgets.QLineEdit()
-            if default:
-                self.input.setText(str(default))
-            self.content_layout.addWidget(self.input)
+        self.inputs = []
+        self.repeatable = repeatable
+        self.repeatable_widget_type = repeatable_widget_type
+        # Do NOT create a QLineEdit here. Only child widgets should add their own input if needed.
         self.content_widget = QWidget()
         self.content_widget.setLayout(self.content_layout)
-        self.content_widget.setVisible(expanded)  # Collapsed by default unless expanded=True
+        self.content_widget.setVisible(expanded)
         self.content_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        # Only take up header height when collapsed
         if not expanded:
             self.content_widget.setMaximumHeight(0)
             self.setMaximumHeight(self.header_widget.sizeHint().height() + 8)
         else:
-            self.content_widget.setMaximumHeight(4320)  # 8K monitor vertical resolution
+            self.content_widget.setMaximumHeight(4320)
             self.setMaximumHeight(4320)
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.header_widget)
@@ -140,6 +66,157 @@ class CollapsibleSection(QWidget):
             self.setMaximumHeight(self.header_widget.sizeHint().height() + 8)
 
     def isChecked(self):
+        return self.enabled_checkbox.isChecked() if hasattr(self, 'enabled_checkbox') else True
+
+    def get_value(self):
+        # Only return value if a child widget has an input
+        if not self.isChecked():
+            return None
+        # This will only work if a child widget sets self.input
+        val = getattr(self, 'input', None)
+        if val:
+            return val.text().strip() or None
+        return None
+
+    def get_values(self):
+        if hasattr(self, 'inputs'):
+            vals = []
+            for widget in self.inputs:
+                if isinstance(widget, QtWidgets.QSlider):
+                    if widget.minimum() == -100 and widget.maximum() == 100:
+                        vals.append(widget.value())
+                    elif widget.minimum() == -10 and widget.maximum() == 10:
+                        vals.append(widget.value()/10.0)
+                elif isinstance(widget, QtWidgets.QLineEdit):
+                    val = widget.text().strip()
+                    if val:
+                        vals.append(val)
+            return vals
+        return []
+
+    def add_repeatable_row(self):
+        # Add a widget based on repeatable_widget_type
+        if self.repeatable_widget_type == 'slider_pan':
+            slider_layout = QVBoxLayout()
+            pan_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+            pan_slider.setMinimum(-100)
+            pan_slider.setMaximum(100)
+            pan_slider.setValue(0)
+            pan_slider.setTickInterval(10)
+            pan_slider.setSingleStep(1)
+            pan_slider.setPageStep(1)
+            pan_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+            slider_layout.addWidget(pan_slider)
+            minmax_layout = QHBoxLayout()
+            min_label = QLabel('-100')
+            min_label.setAlignment(QtCore.Qt.AlignLeft)
+            max_label = QLabel('100')
+            max_label.setAlignment(QtCore.Qt.AlignRight)
+            minmax_layout.addWidget(min_label)
+            minmax_layout.addStretch(1)
+            minmax_layout.addWidget(max_label)
+            slider_layout.addLayout(minmax_layout)
+            self.content_layout.insertLayout(self.content_layout.count()-1, slider_layout)
+            self.inputs.append(pan_slider)
+        elif self.repeatable_widget_type == 'slider_volume':
+            slider_layout = QVBoxLayout()
+            volume_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+            volume_slider.setMinimum(-100)
+            volume_slider.setMaximum(100)
+            volume_slider.setValue(10)
+            volume_slider.setTickInterval(10)
+            volume_slider.setSingleStep(1)
+            volume_slider.setPageStep(1)
+            volume_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+            slider_layout.addWidget(volume_slider)
+            volume_minmax_layout = QHBoxLayout()
+            volume_min_label = QLabel('-10.0')
+            volume_min_label.setAlignment(QtCore.Qt.AlignLeft)
+            volume_max_label = QLabel('10.0')
+            volume_max_label.setAlignment(QtCore.Qt.AlignRight)
+            volume_minmax_layout.addWidget(volume_min_label)
+            volume_minmax_layout.addStretch(1)
+            volume_minmax_layout.addWidget(volume_max_label)
+            slider_layout.addLayout(volume_minmax_layout)
+            self.content_layout.insertLayout(self.content_layout.count()-1, slider_layout)
+            self.inputs.append(volume_slider)
+        elif self.repeatable_widget_type is None:
+            # For tracks, add a QLineEdit
+            line_edit = QtWidgets.QLineEdit()
+            line_edit.setPlaceholderText('Enter track name')
+            self.content_layout.insertWidget(self.content_layout.count()-1, line_edit)
+            self.inputs.append(line_edit)
+        else:
+            # Unknown type, do nothing
+            pass
+
+class InputFileSection(QWidget):
+    def __init__(self, expanded=True):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.header_label = QLabel('<b>Input File</b>: Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]')
+        self.header_label.setWordWrap(True)
+        layout.addWidget(self.header_label)
+        file_btn = QPushButton('Browse')
+        file_btn.clicked.connect(self.choose_file)
+        layout.addWidget(file_btn)
+        self.setLayout(layout)
+
+    def choose_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 'Open file', '', 'MusicXML/MIDI Files (*.xml *.mxl *.mid *.musicxml)')
+        if file_path:
+            # Store selected file path in a property
+            self.selected_file = file_path
+
+class OutputFileSection(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.header_label = QLabel('<b>Output File</b>: Output file to create - example: outfile.ustx')
+        self.header_label.setWordWrap(True)
+        layout.addWidget(self.header_label)
+        file_btn = QPushButton('Browse')
+        file_btn.clicked.connect(self.choose_file)
+        layout.addWidget(file_btn)
+        self.setLayout(layout)
+
+    def choose_file(self):
+        file_path, _ = QFileDialog.getSaveFileName(self, 'Save file', '', 'USTX Files (*.ustx)')
+        if file_path:
+            self.selected_file = file_path
+
+class InputDirectorySection(QWidget):
+    def __init__(self, expanded=True):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.header_label = QLabel('<b>Input Directory</b>: Input directory with convertable files: [*.xml, *.musicxml, *.mxl, *.midi]')
+        self.header_label.setWordWrap(True)
+        layout.addWidget(self.header_label)
+        dir_btn = QPushButton('Browse')
+        dir_btn.clicked.connect(self.choose_dir)
+        layout.addWidget(dir_btn)
+        self.setLayout(layout)
+
+    def choose_dir(self):
+        dir_path = QFileDialog.getExistingDirectory(self, 'Choose input directory')
+        if dir_path:
+            self.selected_dir = dir_path
+
+class ProjectNameSection(QWidget):
+    def __init__(self, default='My Project'):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.header_label = QLabel('<b>Project Name</b>: Name of the project, stored in the output file metadata')
+        self.header_label.setWordWrap(True)
+        layout.addWidget(self.header_label)
+        self.input = QtWidgets.QLineEdit()
+        self.input.setText(default)
+        layout.addWidget(self.input)
+        self.enabled_checkbox = QCheckBox('Enable')
+        layout.addWidget(self.enabled_checkbox)
+        self.setLayout(layout)
+
+    def isChecked(self):
         return self.enabled_checkbox.isChecked()
 
     def get_value(self):
@@ -148,22 +225,80 @@ class CollapsibleSection(QWidget):
         val = self.input.text().strip()
         return val if val else None
 
+class ConfigFileSection(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.header_label = QLabel('<b>Config File</b>: Path to the config.yml file you want to use')
+        self.header_label.setWordWrap(True)
+        layout.addWidget(self.header_label)
+        self.input = QtWidgets.QLineEdit()
+        self.input.setPlaceholderText('Choose or enter config file path')
+        layout.addWidget(self.input)
+        self.enabled_checkbox = QCheckBox('Enable')
+        layout.addWidget(self.enabled_checkbox)
+        config_btn = QPushButton('Browse')
+        config_btn.clicked.connect(self.choose_config_file)
+        layout.addWidget(config_btn)
+        self.setLayout(layout)
+
+    def choose_config_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 'Choose config file', '', 'YAML Files (*.yml *.yaml)')
+        if file_path:
+            self.input.setText(file_path)
+
+    def isChecked(self):
+        return self.enabled_checkbox.isChecked()
+
+    def get_value(self):
+        if not self.isChecked():
+            return None
+        val = self.input.text().strip()
+        return val if val else None
+
+class TrackConfigSection(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.header_label = QLabel('<b>Track Config</b>: Track config to use for this conversion, from config.yml')
+        self.header_label.setWordWrap(True)
+        layout.addWidget(self.header_label)
+        self.input = QtWidgets.QLineEdit()
+        self.input.setPlaceholderText('Enter track config')
+        layout.addWidget(self.input)
+        self.enabled_checkbox = QCheckBox('Enable')
+        layout.addWidget(self.enabled_checkbox)
+        self.setLayout(layout)
+
+    def isChecked(self):
+        return self.enabled_checkbox.isChecked()
+
+    def get_value(self):
+        if not self.isChecked():
+            return None
+        val = self.input.text().strip()
+        return val if val else None
+
+class VoiceSection(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.header_label = QLabel('<b>Voice(s)</b>: Voice id used for each track, from config.yml')
+        self.header_label.setWordWrap(True)
+        layout.addWidget(self.header_label)
+        self.input = QtWidgets.QLineEdit()
+        self.input.setPlaceholderText('Enter voice ids (comma-separated)')
+        layout.addWidget(self.input)
+        self.enabled_checkbox = QCheckBox('Enable')
+        layout.addWidget(self.enabled_checkbox)
+        self.setLayout(layout)
+
+    def isChecked(self):
+        return self.enabled_checkbox.isChecked()
+
     def get_values(self):
         if not self.isChecked():
             return []
-        if hasattr(self, 'inputs'):
-            vals = []
-            for widget in self.inputs:
-                if isinstance(widget, QtWidgets.QSlider):
-                    if widget.minimum() == -100 and widget.maximum() == 100:
-                        vals.append(widget.value())
-                    elif widget.minimum() == -10 and widget.maximum() == 10:
-                        vals.append(widget.value()/1.0)
-                    elif widget.minimum() == -100 and widget.maximum() == 100: # legacy fallback
-                        vals.append(widget.value() / 10)
-                elif isinstance(widget, QtWidgets.QDoubleSpinBox):
-                    vals.append(widget.value())
-            return vals
         val = self.input.text().strip()
         return [v.strip() for v in val.split(',') if v.strip()] if val else []
 
@@ -177,109 +312,90 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         layout = QVBoxLayout()
         # Input file
-        self.input_file_section = CollapsibleSection(
-            'Input File',
-            'Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]',
-            is_optional=True,
-            expanded=True
+        self.input_file_section = InputFileSection(expanded=True)
+        self.input_file_collapsible = CollapsibleSection(
+            'Input File', 'Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]', expanded=True, show_checkbox=True, repeatable=False
         )
-        self.input_file_section.input.setPlaceholderText('Choose or enter file path')
-        file_btn = QPushButton('Browse')
-        file_btn.clicked.connect(self.choose_file)
-        self.input_file_section.content_layout.addWidget(file_btn)
-        layout.addWidget(self.input_file_section)
+        self.input_file_collapsible.content_widget.layout().addWidget(self.input_file_section)
+        layout.addWidget(self.input_file_collapsible)
         # Input dir
-        self.input_dir_section = CollapsibleSection(
-            'Input Directory',
-            'Input directory with convertable files: [*.xml, *.musicxml, *.mxl, *.midi]',
-            is_optional=True,
-            expanded=True
+        self.input_dir_section = InputDirectorySection(expanded=True)
+        self.input_dir_collapsible = CollapsibleSection(
+            'Input Directory', 'Input directory with convertable files: [*.xml, *.musicxml, *.mxl, *.midi]', expanded=True, show_checkbox=True, repeatable=False
         )
-        self.input_dir_section.input.setPlaceholderText('Choose or enter directory path')
-        dir_btn = QPushButton('Browse')
-        dir_btn.clicked.connect(self.choose_dir)
-        self.input_dir_section.content_layout.addWidget(dir_btn)
-        layout.addWidget(self.input_dir_section)
+        self.input_dir_collapsible.content_widget.layout().addWidget(self.input_dir_section)
+        layout.addWidget(self.input_dir_collapsible)
         # Ensure only one of input_file/input_dir is enabled
-        self.input_file_section.enabled_checkbox.toggled.connect(lambda checked: self.input_dir_section.enabled_checkbox.setChecked(False) if checked else None)
-        self.input_dir_section.enabled_checkbox.toggled.connect(lambda checked: self.input_file_section.enabled_checkbox.setChecked(False) if checked else None)
+        self.input_file_collapsible.enabled_checkbox.toggled.connect(lambda checked: self.input_dir_collapsible.enabled_checkbox.setChecked(False) if checked else None)
+        self.input_dir_collapsible.enabled_checkbox.toggled.connect(lambda checked: self.input_file_collapsible.enabled_checkbox.setChecked(False) if checked else None)
         # Output file
-        self.output_file_section = CollapsibleSection(
-            'Output File',
-            'Output file to create - example: outfile.ustx',
-            is_optional=True
+        self.output_file_section = OutputFileSection()
+        self.output_file_collapsible = CollapsibleSection(
+            'Output File', 'Output file to create - example: outfile.ustx', expanded=False, show_checkbox=True, repeatable=False
         )
-        layout.addWidget(self.output_file_section)
+        self.output_file_collapsible.content_widget.layout().addWidget(self.output_file_section)
+        layout.addWidget(self.output_file_collapsible)
         # Project name
-        self.project_name_section = CollapsibleSection(
-            'Project Name',
-            'Name of the project, stored in the output file metadata',
-            is_optional=True,
-            default='My Project'
+        self.project_name_section = ProjectNameSection(default='My Project')
+        self.project_name_collapsible = CollapsibleSection(
+            'Project Name', 'Name of the project, stored in the output file metadata', expanded=False, show_checkbox=True, repeatable=False
         )
-        layout.addWidget(self.project_name_section)
+        self.project_name_collapsible.content_widget.layout().addWidget(self.project_name_section)
+        layout.addWidget(self.project_name_collapsible)
         # Config file
-        self.config_file_section = CollapsibleSection(
-            'Config File',
-            'Path to the config.yml file you want to use',
-            is_optional=True
+        self.config_file_section = ConfigFileSection()
+        self.config_file_collapsible = CollapsibleSection(
+            'Config File', 'Path to the config.yml file you want to use', expanded=False, show_checkbox=True, repeatable=False
         )
-        config_btn = QPushButton('Browse')
-        config_btn.clicked.connect(self.choose_config_file)
-        self.config_file_section.content_layout.addWidget(config_btn)
-        layout.addWidget(self.config_file_section)
+        self.config_file_collapsible.content_widget.layout().addWidget(self.config_file_section)
+        layout.addWidget(self.config_file_collapsible)
         # Track config
-        self.track_config_section = CollapsibleSection(
-            'Track Config',
-            'Track config to use for this conversion, from config.yml',
-            is_optional=True
+        self.track_config_section = TrackConfigSection()
+        self.track_config_collapsible = CollapsibleSection(
+            'Track Config', 'Track config to use for this conversion, from config.yml', expanded=False, show_checkbox=True, repeatable=False
         )
-        layout.addWidget(self.track_config_section)
+        self.track_config_collapsible.content_widget.layout().addWidget(self.track_config_section)
+        layout.addWidget(self.track_config_collapsible)
         # Voices
-        self.voice_section = CollapsibleSection(
-            'Voice(s)',
-            'Voice id used for each track, from config.yml',
-            is_optional=True,
-            repeatable=True
+        self.voice_section = VoiceSection()
+        self.voice_collapsible = CollapsibleSection(
+            'Voices', 'Voice id used for each track, from config.yml', expanded=False, show_checkbox=True, repeatable=False
         )
-        layout.addWidget(self.voice_section)
+        self.voice_collapsible.content_widget.layout().addWidget(self.voice_section)
+        layout.addWidget(self.voice_collapsible)
         # Pans
         self.pan_section = CollapsibleSection(
-            'Pan(s)',
-            'Pan setting used for each track (-100.0 to 100.0)',
-            is_optional=True,
-            repeatable=True,
-            repeatable_widget_type='slider_pan'
+            'Pan(s)', 'Pan setting used for each track (-100.0 to 100.0)', is_optional=True, repeatable=True, repeatable_widget_type='slider_pan', expanded=False, show_checkbox=True
         )
+        self.add_pan_btn = QPushButton('Add Pan')
+        self.add_pan_btn.clicked.connect(lambda _: self.pan_section.add_repeatable_row())
+        self.pan_section.content_layout.addWidget(self.add_pan_btn)
         layout.addWidget(self.pan_section)
         # Volumes
         self.volume_section = CollapsibleSection(
-            'Volume(s)',
-            'Volume setting used for each track (-10.0 to 10.0)',
-            is_optional=True,
-            repeatable=True,
-            repeatable_widget_type='slider_volume'
+            'Volume(s)', 'Volume setting used for each track (-10.0 to 10.0)', is_optional=True, repeatable=True, repeatable_widget_type='slider_volume', expanded=False, show_checkbox=True
         )
+        self.add_volume_btn = QPushButton('Add Volume')
+        self.add_volume_btn.clicked.connect(lambda _: self.volume_section.add_repeatable_row())
+        self.volume_section.content_layout.addWidget(self.add_volume_btn)
         layout.addWidget(self.volume_section)
         # Tracks
         self.track_section = CollapsibleSection(
-            'Track(s)',
-            'Name used for each track',
-            is_optional=True,
-            repeatable=True
+            'Track(s)', 'Name used for each track', is_optional=True, repeatable=True, repeatable_widget_type=None, expanded=False, show_checkbox=True
         )
+        self.add_track_btn = QPushButton('Add Track')
+        self.add_track_btn.clicked.connect(lambda _: self.track_section.add_repeatable_row())
+        self.track_section.content_layout.addWidget(self.add_track_btn)
         layout.addWidget(self.track_section)
-        # Debug
-        self.debug_section = CollapsibleSection(
-            'Debug Mode',
-            'Print debug information',
-            is_optional=True
-        )
-        layout.addWidget(self.debug_section)
-        # Run button
+        # Debug checkbox next to Run Application
+        debug_layout = QHBoxLayout()
         self.run_btn = QPushButton('Run Application')
         self.run_btn.clicked.connect(self.run_app)
-        layout.addWidget(self.run_btn)
+        self.debug_checkbox = QCheckBox('Debug Mode')
+        debug_layout.addWidget(self.run_btn)
+        debug_layout.addWidget(self.debug_checkbox)
+        debug_layout.addStretch(1)
+        layout.addLayout(debug_layout)
         layout.addStretch(1)
         central_widget.setLayout(layout)
         scroll.setWidget(central_widget)
@@ -304,6 +420,58 @@ class MainWindow(QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(self, 'Choose config file', '', 'YAML Files (*.yml *.yaml)')
         if file_path:
             self.config_file_section.input.setText(file_path)
+
+    def add_pan_row(self):
+        slider_layout = QVBoxLayout()
+        pan_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        pan_slider.setMinimum(-100)
+        pan_slider.setMaximum(100)
+        pan_slider.setValue(0)
+        pan_slider.setTickInterval(10)
+        pan_slider.setSingleStep(1)
+        pan_slider.setPageStep(1)
+        pan_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+        slider_layout.addWidget(pan_slider)
+        minmax_layout = QHBoxLayout()
+        min_label = QLabel('-100')
+        min_label.setAlignment(QtCore.Qt.AlignLeft)
+        max_label = QLabel('100')
+        max_label.setAlignment(QtCore.Qt.AlignRight)
+        minmax_layout.addWidget(min_label)
+        minmax_layout.addStretch(1)
+        minmax_layout.addWidget(max_label)
+        slider_layout.addLayout(minmax_layout)
+        self.pan_section.content_layout.insertLayout(self.pan_section.content_layout.count()-1, slider_layout)
+        self.pan_section.inputs.append(pan_slider)
+
+    def add_volume_row(self):
+        slider_layout = QVBoxLayout()
+        volume_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        volume_slider.setMinimum(-100)
+        volume_slider.setMaximum(100)
+        volume_slider.setValue(10)
+        volume_slider.setTickInterval(10)
+        volume_slider.setSingleStep(1)
+        volume_slider.setPageStep(1)
+        volume_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+        slider_layout.addWidget(volume_slider)
+        volume_minmax_layout = QHBoxLayout()
+        volume_min_label = QLabel('-10.0')
+        volume_min_label.setAlignment(QtCore.Qt.AlignLeft)
+        volume_max_label = QLabel('10.0')
+        volume_max_label.setAlignment(QtCore.Qt.AlignRight)
+        volume_minmax_layout.addWidget(volume_min_label)
+        volume_minmax_layout.addStretch(1)
+        volume_minmax_layout.addWidget(volume_max_label)
+        slider_layout.addLayout(volume_minmax_layout)
+        self.volume_section.content_layout.insertLayout(self.volume_section.content_layout.count()-1, slider_layout)
+        self.volume_section.inputs.append(volume_slider)
+
+    def add_track_row(self):
+        line_edit = QtWidgets.QLineEdit()
+        line_edit.setPlaceholderText('Enter track name')
+        self.track_section.content_layout.insertWidget(self.track_section.content_layout.count()-1, line_edit)
+        self.track_section.inputs.append(line_edit)
 
     def run_app(self):
         args = []
@@ -346,7 +514,7 @@ class MainWindow(QMainWindow):
         if self.track_section.isChecked():
             for v in self.track_section.get_values():
                 args += ['--track', v]
-        if self.debug_section.isChecked():
+        if self.debug_checkbox.isChecked():
             args += ['--debug']
         # Validate input_file/input_dir
         if not (self.input_file_section.isChecked() or self.input_dir_section.isChecked()):
