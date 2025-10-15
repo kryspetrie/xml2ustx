@@ -2,7 +2,7 @@ import sys
 import os
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QFileDialog, QPushButton, QLabel, QVBoxLayout, QWidget, QMenuBar, QAction, QTextEdit, QDialog, QMessageBox, QHBoxLayout, QCheckBox, QScrollArea, QSizePolicy, QGridLayout
+    QApplication, QMainWindow, QFileDialog, QPushButton, QLabel, QVBoxLayout, QWidget, QMenuBar, QAction, QTextEdit, QDialog, QMessageBox, QHBoxLayout, QCheckBox, QScrollArea, QSizePolicy, QGridLayout, QFrame
 )
 import subprocess
 import yaml
@@ -633,8 +633,9 @@ class ConfigEditor(QDialog):
         self.track_tab_layout.addStretch(1)
 
     def make_track_widget(self, track_cfg, show_remove_btn=True):
+        title = track_cfg.get('id', 'Unnamed')
         section = CollapsibleSection(
-            title=f"Track Config: {track_cfg.get('id', '')}",
+            title=f"{title}",
             description="Edit track configuration.",
             is_optional=False,
             expanded=False,
@@ -655,14 +656,14 @@ class ConfigEditor(QDialog):
         section.content_layout.addLayout(id_layout)
         def update_id():
             new_id = id_edit.text()
-            section.header_label.setText(f"<b>Track Config: {new_id}</b>: Edit track configuration.")
+            section.header_label.setText(f"<b>{new_id}</b>: Edit track configuration.")
         id_edit.textChanged.connect(update_id)
         # Tracks
         track_widgets = []
         for track in track_cfg.get('tracks', []):
-            track_id = track.get('track_name', '')
+            track_id = track.get('track_name', title)
             t_section = CollapsibleSection(
-                title=f'Track: {track_id}',
+                title=f'{track_id}',
                 description='Edit track details.',
                 is_optional=False,
                 expanded=False,
@@ -677,7 +678,8 @@ class ConfigEditor(QDialog):
             voice_layout.addWidget(voice_id_edit)
             t_section.content_layout.addLayout(voice_layout)
             # Pan
-            pan_label = QLabel('Pan:')
+            pan_label = QLabel('<b>Pan:</b>')
+            pan_label.setTextFormat(QtCore.Qt.RichText)
             pan_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
             pan_slider.setMinimum(-100)
             pan_slider.setMaximum(100)
@@ -698,17 +700,10 @@ class ConfigEditor(QDialog):
             pan_layout.addWidget(pan_label)
             pan_layout.addWidget(pan_value_label)
             pan_layout.addWidget(pan_slider)
-            # Min/max labels below slider
-            pan_minmax_layout = QHBoxLayout()
-            pan_min_label = QLabel('-100')
-            pan_max_label = QLabel('100')
-            pan_minmax_layout.addWidget(pan_min_label)
-            pan_minmax_layout.addStretch(1)
-            pan_minmax_layout.addWidget(pan_max_label)
-            pan_layout.addLayout(pan_minmax_layout)
             t_section.content_layout.addLayout(pan_layout)
             # Volume
-            volume_label = QLabel('Volume:')
+            volume_label = QLabel('<b>Volume:</b>')
+            volume_label.setTextFormat(QtCore.Qt.RichText)
             volume_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
             volume_slider.setMinimum(-100)
             volume_slider.setMaximum(100)
@@ -729,7 +724,6 @@ class ConfigEditor(QDialog):
             volume_layout.addWidget(volume_label)
             volume_layout.addWidget(volume_value_label)
             volume_layout.addWidget(volume_slider)
-            # Min/max labels below slider
             volume_minmax_layout = QHBoxLayout()
             volume_min_label = QLabel('-10.0')
             volume_max_label = QLabel('10.0')
@@ -738,39 +732,21 @@ class ConfigEditor(QDialog):
             volume_minmax_layout.addWidget(volume_max_label)
             volume_layout.addLayout(volume_minmax_layout)
             t_section.content_layout.addLayout(volume_layout)
-            # Remove button
-            remove_btn = QPushButton('Remove Track')
-            remove_btn.setStyleSheet('margin-top: 8px; margin-bottom: 8px;')
-            t_section.content_layout.addWidget(remove_btn)
-            t_widget = {
-                'group': t_section,
-                'voice_id': voice_id_edit,
-                'pan': pan_slider,
-                'volume': volume_slider,
-                'remove_btn': remove_btn
-            }
-            remove_btn.clicked.connect(lambda _, tw=t_widget: self.remove_track(track_widgets, tw, section.content_layout))
-            track_widgets.append(t_widget)
+            # Add the track section to the main section
             section.content_layout.addWidget(t_section)
-        # Add Track button
+            track_widgets.append(t_section)
+        # Add Track button inside this config group
         add_track_btn = QPushButton('Add Track')
-        add_track_btn.setStyleSheet('margin-top: 8px; margin-bottom: 8px;')
-        add_track_btn.clicked.connect(lambda: self.add_track(track_widgets, section.content_layout))
+        add_track_btn.setStyleSheet('margin-top: 12px; margin-bottom: 12px;')
+        def add_track_to_group():
+            if 'tracks' not in track_cfg:
+                track_cfg['tracks'] = []
+            track_cfg['tracks'].append({'track_name': f'Track {len(track_cfg["tracks"])+1}'})
+            self.refresh_track_tab()
+        add_track_btn.clicked.connect(add_track_to_group)
         section.content_layout.addWidget(add_track_btn)
-        # Remove Track Config button
-        remove_btn = QPushButton('Remove Track Config')
-        remove_btn.setStyleSheet('margin-top: 8px; margin-bottom: 8px;')
-        section.content_layout.addWidget(remove_btn)
-        remove_btn.setVisible(show_remove_btn)
-        widget = {
-            'group': section,
-            'id_edit': id_edit,
-            'tracks': track_widgets,
-            'add_track_btn': add_track_btn,
-            'remove_btn': remove_btn
-        }
-        remove_btn.clicked.connect(lambda: self.remove_track_config(widget))
-        return widget
+        # Return the widget dictionary for the track config
+        return {'group': section, 'tracks': track_widgets}
 
     def update_remove_track_config_buttons(self):
         show = len(self.track_widgets) > 1
@@ -795,7 +771,7 @@ class ConfigEditor(QDialog):
 
     def add_track(self, track_widgets, layout):
         t_section = CollapsibleSection(
-            title='Track',
+            title='New Track',
             description='Edit track details.',
             is_optional=False,
             expanded=False,
