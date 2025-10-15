@@ -307,8 +307,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle('xml2ustx Application')
         self.resize(700, 600)
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
+        # Create tab widget for main UI
+        self.tabs = QtWidgets.QTabWidget()
+        # --- Run Application tab ---
+        run_app_scroll = QScrollArea()
+        run_app_scroll.setWidgetResizable(True)
         central_widget = QWidget()
         layout = QVBoxLayout()
         # Input file
@@ -398,13 +401,34 @@ class MainWindow(QMainWindow):
         layout.addLayout(debug_layout)
         layout.addStretch(1)
         central_widget.setLayout(layout)
-        scroll.setWidget(central_widget)
-        self.setCentralWidget(scroll)
-        menubar = self.menuBar()
-        config_menu = menubar.addMenu('Config')
-        edit_action = QAction('Edit config.yml', self)
-        edit_action.triggered.connect(self.open_config_editor)
-        config_menu.addAction(edit_action)
+        run_app_scroll.setWidget(central_widget)
+        self.tabs.addTab(run_app_scroll, 'Run Application')
+        # --- Voice Config tab ---
+        self.voice_tab_scroll = QScrollArea()
+        self.voice_tab_scroll.setWidgetResizable(True)
+        self.voice_tab_content = QWidget()
+        self.voice_tab_layout = QVBoxLayout()
+        self.voice_tab_content.setLayout(self.voice_tab_layout)
+        self.voice_tab_scroll.setWidget(self.voice_tab_content)
+        self.tabs.addTab(self.voice_tab_scroll, 'Voice Config')
+        # --- Track Config tab ---
+        self.track_tab_scroll = QScrollArea()
+        self.track_tab_scroll.setWidgetResizable(True)
+        self.track_tab_content = QWidget()
+        self.track_tab_layout = QVBoxLayout()
+        self.track_tab_content.setLayout(self.track_tab_layout)
+        self.track_tab_scroll.setWidget(self.track_tab_content)
+        self.tabs.addTab(self.track_tab_scroll, 'Track Config')
+        # Set tab widget as central widget
+        self.setCentralWidget(self.tabs)
+        # Remove menu bar and Config button
+        # ...do not add menubar or config_menu...
+        # Initialize config data and load config
+        self.voice_widgets = []
+        self.track_widgets = []
+        self.config_data = None
+        self.config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src', 'resources', 'config.yml'))
+        self.load_config(self.config_path)
 
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, 'Open file', '', 'MusicXML/MIDI Files (*.xml *.mxl *.mid *.musicxml)')
@@ -531,56 +555,6 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(self, 'Error', f'Error running application:\n{result.stderr}')
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'Failed to run application: {e}')
-
-    def open_config_editor(self):
-        dlg = ConfigEditor(self)
-        dlg.exec_()
-
-class ConfigEditor(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle('Edit Config YAML')
-        self.resize(800, 600)
-        self.tabs = QtWidgets.QTabWidget()
-        # Use scroll areas for both tabs
-        self.voice_tab_scroll = QScrollArea()
-        self.voice_tab_scroll.setWidgetResizable(True)
-        self.voice_tab_content = QWidget()
-        self.voice_tab_layout = QVBoxLayout()
-        self.voice_tab_content.setLayout(self.voice_tab_layout)
-        self.voice_tab_scroll.setWidget(self.voice_tab_content)
-        self.track_tab_scroll = QScrollArea()
-        self.track_tab_scroll.setWidgetResizable(True)
-        self.track_tab_content = QWidget()
-        self.track_tab_layout = QVBoxLayout()
-        self.track_tab_content.setLayout(self.track_tab_layout)
-        self.track_tab_scroll.setWidget(self.track_tab_content)
-        self.tabs.addTab(self.voice_tab_scroll, 'Voice Config')
-        self.tabs.addTab(self.track_tab_scroll, 'Track Config')
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(self.tabs)
-        # Add control buttons
-        btn_layout = QHBoxLayout()
-        self.new_btn = QPushButton('New Config')
-        self.new_btn.clicked.connect(self.new_config)
-        self.import_btn = QPushButton('Import Config')
-        self.import_btn.clicked.connect(self.import_config)
-        self.save_btn = QPushButton('Save')
-        self.save_btn.clicked.connect(self.save_config)
-        self.save_as_btn = QPushButton('Save As')
-        self.save_as_btn.clicked.connect(self.save_as_config)
-        btn_layout.addWidget(self.new_btn)
-        btn_layout.addWidget(self.import_btn)
-        btn_layout.addWidget(self.save_btn)
-        btn_layout.addWidget(self.save_as_btn)
-        main_layout.addLayout(btn_layout)
-        self.setLayout(main_layout)
-        self.voice_widgets = []
-        self.track_widgets = []
-        self.config_data = None
-        # Always use absolute path for default config (src/resources/config.yml)
-        self.config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src', 'resources', 'config.yml'))
-        self.load_config(self.config_path)
 
     def load_config(self, path=None):
         if path:
