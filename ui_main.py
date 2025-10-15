@@ -632,7 +632,7 @@ class ConfigEditor(QDialog):
         self.track_tab_layout.addWidget(add_track_btn)
         self.track_tab_layout.addStretch(1)
 
-    def make_track_widget(self, track_cfg):
+    def make_track_widget(self, track_cfg, show_remove_btn=True):
         section = CollapsibleSection(
             title=f"Track Config: {track_cfg.get('id', '')}",
             description="Edit track configuration.",
@@ -761,6 +761,7 @@ class ConfigEditor(QDialog):
         remove_btn = QPushButton('Remove Track Config')
         remove_btn.setStyleSheet('margin-top: 8px; margin-bottom: 8px;')
         section.content_layout.addWidget(remove_btn)
+        remove_btn.setVisible(show_remove_btn)
         widget = {
             'group': section,
             'id_edit': id_edit,
@@ -771,58 +772,26 @@ class ConfigEditor(QDialog):
         remove_btn.clicked.connect(lambda: self.remove_track_config(widget))
         return widget
 
-    def make_voice_widget(self, voice):
-        section = CollapsibleSection(
-            title=f"Voice: {voice.get('id', '')}",
-            description="Edit voice configuration.",
-            is_optional=False,
-            expanded=False,
-            show_checkbox=False
-        )
-        section.content_layout.addWidget(QLabel('ID'))
-        id_edit = QtWidgets.QLineEdit(voice.get('id', ''))
-        section.content_layout.addWidget(id_edit)
-        section.content_layout.addWidget(QLabel('Singer'))
-        singer_edit = QtWidgets.QLineEdit(voice.get('singer', ''))
-        section.content_layout.addWidget(singer_edit)
-        section.content_layout.addWidget(QLabel('Renderer'))
-        renderer_edit = QtWidgets.QLineEdit(voice.get('renderer', ''))
-        section.content_layout.addWidget(renderer_edit)
-        section.content_layout.addWidget(QLabel('Phonemizer'))
-        phonemizer_edit = QtWidgets.QLineEdit(voice.get('phonemizer', ''))
-        section.content_layout.addWidget(phonemizer_edit)
-        remove_btn = QPushButton('Remove')
-        section.content_layout.addWidget(remove_btn)
-        widget = {
-            'group': section,
-            'id': id_edit,
-            'singer': singer_edit,
-            'renderer': renderer_edit,
-            'phonemizer': phonemizer_edit,
-            'remove_btn': remove_btn
-        }
-        remove_btn.clicked.connect(lambda: self.remove_voice(widget))
-        return widget
-
-    def add_voice(self):
-        w = self.make_voice_widget({'id': '', 'singer': '', 'renderer': '', 'phonemizer': ''})
-        self.voice_widgets.append(w)
-        self.voice_tab_layout.insertWidget(len(self.voice_widgets)-1, w['group'])
-
-    def remove_voice(self, widget):
-        self.voice_tab_layout.removeWidget(widget['group'])
-        widget['group'].deleteLater()
-        self.voice_widgets.remove(widget)
+    def update_remove_track_config_buttons(self):
+        show = len(self.track_widgets) > 1
+        for w in self.track_widgets:
+            w['remove_btn'].setVisible(show)
 
     def add_track_config(self):
         w = self.make_track_widget({'id': '', 'tracks': []})
         self.track_widgets.append(w)
         self.track_tab.layout().insertWidget(len(self.track_widgets)-1, w['group'])
+        self.update_remove_track_config_buttons()
 
     def remove_track_config(self, widget):
-        self.track_tab.layout().removeWidget(widget['group'])
-        widget['group'].deleteLater()
-        self.track_widgets.remove(widget)
+        if widget in self.track_widgets:
+            group = widget.get('group')
+            if group is not None and group.parent() is not None:
+                self.track_tab.layout().removeWidget(group)
+                group.deleteLater()
+            self.track_widgets.remove(widget)
+            self.update_remove_track_config_buttons()
+        # Optionally, handle the case where widget is not found or already removed
 
     def add_track(self, track_widgets, layout):
         t_section = CollapsibleSection(
@@ -987,6 +956,47 @@ class ConfigEditor(QDialog):
         if file_path:
             self.config_path = file_path
             self.save_config()
+
+    def make_voice_widget(self, voice):
+        section = CollapsibleSection(
+            title=f"Voice: {voice.get('id', '')}",
+            description="Edit voice configuration.",
+            is_optional=False,
+            expanded=False,
+            show_checkbox=False
+        )
+        section.content_layout.addWidget(QLabel('ID'))
+        id_edit = QtWidgets.QLineEdit(voice.get('id', ''))
+        section.content_layout.addWidget(id_edit)
+        section.content_layout.addWidget(QLabel('Singer'))
+        singer_edit = QtWidgets.QLineEdit(voice.get('singer', ''))
+        section.content_layout.addWidget(singer_edit)
+        section.content_layout.addWidget(QLabel('Renderer'))
+        renderer_edit = QtWidgets.QLineEdit(voice.get('renderer', ''))
+        section.content_layout.addWidget(renderer_edit)
+        section.content_layout.addWidget(QLabel('Phonemizer'))
+        phonemizer_edit = QtWidgets.QLineEdit(voice.get('phonemizer', ''))
+        section.content_layout.addWidget(phonemizer_edit)
+        remove_btn = QPushButton('Remove')
+        section.content_layout.addWidget(remove_btn)
+        widget = {
+            'group': section,
+            'id': id_edit,
+            'singer': singer_edit,
+            'renderer': renderer_edit,
+            'phonemizer': phonemizer_edit,
+            'remove_btn': remove_btn
+        }
+        remove_btn.clicked.connect(lambda: self.remove_voice(widget))
+        return widget
+
+    def add_voice(self):
+        w = self.make_voice_widget({'id': '', 'singer': '', 'renderer': '', 'phonemizer': ''})
+        self.voice_widgets.append(w)
+        # Insert before the last two widgets: Add Voice button and stretch
+        insert_index = self.voice_tab_layout.count() - 2 if self.voice_tab_layout.count() >= 2 else self.voice_tab_layout.count()
+        self.voice_tab_layout.insertWidget(insert_index, w['group'])
+
 
 def main():
     app = QApplication(sys.argv)
