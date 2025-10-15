@@ -1,7 +1,7 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 
 function mp3() {
-  for process in "$@" ; do;
+  for process in "$@" ; do
     ffmpeg -i "${process}" -acodec libmp3lame -ab 320k "${process:r}.mp3"
   done;
 };
@@ -11,8 +11,8 @@ function left() {
         echo "Usage: mix left left.wav right1.wav right2.wav right3.wav outfile";
         exit 1
   fi;
-  echo "mix left $1 $2 $3 $4 $5"
-  ffmpeg -i "$1" -i "$2" -i "$3" -i "$4" -filter_complex "[0:a][1:a][2:a][3:a]amerge=inputs=4,pan=stereo|FL<c0|FR<0.33*c1+0.33*c2+0.33*c3[a]" -ac 2 -map "[a]" -c:v copy $5.mp3;
+  echo "mix left \"$1\" \"$2\" \"$3\" \"$4\" \"$5\""
+  ffmpeg -i "$1" -i "$2" -i "$3" -i "$4" -filter_complex "[0:a][1:a][2:a][3:a]amerge=inputs=4,pan=stereo|FL<c0|FR<0.33*c1+0.33*c2+0.33*c3[a]" -ac 2 -map "[a]" -c:v copy "$5.mp3";
 };
 
 function stereo() {
@@ -20,8 +20,8 @@ function stereo() {
         echo "Usage: mix stereo tenor.wav lead.wav bari.wav bass.wav outfile";
         exit 1
   fi;
-  echo "mix stereo $1 $2 $3 $4 $5"
-  ffmpeg -i "$1" -i "$2" -i "$3" -i "$4" -filter_complex "[0:a][1:a][2:a][3:a]amerge=inputs=4,pan=stereo|FL<0.65*c0+0.7*c1+0.35*c2+0.45*c3|FR<0.35*c0+0.6*c1+0.65*c2+0.6*c3[a]" -ac 2 -map "[a]" -c:v copy $5.mp3;
+  echo "mix stereo \"$1\" \"$2\" \"$3\" \"$4\" \"$5\""
+  ffmpeg -i "$1" -i "$2" -i "$3" -i "$4" -filter_complex "[0:a][1:a][2:a][3:a]amerge=inputs=4,pan=stereo|FL<0.65*c0+0.7*c1+0.35*c2+0.45*c3|FR<0.35*c0+0.6*c1+0.65*c2+0.6*c3[a]" -ac 2 -map "[a]" -c:v copy "$5.mp3";
 };
 
 function all() {

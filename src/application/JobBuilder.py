@@ -38,7 +38,7 @@ def get_input_files_from_dir(input_dir: str) -> list[str]:
     input_dir_path = Path(input_dir)
     paths = []
     for glob in file_type_globs:
-        found = list(input_dir_path.glob(glob, case_sensitive=False))
+        found = list(input_dir_path.glob(glob))
         paths += [it.as_posix() for it in found]
     return paths
 

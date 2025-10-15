@@ -29,6 +29,9 @@ options:
 ```
 The `track_config` will always override the values defined by `--voice`, `--pan`, `--volume`, and `--track`. The latter can be specified multiple times on the command line to define the configuration for multiple tracks.
 
+### Required CLI programs (for scripts)
+sudo apt install libmp3lame-dev ffmpeg
+
 ### Bash Wrapper
 This application can be run via the included wrapper `run.sh`, which will also install the required python dependencies into a `venv` environment.
 ```commandline

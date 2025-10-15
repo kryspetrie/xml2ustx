@@ -2,19 +2,23 @@ voice_config:
   - id: 'default'
     phonemizer: 'OpenUtau.Core.DefaultPhonemizer'
   - id: 'tiger'
-    singer: 'TIGER_DS_v106'
+    singer: 'TIGER_DS_v110'
     renderer: 'DIFFSINGER'
     phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
   - id: 'nero'
-    singer: 'Nero_v110/configs'
+    singer: 'Lunai Pack v151/04 Nero/configs'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
+  - id: 'peyton'
+    singer: 'peiton_ds_1.5_beta'
     renderer: 'DIFFSINGER'
     phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
   - id: 'tiger-fr'
-    singer: 'TIGER_DS_v106'
+    singer: 'TIGER_DS_v110'
     renderer: 'DIFFSINGER'
     phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerFrenchPhonemizer'
   - id: 'nero-fr'
-    singer: 'Nero_v110/configs'
+    singer: 'Nero_v151/configs'
     renderer: 'DIFFSINGER'
     phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerFrenchPhonemizer'
 
@@ -37,9 +41,9 @@ track_config:
         pan: -60
         volume: 0
       - track_name: 'Bass'
-        voice_id: 'nero'
+        voice_id: 'peyton'
         pan: 10
-        volume: 6
+        volume: 1
   - id: 'ttbb-barbershop-fr'
     tracks:
       - track_name: 'Tenor'
@@ -73,11 +77,11 @@ track_config:
         pan: -60
         volume: 0
       - track_name: 'Part 4'
-        voice_id: 'nero'
+        voice_id: 'peyton'
         pan: 0
         volume: 0
       - track_name: 'Part 5'
-        voice_id: 'nero'
+        voice_id: 'peyton'
         pan: 10
         volume: 6
 default_lyric: 'doo'

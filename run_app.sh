@@ -5,11 +5,14 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Check if the virtual environment directory exists
 if [ ! -d "${__dir}/venv" ]; then
     echo "Virtual environment 'venv' not found. Creating..."
+    python3 -m pip install --user virtualenv
+    python3 -m venv ${__dir}/venv 
     python3 -m venv ${__dir}/venv
+    source ${__dir}/venv/bin/activate
     source ${__dir}/venv/bin/activate
     pip install -r ${__dir}/requirements.txt
 fi
 
 source ${__dir}/venv/bin/activate
-python -m streamlit run ${__dir}/app.py $@
+python3 -m streamlit run ${__dir}/app.py $@
 deactivate
