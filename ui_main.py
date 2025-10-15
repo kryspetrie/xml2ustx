@@ -745,8 +745,23 @@ class ConfigEditor(QDialog):
             self.refresh_track_tab()
         add_track_btn.clicked.connect(add_track_to_group)
         section.content_layout.addWidget(add_track_btn)
+        # Add Remove button for this config group
+        remove_btn = QPushButton('Remove Config Group')
+        remove_btn.setStyleSheet('margin-bottom: 8px;')
+        def remove_this_group():
+            if section is not None:
+                # Remove from UI
+                section.setParent(None)
+                # Remove from internal list and refresh
+                for i, w in enumerate(self.track_widgets):
+                    if w.get('group') == section:
+                        self.track_widgets.pop(i)
+                        break
+                self.refresh_track_tab()
+        remove_btn.clicked.connect(remove_this_group)
+        section.content_layout.addWidget(remove_btn)
         # Return the widget dictionary for the track config
-        return {'group': section, 'tracks': track_widgets}
+        return {'group': section, 'tracks': track_widgets, 'remove_btn': remove_btn}
 
     def update_remove_track_config_buttons(self):
         show = len(self.track_widgets) > 1
@@ -754,9 +769,9 @@ class ConfigEditor(QDialog):
             w['remove_btn'].setVisible(show)
 
     def add_track_config(self):
-        w = self.make_track_widget({'id': '', 'tracks': []})
+        w = self.make_track_widget({'id': 'New Track Config', 'tracks': []})
         self.track_widgets.append(w)
-        self.track_tab.layout().insertWidget(len(self.track_widgets)-1, w['group'])
+        self.track_tab_layout.insertWidget(len(self.track_widgets)-1, w['group'])
         self.update_remove_track_config_buttons()
 
     def remove_track_config(self, widget):
@@ -830,9 +845,7 @@ class ConfigEditor(QDialog):
         volume_slider_layout.addWidget(volume_slider)
         volume_minmax_layout = QHBoxLayout()
         volume_min_label = QLabel('-10.0')
-        volume_min_label.setAlignment(QtCore.Qt.AlignLeft)
         volume_max_label = QLabel('10.0')
-        volume_max_label.setAlignment(QtCore.Qt.AlignRight)
         volume_minmax_layout.addWidget(volume_min_label)
         volume_minmax_layout.addStretch(1)
         volume_minmax_layout.addWidget(volume_max_label)
