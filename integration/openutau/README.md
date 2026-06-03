@@ -9,7 +9,7 @@ Target fork: **[keirokeer/OpenUtau-DiffSinger-Lunai](https://github.com/keirokee
 | **File → Import from MuseScore (MusicXML)...** | Converts via xml2ustx; prompts to download sidecar if missing |
 | **Tools → Download MusicXML Converter...** | Manual download of platform zip from GitHub releases |
 | **Tools → Edit MusicXML Import Config...** | YAML editor for voice/track presets |
-| **CI** | Each release includes `xml2ustx-{platform}.zip` (app stays smaller; converter downloaded on demand) |
+| **CI** | Each OS matrix job builds Python via `scripts/ci/build_and_package_sidecar.*`; release includes `xml2ustx-{platform}.zip` and copies binary into `OpenUtau/tools/xml2ustx/` |
 | **Bundled default config** | `tools/xml2ustx/default-config.yml` ships with the app (Lunai voices) |
 
 ## Download sources (automatic)
