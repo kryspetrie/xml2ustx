@@ -1,4 +1,4 @@
-# Build xml2ustx sidecar binaries for all platforms (attach to GitHub Releases).
+# Build xml2ustx sidecar binaries on native runners (one zip per platform).
 name: Sidecar release
 
 on:
@@ -11,66 +11,59 @@ on:
 
 jobs:
   build-sidecar:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
-            name: win-x64
-            artifact: xml2ustx.exe
-          - os: windows-latest
-            name: win-x86
-            arch: x86
-            artifact: xml2ustx.exe
-          - os: ubuntu-latest
-            name: linux-x64
-            artifact: xml2ustx
-          - os: ubuntu-latest
-            name: linux-arm64
-            arch: arm64
-            artifact: xml2ustx
-          - os: macos-latest
-            name: osx-arm64
-            artifact: xml2ustx
-          - os: macos-15-intel
-            name: osx-x64
-            artifact: xml2ustx
+          - name: win-x64
+            runs-on: windows-latest
+            python-arch: x64
+          - name: win-x86
+            runs-on: windows-latest
+            python-arch: x86
+          - name: win-arm64
+            runs-on: windows-11-arm
+            python-arch: arm64
+          - name: linux-x64
+            runs-on: ubuntu-latest
+          - name: linux-arm64
+            runs-on: ubuntu-24.04-arm
+          - name: osx-x64
+            runs-on: macos-15-intel
+            target-arch: x64
+          - name: osx-arm64
+            runs-on: macos-15-intel
+            target-arch: arm64
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
+        if: runner.os == 'Windows'
+        with:
+          python-version: "3.12"
+          architecture: ${{ matrix.python-arch }}
+
+      - uses: actions/setup-python@v5
+        if: runner.os != 'Windows'
         with:
           python-version: "3.12"
 
-      - name: Build sidecar (Windows)
+      - name: Build and package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          python -m venv .venv
-          .\.venv\Scripts\Activate.ps1
-          pip install poetry pyinstaller
-          poetry install --no-root
-          pyinstaller --noconfirm xml2ustx.spec
+        run: ./scripts/ci/build_and_package_sidecar.ps1 -ArtifactName xml2ustx-${{ matrix.name }}
 
-      - name: Build sidecar (Unix)
-        if: runner.os != 'Windows'
-        run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip install poetry pyinstaller
-          poetry install --no-root
-          pyinstaller --noconfirm xml2ustx.spec
-          chmod +x dist/xml2ustx
+      - name: Build and package (macOS)
+        if: runner.os == 'macOS'
+        env:
+          TARGET_ARCH: ${{ matrix.target-arch }}
+        run: ./scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.name }} "$GITHUB_WORKSPACE"
 
-      - name: Package zip
-        shell: bash
-        run: |
-          mkdir -p pkg
-          cp dist/${{ matrix.artifact }} pkg/
-          cp src/resources/config.yml pkg/default-config.yml
-          cd pkg && zip -r ../xml2ustx-${{ matrix.name }}.zip .
+      - name: Build and package (Linux)
+        if: runner.os == 'Linux'
+        run: ./scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.name }} "$GITHUB_WORKSPACE"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -88,11 +81,14 @@ jobs:
           path: artifacts
           merge-multiple: true
 
+      - name: Flatten artifact paths
+        run: find artifacts -name 'xml2ustx-*.zip' -exec cp {} . \;
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag }}
           name: xml2ustx sidecar ${{ inputs.tag }}
-          files: artifacts/*.zip
+          files: xml2ustx-*.zip
           draft: false
           prerelease: false

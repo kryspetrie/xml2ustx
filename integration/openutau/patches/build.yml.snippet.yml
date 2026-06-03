@@ -1,5 +1,9 @@
 # Insert in keirokeer/OpenUtau-DiffSinger-Lunai .github/workflows/build.yml
 # after "Restore" and before "Build (Windows and Linux)".
+#
+# Matrix runs-on overrides for native Python builds:
+#   win-arm64  -> windows-11-arm
+#   linux-arm64 -> ubuntu-24.04-arm
 
       - name: Checkout xml2ustx
         uses: actions/checkout@v4
@@ -7,27 +11,25 @@
           repository: kryspetrie/xml2ustx
           path: xml2ustx-src
 
-      - name: Build xml2ustx sidecar package
-        shell: bash
-        run: |
-          cd xml2ustx-src
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip install poetry pyinstaller
-          poetry install --no-root
-          pyinstaller --noconfirm xml2ustx.spec
-          mkdir -p ../sidecar-pkg
-          if [ -f dist/xml2ustx.exe ]; then
-            cp dist/xml2ustx.exe ../sidecar-pkg/
-            chmod +x ../sidecar-pkg/xml2ustx.exe 2>/dev/null || true
-          else
-            cp dist/xml2ustx ../sidecar-pkg/
-            chmod +x ../sidecar-pkg/xml2ustx
-          fi
-          cp src/resources/config.yml ../sidecar-pkg/default-config.yml
-          cd ../sidecar-pkg && zip -r ../xml2ustx-${{ matrix.arch.name }}.zip .
-          mkdir -p ../OpenUtau/tools/xml2ustx
-          cp default-config.yml ../OpenUtau/tools/xml2ustx/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: ${{ matrix.arch.arch == 'x86' && 'x86' || (matrix.arch.arch == 'arm64' && 'arm64' || 'x64') }}
 
-# Add to release "files:" list (same job):
-#            xml2ustx-${{ matrix.arch.name }}.zip
+      - name: Build xml2ustx sidecar (Windows)
+        if: matrix.arch.os == 'win'
+        shell: pwsh
+        run: ./xml2ustx-src/scripts/ci/build_and_package_sidecar.ps1 -ArtifactName xml2ustx-${{ matrix.arch.name }}
+
+      - name: Build xml2ustx sidecar (macOS)
+        if: matrix.arch.os == 'osx'
+        env:
+          TARGET_ARCH: ${{ matrix.arch.name == 'osx-arm64' && 'arm64' || 'x64' }}
+        run: ./xml2ustx-src/scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.arch.name }} "${{ github.workspace }}/xml2ustx-src"
+
+      - name: Build xml2ustx sidecar (Linux)
+        if: matrix.arch.os == 'linux'
+        run: ./xml2ustx-src/scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.arch.name }} "${{ github.workspace }}/xml2ustx-src"
+
+# Release files: add xml2ustx-${{ matrix.arch.name }}.zip
+# Published app includes tools/xml2ustx/ (binary + default-config.yml) when csproj copy rules match.
