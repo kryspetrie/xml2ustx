@@ -1,0 +1,87 @@
+voice_config:
+  - id: 'default'
+    phonemizer: 'OpenUtau.Core.DefaultPhonemizer'
+  - id: 'tiger'
+    singer: 'TIGER_DS_v110'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
+  - id: 'nero'
+    singer: 'Lunai Pack v151/04 Nero/configs'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
+  - id: 'peyton'
+    singer: 'peiton_ds_1.5_beta'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerARPAPlusEnglishPhonemizer'
+  - id: 'tiger-fr'
+    singer: 'TIGER_DS_v110'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerFrenchPhonemizer'
+  - id: 'nero-fr'
+    singer: 'Nero_v151/configs'
+    renderer: 'DIFFSINGER'
+    phonemizer: 'OpenUtau.Core.DiffSinger.DiffSingerFrenchPhonemizer'
+
+track_config:
+  - id: 'default'
+    tracks:
+      - voice_id: 'default'
+  - id: 'ttbb-barbershop'
+    tracks:
+      - track_name: 'Tenor'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Lead'
+        voice_id: 'tiger'
+        pan: -25
+        volume: 3
+      - track_name: 'Bari'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Bass'
+        voice_id: 'peyton'
+        pan: 10
+        volume: 1
+  - id: 'ttbb-barbershop-fr'
+    tracks:
+      - track_name: 'Tenor'
+        voice_id: 'tiger-fr'
+        pan: -60
+        volume: 0
+      - track_name: 'Lead'
+        voice_id: 'tiger-fr'
+        pan: -25
+        volume: 3
+      - track_name: 'Bari'
+        voice_id: 'tiger-fr'
+        pan: -60
+        volume: 0
+      - track_name: 'Bass'
+        voice_id: 'nero-fr'
+        pan: 10
+        volume: 6
+  - id: '5-part'
+    tracks:
+      - track_name: 'Part 1'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Part 2'
+        voice_id: 'tiger'
+        pan: -25
+        volume: 0
+      - track_name: 'Part 3'
+        voice_id: 'tiger'
+        pan: -60
+        volume: 0
+      - track_name: 'Part 4'
+        voice_id: 'peyton'
+        pan: 0
+        volume: 0
+      - track_name: 'Part 5'
+        voice_id: 'peyton'
+        pan: 10
+        volume: 6
+default_lyric: 'doo'

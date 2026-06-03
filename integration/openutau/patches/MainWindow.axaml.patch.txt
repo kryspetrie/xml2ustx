@@ -1,0 +1,8 @@
+# Insert after menu.file.importaudio (line with importaudio Click handler):
+
+            <MenuItem Header="{DynamicResource menu.file.importmusescore}" Click="OnMenuImportMuseScore"/>
+
+# Insert under menu.tools, before menu.tools.prefs:
+
+            <MenuItem Header="{DynamicResource menu.tools.xml2ustxdownload}" Click="OnMenuDownloadXml2Ustx"/>
+            <MenuItem Header="{DynamicResource menu.tools.xml2ustxconfig}" Click="OnMenuEditXml2UstxConfig"/>

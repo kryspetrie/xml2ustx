@@ -107,6 +107,10 @@ track_config:
         volume: 6
 ```
 
+## OpenUtau integration
+
+Bundled sidecar + menu items for [OpenUtau-DiffSinger-Lunai](https://github.com/keirokeer/OpenUtau-DiffSinger-Lunai) live under `integration/openutau/`. See [integration/openutau/README.md](integration/openutau/README.md) to apply (Import from MuseScore, config editor, per-platform PyInstaller build).
+
 ## Streamlit App
 You can also run this application as a basic web app using [Streamlit](https://streamlit.io/). It does not currently have all functionality available via the CLI. Launch this app via the runner `./run_app.sh`, or use the following command:
 ```

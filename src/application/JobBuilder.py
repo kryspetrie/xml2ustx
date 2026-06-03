@@ -1,4 +1,4 @@
-import importlib
+"""Job builder for XML to USTX conversion."""
 from pathlib import Path
 from typing import List
 
@@ -7,22 +7,23 @@ from src.Utils import dumps
 from src.application.ApplicationConfig import ApplicationConfig
 from src.application.models.CommandLineOptions import CommandLineOptions
 from src.application.ConfigParser import parse as parse_config
+from src.application.ConfigPaths import resolve_config_file
 from src.domain.models.Job import Job
 from src.domain.models.TrackConfig import TrackConfig
-from src.resources.Resources import get_resource_path
 
 # Job defaults, when not specified
-DEFAULT_CONFIG_FILE = get_resource_path("config.yml")
 DEFAULT_PROJECT_NAME = 'New Project'
 DEFAULT_LYRIC = 'doo'
 
 
 def to_output_file(input_file: str) -> str:
+    """Convert input file path to output .ustx file path."""
     input_path = Path(input_file)
     return f'{input_path.parent.as_posix()}/{input_path.stem}.ustx'
 
 
 def output_file_or_default(options: CommandLineOptions) -> str | None:
+    """Get output file or default based on options."""
     output_file = options.output_file
     if options.input_file is not None and options.output_file is None:
         output_file = to_output_file(options.input_file)
@@ -30,31 +31,33 @@ def output_file_or_default(options: CommandLineOptions) -> str | None:
 
 
 def get_output_files_from_input(input_files: list[str]) -> list[str]:
+    """Get output files from input files list."""
     return [to_output_file(file) for file in input_files]
 
 
 def get_input_files_from_dir(input_dir: str) -> list[str]:
+    """Get input files from directory."""
     file_type_globs = ['*.xml', '*.musicxml', '*.mxl', '*.midi']
     input_dir_path = Path(input_dir)
     paths = []
     for glob in file_type_globs:
         found = list(input_dir_path.glob(glob))
-        paths += [it.as_posix() for it in found]
-    return paths
+        paths.extend(found)
+    return [str(path) for path in paths]
 
 
 def build_cli(options: CommandLineOptions) -> Job:
-
+    """Build the command-line interface for the application."""
     # load application config from the file
-    application_config: ApplicationConfig = parse_config(
-        DEFAULT_CONFIG_FILE if options.config_file is None else options.config_file)
+    config_file = resolve_config_file(options.config_file)
+    application_config: ApplicationConfig = parse_config(config_file)
 
     track_configs: List[TrackConfig] = []
 
     # Track config id takes precedence for parsed settings
     if options.track_config_id is not None:
         if options.track_config_id not in application_config.track_config_map:
-            raise RuntimeError(f'Track config {options.track_config_id} not found in {options.config_file}')
+            raise RuntimeError(f'Track config {options.track_config_id} not found in {config_file}')
         track_configs = application_config.track_config_map[options.track_config_id]
 
     # Otherwise use the voice data
@@ -83,7 +86,7 @@ def build_cli(options: CommandLineOptions) -> Job:
             if i < len_voices:
                 voice_id: str = options.voice_config_ids[i]
                 if voice_id not in application_config.voice_config_map:
-                    raise RuntimeError(f'Did not find voice id {voice_id} in {options.config_file}')
+                    raise RuntimeError(f'Did not find voice id {voice_id} in {config_file}')
                 voice = application_config.voice_config_map[voice_id]
 
             track_config: TrackConfig = TrackConfig(name=track, voice=voice, pan=pan, volume=volume)
@@ -122,15 +125,15 @@ def build_cli(options: CommandLineOptions) -> Job:
 
 
 def build_ui(options: UiOptions):
-
+    """Build the user interface for the application."""
     # load application config from the file
-    application_config: ApplicationConfig = parse_config(DEFAULT_CONFIG_FILE)
+    application_config: ApplicationConfig = parse_config(resolve_config_file(None))
 
     # Load the specified track config, otherwise use the default options
     track_configs: List[TrackConfig] = application_config.default_track_config()
     if options.track_config_id is not None:
         if options.track_config_id not in application_config.track_config_map:
-            raise RuntimeError(f'Track config {options.track_config_id} not found in {DEFAULT_CONFIG_FILE}')
+            raise RuntimeError(f'Track config {options.track_config_id} not found in config')
         track_configs = application_config.track_config_map[options.track_config_id]
 
     return Job(

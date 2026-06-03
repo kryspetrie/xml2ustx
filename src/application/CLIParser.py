@@ -1,3 +1,4 @@
+"""Command-line parser for XML to USTX conversion."""
 import argparse
 import sys
 from src.Utils import dumps
@@ -6,10 +7,12 @@ from src.application.Strings import PROGRAM_DESCRIPTION
 
 
 def eprint(*args, **kwargs):
+    """Print to stderr."""
     print(*args, file=sys.stderr, **kwargs)
 
 
 def parse() -> CommandLineOptions:
+    """Parse command-line arguments and return CommandLineOptions."""
     # Build the parser
     parser = argparse.ArgumentParser(description=PROGRAM_DESCRIPTION)
     parser.add_argument('--input_file', type=str, required=False,
@@ -34,9 +37,17 @@ def parse() -> CommandLineOptions:
                         help='Name used for each track')
     parser.add_argument('--debug', action='store_true', default=False,
                         help='Print debug information')
+    parser.add_argument('--list_track_configs', action='store_true', default=False,
+                        help='Print track_config ids from config and exit')
 
     # Actually parse the provided args
     args = parser.parse_args()
+
+    if args.list_track_configs:
+        from src.application.ConfigPaths import resolve_config_file
+        from src.application.ListTrackConfigs import main as list_main
+        config_path = resolve_config_file(args.config_file)
+        sys.exit(list_main(config_path))
 
     if args.input_file is None and args.input_dir is None:
         eprint("Must provide either --input_file or --input_dir to specify inputs.")
@@ -51,7 +62,7 @@ def parse() -> CommandLineOptions:
     if output_file and not output_file.lower().endswith(".ustx"):
         output_file = output_file + ".ustx"
 
-    # Return the options as an defined object
+    # Return the options as a defined object
     options = CommandLineOptions(
         input_file=args.input_file,
         output_file=output_file,

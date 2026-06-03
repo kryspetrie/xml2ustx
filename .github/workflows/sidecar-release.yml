@@ -1,0 +1,98 @@
+# Build xml2ustx sidecar binaries for all platforms (attach to GitHub Releases).
+name: Sidecar release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. sidecar-0.1.0)"
+        required: true
+        type: string
+
+jobs:
+  build-sidecar:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: win-x64
+            artifact: xml2ustx.exe
+          - os: windows-latest
+            name: win-x86
+            arch: x86
+            artifact: xml2ustx.exe
+          - os: ubuntu-latest
+            name: linux-x64
+            artifact: xml2ustx
+          - os: ubuntu-latest
+            name: linux-arm64
+            arch: arm64
+            artifact: xml2ustx
+          - os: macos-latest
+            name: osx-arm64
+            artifact: xml2ustx
+          - os: macos-15-intel
+            name: osx-x64
+            artifact: xml2ustx
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sidecar (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\Activate.ps1
+          pip install poetry pyinstaller
+          poetry install --no-root
+          pyinstaller --noconfirm xml2ustx.spec
+
+      - name: Build sidecar (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install poetry pyinstaller
+          poetry install --no-root
+          pyinstaller --noconfirm xml2ustx.spec
+          chmod +x dist/xml2ustx
+
+      - name: Package zip
+        shell: bash
+        run: |
+          mkdir -p pkg
+          cp dist/${{ matrix.artifact }} pkg/
+          cp src/resources/config.yml pkg/default-config.yml
+          cd pkg && zip -r ../xml2ustx-${{ matrix.name }}.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xml2ustx-${{ matrix.name }}
+          path: xml2ustx-${{ matrix.name }}.zip
+
+  publish:
+    needs: build-sidecar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: xml2ustx sidecar ${{ inputs.tag }}
+          files: artifacts/*.zip
+          draft: false
+          prerelease: false

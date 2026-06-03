@@ -1,0 +1,33 @@
+# Insert in keirokeer/OpenUtau-DiffSinger-Lunai .github/workflows/build.yml
+# after "Restore" and before "Build (Windows and Linux)".
+
+      - name: Checkout xml2ustx
+        uses: actions/checkout@v4
+        with:
+          repository: kryspetrie/xml2ustx
+          path: xml2ustx-src
+
+      - name: Build xml2ustx sidecar package
+        shell: bash
+        run: |
+          cd xml2ustx-src
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install poetry pyinstaller
+          poetry install --no-root
+          pyinstaller --noconfirm xml2ustx.spec
+          mkdir -p ../sidecar-pkg
+          if [ -f dist/xml2ustx.exe ]; then
+            cp dist/xml2ustx.exe ../sidecar-pkg/
+            chmod +x ../sidecar-pkg/xml2ustx.exe 2>/dev/null || true
+          else
+            cp dist/xml2ustx ../sidecar-pkg/
+            chmod +x ../sidecar-pkg/xml2ustx
+          fi
+          cp src/resources/config.yml ../sidecar-pkg/default-config.yml
+          cd ../sidecar-pkg && zip -r ../xml2ustx-${{ matrix.arch.name }}.zip .
+          mkdir -p ../OpenUtau/tools/xml2ustx
+          cp default-config.yml ../OpenUtau/tools/xml2ustx/
+
+# Add to release "files:" list (same job):
+#            xml2ustx-${{ matrix.arch.name }}.zip

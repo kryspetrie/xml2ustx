@@ -1,0 +1,10 @@
+<!-- Add inside OpenUtau/OpenUtau.csproj ItemGroup (alongside runtimes copies): -->
+
+  <ItemGroup>
+    <None Include="..\tools\xml2ustx\default-config.yml" Link="tools\xml2ustx\default-config.yml"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <!-- Optional bundled sidecar; users can also download via Tools or on first import -->
+    <None Include="..\tools\xml2ustx\xml2ustx*" Link="tools\xml2ustx\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"
+          Condition="Exists('..\tools\xml2ustx\xml2ustx') Or Exists('..\tools\xml2ustx\xml2ustx.exe')" />
+  </ItemGroup>
