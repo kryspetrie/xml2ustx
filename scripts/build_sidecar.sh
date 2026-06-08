@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Build PyInstaller sidecar for the current OS/arch.
+# Build PyInstaller sidecar for the current OS/arch (local dev).
 # Usage: ./scripts/build_sidecar.sh [output_dir]
-# Example (OpenUtau publish folder): ./scripts/build_sidecar.sh ../OpenUtau/bin/linux-x64/tools/xml2ustx
+# CI / OpenUtau releases: ./scripts/ci/build_and_package_sidecar.sh
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -16,7 +16,7 @@ fi
 source .venv/bin/activate
 
 pip install -q poetry pyinstaller
-poetry install --no-root
+poetry install --no-interaction
 
 rm -rf build dist
 pyinstaller --noconfirm xml2ustx.spec

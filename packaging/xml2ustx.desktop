@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=xml2ustx
+Comment=Convert MusicXML to OpenUtau USTX
+Exec=xml2ustx %F
+Icon=xml2ustx
+Terminal=false
+Categories=Audio;AudioVideo;
+MimeType=application/vnd.recordare.musicxml+xml;application/vnd.recordare.musicxml;application/x-musescore+xml;audio/midi;
+StartupWMClass=xml2ustx

@@ -1,1 +1,13 @@
-__pycache__
+__pycache__/
+.venv/
+build/
+dist/
+gui-pkg/
+sidecar-pkg/
+src/application/_version.py
+*.zip
+*.AppImage
+*.flatpak
+build-flatpak/
+flatpak-repo/
+packaging/flatpak/staging/

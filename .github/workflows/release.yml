@@ -1,0 +1,206 @@
+# Build and publish assets when a GitHub Release is published (semver tag vX.Y.Z).
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+env:
+  GITHUB_REF_NAME: ${{ github.event.release.tag_name }}
+
+jobs:
+  build-gui:
+    if: ${{ startsWith(github.event.release.tag_name, 'v') }}
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: win-x64
+            runs-on: windows-latest
+            python-arch: x64
+          - name: win-x86
+            runs-on: windows-latest
+            python-arch: x86
+          - name: win-arm64
+            runs-on: windows-11-arm
+            python-arch: arm64
+          - name: linux-x64
+            runs-on: ubuntu-latest
+          - name: linux-arm64
+            runs-on: ubuntu-24.04-arm
+          - name: osx-x64
+            runs-on: macos-15-intel
+            target-arch: x64
+          - name: osx-arm64
+            runs-on: macos-15-intel
+            target-arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: ${{ matrix.python-arch || 'x64' }}
+
+      - name: Build GUI package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/ci/build_gui_package.ps1 -ArtifactName xml2ustx-gui-${{ matrix.name }}
+
+      - name: Build GUI package (macOS)
+        if: runner.os == 'macOS'
+        env:
+          TARGET_ARCH: ${{ matrix.target-arch }}
+        run: ./scripts/ci/build_gui_package.sh xml2ustx-gui-${{ matrix.name }} "$GITHUB_WORKSPACE"
+
+      - name: Build GUI package (Linux)
+        if: runner.os == 'Linux'
+        run: ./scripts/ci/build_gui_package.sh xml2ustx-gui-${{ matrix.name }} "$GITHUB_WORKSPACE"
+
+      - name: Build AppImage (Linux x64)
+        if: matrix.name == 'linux-x64'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fuse libfuse2
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy
+          chmod +x linuxdeploy
+          mkdir -p AppDir/usr/bin AppDir/usr/share/applications
+          cp -a gui-pkg/xml2ustx/. AppDir/usr/bin/
+          cp packaging/xml2ustx.desktop AppDir/
+          cp packaging/xml2ustx.desktop AppDir/usr/share/applications/
+          [ -f packaging/xml2ustx.svg ] && cp packaging/xml2ustx.svg AppDir/xml2ustx.png || touch AppDir/xml2ustx.png
+          cat > AppDir/AppRun <<'EOF'
+          #!/bin/sh
+          HERE="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+          exec "$HERE/usr/bin/xml2ustx" "$@"
+          EOF
+          chmod +x AppDir/AppRun AppDir/usr/bin/xml2ustx
+          ARCH=x86_64 ./linuxdeploy --appdir AppDir --output appimage
+          mv xml2ustx*.AppImage "xml2ustx-gui-${{ matrix.name }}.AppImage" || mv *.AppImage "xml2ustx-gui-${{ matrix.name }}.AppImage"
+
+      - name: Build Flatpak (Linux x64)
+        if: matrix.name == 'linux-x64'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq flatpak flatpak-builder
+          ./scripts/ci/build_flatpak.sh xml2ustx-gui-${{ matrix.name }} "$GITHUB_WORKSPACE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xml2ustx-gui-${{ matrix.name }}
+          path: xml2ustx-gui-${{ matrix.name }}.zip
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.name == 'linux-x64'
+        with:
+          name: xml2ustx-gui-${{ matrix.name }}-appimage
+          path: xml2ustx-gui-${{ matrix.name }}.AppImage
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.name == 'linux-x64'
+        with:
+          name: xml2ustx-gui-${{ matrix.name }}-flatpak
+          path: xml2ustx-gui-${{ matrix.name }}.flatpak
+
+  build-sidecar:
+    if: ${{ startsWith(github.event.release.tag_name, 'v') }}
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: win-x64
+            runs-on: windows-latest
+            python-arch: x64
+          - name: win-x86
+            runs-on: windows-latest
+            python-arch: x86
+          - name: win-arm64
+            runs-on: windows-11-arm
+            python-arch: arm64
+          - name: linux-x64
+            runs-on: ubuntu-latest
+          - name: linux-arm64
+            runs-on: ubuntu-24.04-arm
+          - name: osx-x64
+            runs-on: macos-15-intel
+            target-arch: x64
+          - name: osx-arm64
+            runs-on: macos-15-intel
+            target-arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        if: runner.os == 'Windows'
+        with:
+          python-version: "3.12"
+          architecture: ${{ matrix.python-arch }}
+
+      - uses: actions/setup-python@v5
+        if: runner.os != 'Windows'
+        with:
+          python-version: "3.12"
+
+      - name: Build sidecar (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/ci/build_and_package_sidecar.ps1 -ArtifactName xml2ustx-${{ matrix.name }}
+
+      - name: Build sidecar (macOS)
+        if: runner.os == 'macOS'
+        env:
+          TARGET_ARCH: ${{ matrix.target-arch }}
+        run: ./scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.name }} "$GITHUB_WORKSPACE"
+
+      - name: Build sidecar (Linux)
+        if: runner.os == 'Linux'
+        run: ./scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.name }} "$GITHUB_WORKSPACE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xml2ustx-${{ matrix.name }}
+          path: xml2ustx-${{ matrix.name }}.zip
+
+  publish:
+    if: ${{ startsWith(github.event.release.tag_name, 'v') }}
+    needs: [build-gui, build-sidecar]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Collect release files
+        run: |
+          find artifacts -type f \( -name '*.zip' -o -name '*.AppImage' -o -name '*.flatpak' \) -exec cp {} . \;
+          ls -la
+
+      - name: Generate SHA256 checksums
+        run: |
+          sha256sum xml2ustx-* > CHECKSUMS.sha256
+          cat CHECKSUMS.sha256
+
+      - name: Upload assets to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            xml2ustx-gui-*.zip
+            xml2ustx-gui-*.AppImage
+            xml2ustx-gui-*.flatpak
+            xml2ustx-*.zip
+            CHECKSUMS.sha256

@@ -16,4 +16,4 @@ class Tempo(Event):
                 and self.beats_per_minute == other.beats_per_minute)
 
     def __repr__(self):
-        return f"Tempo(position={self.position}, beats_per_minute={self.beats_per_minute})";
+        return f"Tempo(position={self.position}, beats_per_minute={self.beats_per_minute})"

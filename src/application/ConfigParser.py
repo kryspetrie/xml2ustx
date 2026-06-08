@@ -1,12 +1,13 @@
+"""Configuration parser for XML to USTX conversion."""
 import yaml
 from typing import Dict, Tuple, List
-
 from src.domain.models.TrackConfig import TrackConfig
 from src.domain.models.Voice import Voice
 from src.application.ApplicationConfig import ApplicationConfig
 
 
 def __parse_voice_config_tuple(voice_config_dict: Dict) -> Tuple[str, Voice]:
+    """Parse a voice config dictionary into a tuple."""
     if 'id' not in voice_config_dict:
         raise RuntimeError("Bad voice config. Could not find id.")
 
@@ -19,6 +20,7 @@ def __parse_voice_config_tuple(voice_config_dict: Dict) -> Tuple[str, Voice]:
 
 
 def __parse_track_config_item(track_config_item_dict: Dict, voices: Dict[str, Voice]) -> TrackConfig:
+    """Parse a track config item dictionary into a TrackConfig object."""
     name: str = track_config_item_dict['track_name'] if 'track_name' in track_config_item_dict else None
     voice_id: str = track_config_item_dict['voice_id'] if 'voice_id' in track_config_item_dict else None
     pan: float = track_config_item_dict['pan'] if 'pan' in track_config_item_dict else 0.0
@@ -31,6 +33,7 @@ def __parse_track_config_item(track_config_item_dict: Dict, voices: Dict[str, Vo
 
 
 def __parse_track_config_tuple(track_config_dict: Dict, voices: Dict[str, Voice]) -> Tuple[str, List[TrackConfig]]:
+    """Parse a track config dictionary into a tuple."""
     if 'id' not in track_config_dict:
         raise RuntimeError("Bad track config. Could not find id.")
 
@@ -50,7 +53,7 @@ def parse(file: str) -> ApplicationConfig:
         try:
             config_yaml = yaml.safe_load(stream)
         except yaml.YAMLError as exception:
-            RuntimeError(exception)
+            raise RuntimeError(f'Invalid YAML in config file: {exception}') from exception
 
     voice_configs_tuple = [__parse_voice_config_tuple(it) for it in config_yaml['voice_config']]
     voice_config_map = dict((id, voice) for id, voice in voice_configs_tuple)

@@ -12,7 +12,6 @@ if ([string]::IsNullOrEmpty($RepoRoot)) {
     $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 }
 
-$Work = Split-Path $RepoRoot -Parent
 Set-Location $RepoRoot
 
 python -m venv .venv
@@ -21,12 +20,22 @@ python -m pip install --upgrade pip
 pip install poetry pyinstaller
 poetry install --no-root
 
+if (-not $env:XML2USTX_VERSION) {
+    if ($env:GITHUB_REF_NAME) {
+        $env:XML2USTX_VERSION = $env:GITHUB_REF_NAME.Substring(1)
+    } else {
+        $env:XML2USTX_VERSION = poetry version -s
+    }
+}
+python scripts/ci/write_version_file.py | Out-Null
+Write-Host "xml2ustx version: $($env:XML2USTX_VERSION)"
+
 if (Test-Path build) { Remove-Item -Recurse -Force build }
 if (Test-Path dist) { Remove-Item -Recurse -Force dist }
 
 pyinstaller --noconfirm xml2ustx.spec
 
-$PkgDir = Join-Path $Work "sidecar-pkg"
+$PkgDir = Join-Path $RepoRoot "sidecar-pkg"
 if (Test-Path $PkgDir) { Remove-Item -Recurse -Force $PkgDir }
 New-Item -ItemType Directory -Path $PkgDir | Out-Null
 
@@ -39,14 +48,16 @@ Copy-Item $Exe $PkgDir
 $Config = Join-Path $RepoRoot "src\resources\config.yml"
 Copy-Item $Config (Join-Path $PkgDir "default-config.yml")
 
-$ZipPath = Join-Path $Work "$ArtifactName.zip"
+$ZipPath = Join-Path $RepoRoot "$ArtifactName.zip"
 if (Test-Path $ZipPath) { Remove-Item -Force $ZipPath }
 Compress-Archive -Path (Join-Path $PkgDir "*") -DestinationPath $ZipPath
 
-$ToolsDir = Join-Path $Work "OpenUtau\tools\xml2ustx"
-New-Item -ItemType Directory -Force -Path $ToolsDir | Out-Null
-Copy-Item (Join-Path $PkgDir "default-config.yml") $ToolsDir
-Copy-Item $Exe $ToolsDir
+if ($env:OPENUTAU_TOOLS_DIR) {
+    $ToolsDir = $env:OPENUTAU_TOOLS_DIR
+    New-Item -ItemType Directory -Force -Path $ToolsDir | Out-Null
+    Copy-Item (Join-Path $PkgDir "default-config.yml") $ToolsDir
+    Copy-Item $Exe $ToolsDir
+    Write-Host "Installed sidecar to $ToolsDir"
+}
 
 Write-Host "Created $ZipPath"
-Write-Host "Installed sidecar to $ToolsDir"

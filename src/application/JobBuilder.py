@@ -2,8 +2,7 @@
 from pathlib import Path
 from typing import List
 
-from src.application.models.UiOptions import UiOptions
-from src.Utils import dumps
+from src.application.models.NativeUiOptions import NativeUiOptions
 from src.application.ApplicationConfig import ApplicationConfig
 from src.application.models.CommandLineOptions import CommandLineOptions
 from src.application.ConfigParser import parse as parse_config
@@ -102,8 +101,11 @@ def build_cli(options: CommandLineOptions) -> Job:
     default_lyric = application_config.default_lyric if application_config.default_lyric is not None else DEFAULT_LYRIC
     output_file = output_file_or_default(options)
 
-    input_files = get_input_files_from_dir(options.input_dir)
-    output_files = get_output_files_from_input(input_files)
+    input_files: list[str] = []
+    output_files: list[str] = []
+    if options.input_dir:
+        input_files = get_input_files_from_dir(options.input_dir)
+        output_files = get_output_files_from_input(input_files)
     if options.input_file:
         input_files.append(options.input_file)
         output_files.append(output_file)
@@ -117,29 +119,81 @@ def build_cli(options: CommandLineOptions) -> Job:
         default_lyric=default_lyric,
         debug=options.debug)
 
-    # print debug information
-    if options.debug:
-        print(f'Running job with the following config:\n{dumps(job)}\n')
-
     return job
 
 
-def build_ui(options: UiOptions):
-    """Build the user interface for the application."""
-    # load application config from the file
-    application_config: ApplicationConfig = parse_config(resolve_config_file(None))
+def _build_track_configs(
+        application_config: ApplicationConfig,
+        track_config_id: str | None,
+        voice_config_ids: list[str] | None,
+        volumes: list[float] | None,
+        pans: list[float] | None,
+        tracks: list[str] | None,
+        config_file: str) -> List[TrackConfig]:
+    track_configs: List[TrackConfig] = []
+    if track_config_id is not None:
+        if track_config_id not in application_config.track_config_map:
+            raise RuntimeError(f'Track config {track_config_id} not found in {config_file}')
+        return application_config.track_config_map[track_config_id]
 
-    # Load the specified track config, otherwise use the default options
-    track_configs: List[TrackConfig] = application_config.default_track_config()
-    if options.track_config_id is not None:
-        if options.track_config_id not in application_config.track_config_map:
-            raise RuntimeError(f'Track config {options.track_config_id} not found in config')
-        track_configs = application_config.track_config_map[options.track_config_id]
+    len_tracks = max(
+        len(tracks or []),
+        len(volumes or []),
+        len(pans or []),
+        len(voice_config_ids or []),
+    )
+    for i in range(len_tracks):
+        pan = pans[i] if pans and i < len(pans) else 0
+        volume = volumes[i] if volumes and i < len(volumes) else 0
+        track = tracks[i] if tracks and i < len(tracks) else f'Track {i + 1}'
+        voice = application_config.default_voice_config()
+        if voice_config_ids and i < len(voice_config_ids):
+            voice_id = voice_config_ids[i]
+            if voice_id not in application_config.voice_config_map:
+                raise RuntimeError(f'Did not find voice id {voice_id} in {config_file}')
+            voice = application_config.voice_config_map[voice_id]
+        track_configs.append(TrackConfig(name=track, voice=voice, pan=pan, volume=volume))
+
+    if not track_configs:
+        voice = application_config.default_voice_config()
+        track_configs = [TrackConfig(name='New Track', voice=voice, pan=0, volume=0)]
+    return track_configs
+
+
+def build_native(options: NativeUiOptions) -> Job:
+    """Build a conversion job from native UI options (CLI-equivalent)."""
+    config_file = resolve_config_file(options.config_file)
+    application_config: ApplicationConfig = parse_config(config_file)
+    track_configs = _build_track_configs(
+        application_config,
+        options.track_config_id,
+        options.voice_config_ids,
+        options.volumes,
+        options.pans,
+        options.tracks,
+        config_file,
+    )
+    default_lyric = application_config.default_lyric or DEFAULT_LYRIC
+    project_name = options.project_name or DEFAULT_PROJECT_NAME
+
+    if options.input_dir:
+        input_files = get_input_files_from_dir(options.input_dir)
+        output_files = get_output_files_from_input(input_files)
+    else:
+        input_files = list(options.input_files)
+        if not input_files:
+            raise RuntimeError('No input files selected.')
+        if options.output_files and len(options.output_files) == len(input_files):
+            output_files = list(options.output_files)
+        else:
+            output_files = get_output_files_from_input(input_files)
 
     return Job(
-        input_files=[options.input_file],
-        output_files=[],
-        name=DEFAULT_PROJECT_NAME,
+        input_files=input_files,
+        output_files=output_files,
+        name=project_name,
         track_configs=track_configs,
-        default_lyric=DEFAULT_LYRIC,
-        debug=False)
+        default_lyric=default_lyric,
+        debug=options.debug,
+    )
+

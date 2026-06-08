@@ -1,7 +1,6 @@
 from typing import List
 
 from src.domain.models.Event import Event
-from src.domain.models.Tempo import Tempo
 from src.domain.TrackHelpers import find_unique_tempos_and_changes, find_unique_time_signatures
 from src.domain.models.TimeSignature import TimeSignature
 from src.domain.models.Track import Track

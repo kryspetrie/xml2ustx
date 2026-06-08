@@ -1,17 +1,19 @@
 # PyInstaller spec for OpenUtau sidecar bundle.
 # Build: pyinstaller xml2ustx.spec
+import os
 import sys
 from pathlib import Path
 
 block_cipher = None
 root = Path(SPECPATH)
+app_version = os.environ.get("XML2USTX_VERSION", "0.0.0")
 
 a = Analysis(
     [str(root / 'main.py')],
     pathex=[str(root)],
     binaries=[],
     datas=[(str(root / 'src' / 'resources' / 'config.yml'), 'src/resources')],
-    hiddenimports=['music21', 'yaml', 'jsonpickle'],
+    hiddenimports=['music21', 'yaml', 'jsonpickle', 'src.application.version', 'src.application._version'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

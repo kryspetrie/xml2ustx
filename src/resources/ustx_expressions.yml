@@ -1,0 +1,128 @@
+dyn:
+  name: dynamics
+  abbr: dyn
+  type: Curve
+  min: -240
+  max: 120
+  default_value: 0
+  is_flag: false
+  flag: ''
+pitd:
+  name: pitch deviation
+  abbr: pitd
+  type: Curve
+  min: -1200
+  max: 1200
+  default_value: 0
+  is_flag: false
+  flag: ''
+clr:
+  name: voice color
+  abbr: clr
+  type: Options
+  min: 0
+  max: -1
+  default_value: 0
+  is_flag: false
+  options: []
+eng:
+  name: resampler engine
+  abbr: eng
+  type: Options
+  min: 0
+  max: 1
+  default_value: 0
+  is_flag: false
+  options:
+  - ''
+  - worldline
+vel:
+  name: velocity
+  abbr: vel
+  type: Numerical
+  min: 0
+  max: 200
+  default_value: 100
+  is_flag: false
+  flag: ''
+vol:
+  name: volume
+  abbr: vol
+  type: Numerical
+  min: 0
+  max: 200
+  default_value: 100
+  is_flag: false
+  flag: ''
+atk:
+  name: attack
+  abbr: atk
+  type: Numerical
+  min: 0
+  max: 200
+  default_value: 100
+  is_flag: false
+  flag: ''
+dec:
+  name: decay
+  abbr: dec
+  type: Numerical
+  min: 0
+  max: 100
+  default_value: 0
+  is_flag: false
+  flag: ''
+gen:
+  name: gender
+  abbr: gen
+  type: Numerical
+  min: -100
+  max: 100
+  default_value: 0
+  is_flag: true
+  flag: g
+bre:
+  name: breath
+  abbr: bre
+  type: Numerical
+  min: 0
+  max: 100
+  default_value: 0
+  is_flag: true
+  flag: B
+lpf:
+  name: lowpass
+  abbr: lpf
+  type: Numerical
+  min: 0
+  max: 100
+  default_value: 0
+  is_flag: true
+  flag: H
+mod:
+  name: modulation
+  abbr: mod
+  type: Numerical
+  min: 0
+  max: 100
+  default_value: 0
+  is_flag: false
+  flag: ''
+alt:
+  name: alternate
+  abbr: alt
+  type: Numerical
+  min: 0
+  max: 16
+  default_value: 0
+  is_flag: false
+  flag: ''
+shft:
+  name: tone shift
+  abbr: shft
+  type: Numerical
+  min: -36
+  max: 36
+  default_value: 0
+  is_flag: false
+  flag: ''

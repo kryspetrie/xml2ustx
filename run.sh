@@ -1,17 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Launch the xml2ustx CLI (Poetry console script).
+set -euo pipefail
+DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$DIR"
 
-__dir="$(cd "$(dirname "$0")" && pwd)"
+if [ ! -d .venv ]; then
+  python3 -m venv .venv
+fi
+# shellcheck source=/dev/null
+source .venv/bin/activate
 
-# Check if the virtual environment directory exists
-if [ ! -d "${__dir}/venv" ]; then
-    echo "Virtual environment 'venv' not found. Creating..."
-    python3 -m pip install --user virtualenv
-    python3 -m venv ${__dir}/venv 
-    python3 -m venv ${__dir}/venv
-    source ${__dir}/venv/bin/activate
-    pip install -r ${__dir}/requirements.txt
+if ! command -v xml2ustx-cli >/dev/null 2>&1; then
+  pip install -q poetry
+  poetry install
 fi
 
-source ${__dir}/venv/bin/activate
-python ${__dir}/main.py $@
-deactivate
+exec xml2ustx-cli "$@"

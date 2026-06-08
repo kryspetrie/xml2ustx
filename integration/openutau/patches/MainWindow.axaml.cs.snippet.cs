@@ -25,6 +25,29 @@
             }
         }
 
+        async Task<bool> EnsureXml2UstxVoicesValidAsync(string configPath, string? trackConfigId) {
+            SingerManager.Inst.SearchAllSingers();
+            var validation = Xml2UstxConfig.Validate(configPath, trackConfigId);
+            if (validation.IsValid) {
+                return true;
+            }
+            if (Xml2UstxConfig.ListInstalledSingers().Count == 0) {
+                _ = await MessageBox.Show(
+                    this,
+                    ThemeManager.GetString("dialogs.xml2ustx.voiceremap.nosingers.message"),
+                    ThemeManager.GetString("dialogs.xml2ustx.voiceremap.nosingers.caption"),
+                    MessageBox.MessageBoxButtons.Ok);
+                return false;
+            }
+            var remapDialog = new Xml2UstxVoiceRemapDialog(validation.MissingSingers);
+            await remapDialog.ShowDialog(this);
+            if (!remapDialog.Confirmed) {
+                return false;
+            }
+            Xml2UstxConfig.ApplyVoiceRemap(configPath, remapDialog.ViewModel.BuildRemap());
+            return true;
+        }
+
         async void OnMenuImportMuseScore(object sender, RoutedEventArgs args) {
             if (!await EnsureXml2UstxSidecarAsync()) {
                 return;
@@ -51,6 +74,10 @@
                 if (!string.IsNullOrEmpty(dialog.ViewModel.SelectedTrackConfigId)) {
                     Preferences.Default.Xml2UstxTrackConfigId = dialog.ViewModel.SelectedTrackConfigId;
                     Preferences.Save();
+                }
+                if (!await EnsureXml2UstxVoicesValidAsync(
+                        configPath, dialog.ViewModel.SelectedTrackConfigId)) {
+                    return;
                 }
                 var loadedProjects = new List<UProject>();
                 foreach (var file in files) {

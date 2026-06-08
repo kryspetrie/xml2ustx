@@ -1,12 +1,5 @@
-import sys
-
-from src.application.Xml2UstxRunner import run_cli
+"""Console entry point for the xml2ustx CLI."""
+from src.application.cli_entrypoint import main
 
 if __name__ == '__main__':
-    try:
-        run_cli()
-    except Exception as exc:
-        print(exc, file=sys.stderr)
-        sys.exit(1)
-
-
+    main()

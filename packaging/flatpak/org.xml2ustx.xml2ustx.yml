@@ -1,0 +1,39 @@
+# Flatpak manifest for the PyInstaller GUI bundle (built via scripts/ci/build_flatpak.sh).
+id: org.xml2ustx.xml2ustx
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: xml2ustx
+
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --filesystem=home
+  - --talk-name=org.freedesktop.FlatPak
+
+modules:
+  - name: xml2ustx
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/bin
+      - cp -a binary/. /app/bin/
+      - chmod +x /app/bin/xml2ustx
+      - install -Dm644 org.xml2ustx.xml2ustx.desktop /app/share/applications/org.xml2ustx.xml2ustx.desktop
+      - install -Dm644 org.xml2ustx.xml2ustx.metainfo.xml /app/share/metainfo/org.xml2ustx.xml2ustx.metainfo.xml
+      - install -Dm644 icon.png /app/share/icons/hicolor/512x512/apps/org.xml2ustx.xml2ustx.png
+      - install -Dm644 icon.png /app/share/icons/hicolor/256x256/apps/org.xml2ustx.xml2ustx.png
+      - install -Dm644 icon.png /app/share/icons/hicolor/128x128/apps/org.xml2ustx.xml2ustx.png
+    sources:
+      - type: dir
+        path: staging/binary
+        dest: binary
+      - type: file
+        path: org.xml2ustx.xml2ustx.desktop
+      - type: file
+        path: staging/org.xml2ustx.xml2ustx.metainfo.xml
+        dest: org.xml2ustx.xml2ustx.metainfo.xml
+      - type: file
+        path: ../../src/resources/logo.png
+        dest: icon.png

@@ -1,20 +1,59 @@
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.4.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry]
 name = "xml2ustx"
-version = "0.1.0"
+version = "0.0.0"
 description = "Tool to convert XML vocal parts to ustx files for OpenUTAU."
 authors = ["Krysta Petrie"]
 license = "GPL"
 readme = "README.md"
-package-mode = false
+package-mode = true
+packages = [{ include = "src" }]
+
+[tool.poetry.scripts]
+xml2ustx = "src.ui.native.gui_entrypoint:main"
+xml2ustx-cli = "src.application.cli_entrypoint:main"
+xml2ustx-gui = "src.ui.native.gui_entrypoint:main"
 
 [tool.poetry.dependencies]
-python = ">=3.12"
+python = ">=3.12,<3.15"
 jsonpickle = ">=4.0.1,<5.0.0"
-streamlit = ">=1.41.1,<2.0.0"
 pyyaml = ">=6.0.2,<7.0.0"
 music21 = ">=9.3.0,<10.0.0"
-PyQt5 = ">=5.15.0,<6.0.0"
+PySide6 = ">=6.6.0,<7.0.0"
+
+[tool.poetry.group.build]
+optional = true
+
+[tool.poetry.group.build.dependencies]
+pyinstaller = ">=6.0.0,<7.0.0"
+
+[tool.poetry.group.dev.dependencies]
+poetry-dynamic-versioning = {version = "^1.10.0", extras = ["plugin"]}
+pytest = "^9.0.3"
+pytest-qt = "^4.4.0"
+ruff = "^0.11.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]
+
+[tool.poetry.requires-plugins]
+poetry-dynamic-versioning = {version = "^1.10.0", extras = ["plugin"]}
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
+

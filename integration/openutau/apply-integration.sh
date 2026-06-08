@@ -18,9 +18,13 @@ echo "Applying integration to $OU_ROOT"
 cp "$INT_ROOT/OpenUtau.Core/Util/Xml2UstxPaths.cs" "$OU_ROOT/OpenUtau.Core/Util/"
 cp "$INT_ROOT/OpenUtau.Core/Util/Xml2UstxInstaller.cs" "$OU_ROOT/OpenUtau.Core/Util/"
 cp "$INT_ROOT/OpenUtau.Core/Format/Xml2Ustx.cs" "$OU_ROOT/OpenUtau.Core/Format/"
+cp "$INT_ROOT/OpenUtau.Core/Format/Xml2UstxConfig.cs" "$OU_ROOT/OpenUtau.Core/Format/"
 cp "$INT_ROOT/OpenUtau/ViewModels/Xml2UstxImportViewModel.cs" "$OU_ROOT/OpenUtau/ViewModels/"
+cp "$INT_ROOT/OpenUtau/ViewModels/Xml2UstxVoiceRemapViewModel.cs" "$OU_ROOT/OpenUtau/ViewModels/"
 cp "$INT_ROOT/OpenUtau/Views/Xml2UstxImportDialog.axaml" "$OU_ROOT/OpenUtau/Views/"
 cp "$INT_ROOT/OpenUtau/Views/Xml2UstxImportDialog.axaml.cs" "$OU_ROOT/OpenUtau/Views/"
+cp "$INT_ROOT/OpenUtau/Views/Xml2UstxVoiceRemapDialog.axaml" "$OU_ROOT/OpenUtau/Views/"
+cp "$INT_ROOT/OpenUtau/Views/Xml2UstxVoiceRemapDialog.axaml.cs" "$OU_ROOT/OpenUtau/Views/"
 cp "$INT_ROOT/OpenUtau/Views/Xml2UstxConfigWindow.axaml" "$OU_ROOT/OpenUtau/Views/"
 cp "$INT_ROOT/OpenUtau/Views/Xml2UstxConfigWindow.axaml.cs" "$OU_ROOT/OpenUtau/Views/"
 
@@ -45,6 +49,23 @@ if "menu.file.importmusescore" not in strings.read_text():
         text = text.replace(anchor, snippet.strip() + "\n\n  " + anchor.lstrip())
         strings.write_text(text)
         print("Patched Strings.axaml")
+else:
+    voiceremap = (intf / "patches/Strings.axaml.snippet.xml").read_text()
+    voiceremap_lines = [
+        line for line in voiceremap.splitlines()
+        if "voiceremap" in line or "nosingers" in line
+    ]
+    text = strings.read_text()
+    if voiceremap_lines and "dialogs.xml2ustx.voiceremap.caption" not in text:
+        insert = "\n".join(voiceremap_lines)
+        anchor = '  <system:String x:Key="progress.xml2ustx.installed">MusicXML converter installed.</system:String>'
+        if anchor in text:
+            text = text.replace(
+                anchor,
+                anchor + "\n" + insert,
+            )
+            strings.write_text(text)
+            print("Patched Strings.axaml (voice remap)")
 
 # FilePicker.cs
 fp = ou / "OpenUtau/FilePicker.cs"
@@ -90,7 +111,6 @@ if "importmusescore" not in mw.read_text():
 # MainWindow.axaml.cs
 mwc = ou / "OpenUtau/Views/MainWindow.axaml.cs"
 if "EnsureXml2UstxSidecarAsync" not in mwc.read_text():
-    # Remove legacy handler block if present from an older integration
     import re
     text = mwc.read_text()
     text = re.sub(
@@ -109,6 +129,30 @@ if "EnsureXml2UstxSidecarAsync" not in mwc.read_text():
     )
     mwc.write_text(text)
 
+if "EnsureXml2UstxVoicesValidAsync" not in mwc.read_text() and "EnsureXml2UstxSidecarAsync" in mwc.read_text():
+    import re
+    snippet = (intf / "patches/MainWindow.axaml.cs.snippet.cs").read_text()
+    match = re.search(
+        r'async Task<bool> EnsureXml2UstxVoicesValidAsync\(.*?\n        \}\n',
+        snippet,
+        flags=re.DOTALL,
+    )
+    if match:
+        text = mwc.read_text()
+        anchor = "        async void OnMenuImportMuseScore"
+        text = text.replace(anchor, match.group(0) + "\n\n" + anchor, 1)
+        text = text.replace(
+            "                    Preferences.Save();\n                }\n                var loadedProjects = new List<UProject>();",
+            "                    Preferences.Save();\n                }\n"
+            "                if (!await EnsureXml2UstxVoicesValidAsync(\n"
+            "                        configPath, dialog.ViewModel.SelectedTrackConfigId)) {\n"
+            "                    return;\n                }\n"
+            "                var loadedProjects = new List<UProject>();",
+            1,
+        )
+        mwc.write_text(text)
+        print("Upgraded MainWindow.axaml.cs (voice remap)")
+
 if "EnsureXml2UstxSidecarAsync" not in mwc.read_text():
     snippet = (intf / "patches/MainWindow.axaml.cs.snippet.cs").read_text()
     # strip comment header lines
@@ -118,7 +162,11 @@ if "EnsureXml2UstxSidecarAsync" not in mwc.read_text():
     insert_at = text.rfind("    }\n}\n")
     if insert_at < 0:
         raise SystemExit("Could not find insertion point in MainWindow.axaml.cs")
-    text = text[:insert_at] + body + "\n\n" + text[insert_at:]
+    # Indent methods to match MainWindow class body
+    indented = "\n".join(
+        ("        " + line if line.strip() else line) for line in body.splitlines()
+    )
+    text = text[:insert_at] + indented + "\n\n" + text[insert_at:]
     mwc.write_text(text)
     print("Patched MainWindow.axaml.cs")
 

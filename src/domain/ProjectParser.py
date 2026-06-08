@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, cast
 import math
 import music21
@@ -6,6 +8,10 @@ import logging
 from src.domain.models.TempoDown import TempoDown
 from src.domain.models.TempoUp import TempoUp
 from src.Utils import dumps
+from collections.abc import Callable
+
+from src.application.conversion_errors import ConversionCancelledError
+from src.application.conversion_log import LogFn, emit_log
 from src.domain.models.Event import Event
 from src.domain.models.Tempo import Tempo
 from src.domain.models.TimeSignature import TimeSignature
@@ -67,12 +73,20 @@ def __parse_text_expression(
     return None
 
 
+def __raise_if_cancelled(should_cancel: Callable[[], bool] | None) -> None:
+    if should_cancel and should_cancel():
+        raise ConversionCancelledError('Conversion cancelled during parse.')
+
+
 def parse(
         input_file: str,
         project_name: str,
         track_configs: list[TrackConfig],
         default_lyric: str,
-        debug: bool = False):
+        debug: bool = False,
+        log_fn: LogFn | None = None,
+        should_cancel: Callable[[], bool] | None = None):
+    __raise_if_cancelled(should_cancel)
     stream = music21.converter.parse(input_file)
 
     # This is a concept in MIDI and USTX, but not MusicXML
@@ -143,6 +157,7 @@ def parse(
 
     # Loop over the parts and create Track list context
     for (index, part) in enumerate(stream.parts, 0):
+        __raise_if_cancelled(should_cancel)
 
         # Loop over supported events build Event list context
         track_events: List[Event] = []
@@ -184,6 +199,6 @@ def parse(
         default_lyric=default_lyric)
 
     if debug:
-        print(f'Parsed the following project:\n{dumps(project)}\n')
+        emit_log(f'Parsed the following project:\n{dumps(project)}\n', log_fn=log_fn)
 
     return project

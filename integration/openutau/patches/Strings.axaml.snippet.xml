@@ -16,3 +16,9 @@
   <system:String x:Key="dialogs.xml2ustx.alreadyinstalled.caption">MusicXML converter</system:String>
   <system:String x:Key="dialogs.xml2ustx.alreadyinstalled.message">The MusicXML converter is already installed.</system:String>
   <system:String x:Key="progress.xml2ustx.installed">MusicXML converter installed.</system:String>
+  <system:String x:Key="dialogs.xml2ustx.voiceremap.caption">Update MusicXML voice presets</system:String>
+  <system:String x:Key="dialogs.xml2ustx.voiceremap.message">Some voice presets in your MusicXML import config reference singers that are not installed in this OpenUtau workspace. Choose a replacement for each preset below. Your config.yml will be updated.</system:String>
+  <system:String x:Key="dialogs.xml2ustx.voiceremap.save">Update and continue</system:String>
+  <system:String x:Key="dialogs.xml2ustx.voiceremap.cancel">Cancel import</system:String>
+  <system:String x:Key="dialogs.xml2ustx.voiceremap.nosingers.caption">No singers installed</system:String>
+  <system:String x:Key="dialogs.xml2ustx.voiceremap.nosingers.message">Your MusicXML import config references singers that are not installed, and OpenUtau has no singers in its workspace to substitute. Install singers first (Tools → Singers), then edit the MusicXML import config.</system:String>

@@ -6,7 +6,7 @@ Target fork: **[keirokeer/OpenUtau-DiffSinger-Lunai](https://github.com/keirokee
 
 | Feature | Description |
 |---------|-------------|
-| **File → Import from MuseScore (MusicXML)...** | Converts via xml2ustx; prompts to download sidecar if missing |
+| **File → Import from MuseScore (MusicXML)...** | Converts via xml2ustx; prompts to download sidecar if missing; prompts to remap missing singers to installed voices |
 | **Tools → Download MusicXML Converter...** | Manual download of platform zip from GitHub releases |
 | **Tools → Edit MusicXML Import Config...** | YAML editor for voice/track presets |
 | **CI** | Each OS matrix job builds Python via `scripts/ci/build_and_package_sidecar.*`; release includes `xml2ustx-{platform}.zip` and copies binary into `OpenUtau/tools/xml2ustx/` |
@@ -30,13 +30,39 @@ dotnet build OpenUtau
 
 Re-run `apply-integration.sh` after merging upstream OpenUtau if menus conflict.
 
-## Publish sidecar-only releases (xml2ustx repo)
+## CI (xml2ustx repo)
+
+The **Test** workflow (`.github/workflows/test.yml`) runs on push/PR to `main`:
+
+- **ruff** lint (`src`, `tests`)
+- **pytest** on Python 3.12 and 3.13 (Qt tests use `QT_QPA_PLATFORM=offscreen`)
+- **sidecar-smoke** — builds a Linux sidecar zip and runs `scripts/ci/smoke_sidecar.sh`
+
+The **Release** workflow builds GUI and sidecar packages for all platforms when a semver release is published, and uploads **`CHECKSUMS.sha256`**. See [docs/DISTRIBUTION.md](../../docs/DISTRIBUTION.md).
+
+## Smoke test (xml2ustx repo)
 
 ```bash
-# GitHub Actions → "Sidecar release" → tag e.g. sidecar-0.1.0
+./scripts/test_integration.sh
 ```
 
-Or build locally: `./scripts/build_sidecar.sh ./dist` then zip with `default-config.yml`.
+Runs CLI conversion against `tests/fixtures/minimal.musicxml`, builds/tests the PyInstaller sidecar with OpenUtau-style args, then prints manual OpenUtau UI steps. Options: `--skip-sidecar-build`, `--openutau-dir PATH`, `--sidecar-dir PATH`, `--input PATH`.
+
+After building a release zip locally:
+
+```bash
+./scripts/ci/smoke_sidecar.sh xml2ustx-linux-x64.zip
+```
+
+## Publish releases (xml2ustx repo)
+
+Releases use semver git tags (`v0.1.0`, `v1.2.3`, …). Each published release includes sidecar zips (`xml2ustx-{platform}.zip`), native GUI packages, and **`CHECKSUMS.sha256`**.
+
+```bash
+./scripts/release/bump_tag.sh patch --push   # push tag + publish release → starts CI
+```
+
+Or tag manually, then publish the release on GitHub (or with `gh release create v0.1.0`). **CI runs only when the release is published**, not on ordinary pushes or tag-only pushes.
 
 ## Platform zip names
 

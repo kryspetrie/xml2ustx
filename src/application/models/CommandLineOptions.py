@@ -1,7 +1,9 @@
-from typing import Optional, List
+"""Command-line options model for XML to USTX conversion."""
+from typing import List, Optional
 
 
 class CommandLineOptions:
+    """Options for the CLI workflow."""
     def __init__(self,
                  input_file: Optional[str],
                  input_dir: Optional[str],
@@ -13,7 +15,9 @@ class CommandLineOptions:
                  volumes: Optional[List[float]],
                  pans: Optional[List[float]],
                  tracks: Optional[List[str]],
-                 debug: bool):
+                 debug: bool,
+                 open_in_openutau: bool = False,
+                 openutau_path: Optional[str] = None):
         self.input_file = input_file
         self.input_dir = input_dir
         self.output_file = output_file
@@ -25,3 +29,5 @@ class CommandLineOptions:
         self.pans = pans
         self.tracks = tracks
         self.debug = debug
+        self.open_in_openutau = open_in_openutau
+        self.openutau_path = openutau_path

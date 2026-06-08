@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="OpenUtau.App.Views.Xml2UstxVoiceRemapDialog"
+        Icon="/Assets/open-utau.ico"
+        Title="{DynamicResource dialogs.xml2ustx.voiceremap.caption}"
+        Width="640" MinHeight="280" MaxHeight="560" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True">
+  <Border Padding="16">
+    <Grid RowDefinitions="Auto,*,Auto">
+      <TextBlock Grid.Row="0" Margin="0,0,0,12"
+                 Text="{DynamicResource dialogs.xml2ustx.voiceremap.message}"
+                 TextWrapping="Wrap"/>
+      <ScrollViewer Grid.Row="1" MaxHeight="360" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="120,*,*" Margin="0,4">
+                <TextBlock Grid.Column="0" Text="{Binding VoicePresetId}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{Binding MissingSingerId}" VerticalAlignment="Center"
+                           Opacity="0.7" TextWrapping="Wrap" Margin="8,0"/>
+                <ComboBox Grid.Column="2" ItemsSource="{Binding AvailableSingers}"
+                          SelectedItem="{Binding SelectedSinger}"
+                          HorizontalAlignment="Stretch" Margin="8,0,0,0"/>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+      <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+        <Button Content="{DynamicResource dialogs.xml2ustx.voiceremap.cancel}" Click="OnCancel" MinWidth="90"/>
+        <Button Content="{DynamicResource dialogs.xml2ustx.voiceremap.save}" Click="OnSave" MinWidth="90"/>
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>

@@ -13,8 +13,15 @@ def eprint(*args, **kwargs):
 
 def parse() -> CommandLineOptions:
     """Parse command-line arguments and return CommandLineOptions."""
+    from src.application.version import get_version
+
     # Build the parser
     parser = argparse.ArgumentParser(description=PROGRAM_DESCRIPTION)
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=f'%(prog)s {get_version()}',
+    )
     parser.add_argument('--input_file', type=str, required=False,
                         help='Input file to convert: [*.xml, *.musicxml, *.mxl, *.midi]')
     parser.add_argument('--input_dir', type=str, required=False,
@@ -39,6 +46,10 @@ def parse() -> CommandLineOptions:
                         help='Print debug information')
     parser.add_argument('--list_track_configs', action='store_true', default=False,
                         help='Print track_config ids from config and exit')
+    parser.add_argument('--open', dest='open_in_openutau', action='store_true',
+                        help='Open output file(s) in OpenUtau after conversion')
+    parser.add_argument('--openutau', type=str, default=None,
+                        help='Path to OpenUtau executable (default: OPENUTAU_PATH or search PATH)')
 
     # Actually parse the provided args
     args = parser.parse_args()
@@ -74,7 +85,9 @@ def parse() -> CommandLineOptions:
         volumes=args.volume,
         pans=args.pan,
         tracks=args.track,
-        debug=args.debug)
+        debug=args.debug,
+        open_in_openutau=args.open_in_openutau,
+        openutau_path=args.openutau)
 
     if args.debug:
         print(f'Parsed the following arguments from the CLI: \n{dumps(args)}\n')

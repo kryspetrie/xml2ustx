@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.xml2ustx.xml2ustx</id>
+  <name>xml2ustx</name>
+  <summary>Convert MusicXML to OpenUtau USTX</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <description>
+    <p>Convert MusicXML and MIDI vocal parts to OpenUtau USTX projects.</p>
+    <p>Includes a visual config editor, batch conversion, and optional OpenUtau launch after export.</p>
+  </description>
+  <url type="homepage">https://github.com/kryspetrie/xml2ustx</url>
+  <url type="bugtracker">https://github.com/kryspetrie/xml2ustx/issues</url>
+  <launchable type="desktop-id">org.xml2ustx.xml2ustx.desktop</launchable>
+  <releases>
+    <release version="@VERSION@" date="@DATE@"/>
+  </releases>
+</component>

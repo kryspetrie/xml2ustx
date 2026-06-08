@@ -10,7 +10,6 @@ set -euo pipefail
 
 ARTIFACT_NAME="${1:?artifact base name required (e.g. xml2ustx-linux-x64)}"
 ROOT="${2:-$(cd "$(dirname "$0")/../.." && pwd)}"
-WORK="$(cd "$ROOT/.." && pwd)"
 
 cd "$ROOT"
 
@@ -22,8 +21,11 @@ python -m pip install --upgrade pip
 pip install poetry pyinstaller
 
 if [ "${SKIP_POETRY_INSTALL:-0}" != "1" ]; then
-  poetry install --no-root
+  poetry install --no-interaction
 fi
+
+# shellcheck source=/dev/null
+source "$ROOT/scripts/ci/prepare_version.sh"
 
 rm -rf build dist
 
@@ -41,7 +43,7 @@ else
   run_pyinstaller
 fi
 
-PKG_DIR="$WORK/sidecar-pkg"
+PKG_DIR="$ROOT/sidecar-pkg"
 rm -rf "$PKG_DIR"
 mkdir -p "$PKG_DIR"
 
@@ -57,19 +59,21 @@ fi
 
 cp src/resources/config.yml "$PKG_DIR/default-config.yml"
 
-ZIP_PATH="$WORK/${ARTIFACT_NAME}.zip"
+ZIP_PATH="$ROOT/${ARTIFACT_NAME}.zip"
 rm -f "$ZIP_PATH"
 (cd "$PKG_DIR" && zip -r "$ZIP_PATH" .)
 
-TOOLS_DIR="$WORK/OpenUtau/tools/xml2ustx"
-mkdir -p "$TOOLS_DIR"
-cp "$PKG_DIR/default-config.yml" "$TOOLS_DIR/"
-if [ -f "$PKG_DIR/xml2ustx.exe" ]; then
-  cp "$PKG_DIR/xml2ustx.exe" "$TOOLS_DIR/"
-elif [ -f "$PKG_DIR/xml2ustx" ]; then
-  cp "$PKG_DIR/xml2ustx" "$TOOLS_DIR/"
-  chmod +x "$TOOLS_DIR/xml2ustx"
+if [ -n "${OPENUTAU_TOOLS_DIR:-}" ]; then
+  TOOLS_DIR="$OPENUTAU_TOOLS_DIR"
+  mkdir -p "$TOOLS_DIR"
+  cp "$PKG_DIR/default-config.yml" "$TOOLS_DIR/"
+  if [ -f "$PKG_DIR/xml2ustx.exe" ]; then
+    cp "$PKG_DIR/xml2ustx.exe" "$TOOLS_DIR/"
+  elif [ -f "$PKG_DIR/xml2ustx" ]; then
+    cp "$PKG_DIR/xml2ustx" "$TOOLS_DIR/"
+    chmod +x "$TOOLS_DIR/xml2ustx"
+  fi
+  echo "Installed sidecar to $TOOLS_DIR"
 fi
 
 echo "Created $ZIP_PATH"
-echo "Installed sidecar to $TOOLS_DIR"
