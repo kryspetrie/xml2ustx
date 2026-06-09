@@ -28,7 +28,7 @@ jobs:
   build-gui:
     if: ${{ startsWith(github.event.inputs.tag_name || github.ref_name, 'v') }}
     env:
-      GITHUB_REF_NAME: ${{ env.RELEASE_TAG }}
+      GITHUB_REF_NAME: ${{ github.event.inputs.tag_name || github.ref_name }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
