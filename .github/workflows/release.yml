@@ -43,8 +43,10 @@ jobs:
             python-arch: arm64
           - name: linux-x64
             runs-on: ubuntu-latest
+            python-arch: x64
           - name: linux-arm64
             runs-on: ubuntu-24.04-arm
+            python-arch: arm64
           - name: osx-x64
             runs-on: macos-15-intel
             target-arch: x64
