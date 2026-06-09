@@ -19,12 +19,37 @@ poetry install --no-interaction
 source "$ROOT/scripts/ci/prepare_version.sh"
 
 rm -rf build dist
-if [ "$(uname -s)" = "Darwin" ] && [ "${TARGET_ARCH:-}" = "arm64" ]; then
-  arch -arm64 .venv/bin/pyinstaller --noconfirm xml2ustx-gui.spec
-elif [ "$(uname -s)" = "Darwin" ] && [ "${TARGET_ARCH:-}" = "x64" ]; then
-  arch -x86_64 .venv/bin/pyinstaller --noconfirm xml2ustx-gui.spec
-else
+run_pyinstaller() {
   pyinstaller --noconfirm xml2ustx-gui.spec
+}
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  host_arch="$(uname -m)"
+  target_arch="${TARGET_ARCH:-$host_arch}"
+  case "$target_arch" in
+    arm64)
+      if [ "$host_arch" = "arm64" ]; then
+        run_pyinstaller
+      else
+        echo "Cannot build macOS arm64 binaries on $host_arch host" >&2
+        exit 1
+      fi
+      ;;
+    x64|x86_64)
+      if [ "$host_arch" = "x86_64" ]; then
+        run_pyinstaller
+      elif [ "$host_arch" = "arm64" ]; then
+        arch -x86_64 .venv/bin/pyinstaller --noconfirm xml2ustx-gui.spec
+      else
+        run_pyinstaller
+      fi
+      ;;
+    *)
+      run_pyinstaller
+      ;;
+  esac
+else
+  run_pyinstaller
 fi
 
 PKG_ROOT="$ROOT/gui-pkg"
