@@ -5,16 +5,27 @@ name: Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Release tag to build (e.g. v0.1.0)
+        required: true
+        type: string
+      publish_assets:
+        description: Upload built files to the GitHub Release
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write
 
 env:
-  GITHUB_REF_NAME: ${{ github.event.release.tag_name }}
+  RELEASE_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
 
 jobs:
   build-gui:
-    if: ${{ startsWith(github.event.release.tag_name, 'v') }}
+    if: ${{ startsWith(github.event.release.tag_name || github.event.inputs.tag_name || '', 'v') }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -43,7 +54,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ env.RELEASE_TAG }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -51,20 +62,33 @@ jobs:
           python-version: "3.12"
           architecture: ${{ matrix.python-arch || 'x64' }}
 
+      - name: Install Qt system libraries (Linux)
+        if: runner.os == 'Linux'
+        run: bash scripts/ci/install_qt_system_deps.sh
+
       - name: Build GUI package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
+        env:
+          GITHUB_REF_NAME: ${{ env.RELEASE_TAG }}
         run: ./scripts/ci/build_gui_package.ps1 -ArtifactName xml2ustx-gui-${{ matrix.name }}
 
       - name: Build GUI package (macOS)
         if: runner.os == 'macOS'
         env:
+          GITHUB_REF_NAME: ${{ env.RELEASE_TAG }}
           TARGET_ARCH: ${{ matrix.target-arch }}
-        run: ./scripts/ci/build_gui_package.sh xml2ustx-gui-${{ matrix.name }} "$GITHUB_WORKSPACE"
+        run: |
+          chmod +x scripts/ci/*.sh
+          ./scripts/ci/build_gui_package.sh xml2ustx-gui-${{ matrix.name }} "$GITHUB_WORKSPACE"
 
       - name: Build GUI package (Linux)
         if: runner.os == 'Linux'
-        run: ./scripts/ci/build_gui_package.sh xml2ustx-gui-${{ matrix.name }} "$GITHUB_WORKSPACE"
+        env:
+          GITHUB_REF_NAME: ${{ env.RELEASE_TAG }}
+        run: |
+          chmod +x scripts/ci/*.sh
+          ./scripts/ci/build_gui_package.sh xml2ustx-gui-${{ matrix.name }} "$GITHUB_WORKSPACE"
 
       - name: Build AppImage (Linux x64)
         if: matrix.name == 'linux-x64'
@@ -89,6 +113,8 @@ jobs:
 
       - name: Build Flatpak (Linux x64)
         if: matrix.name == 'linux-x64'
+        env:
+          GITHUB_REF_NAME: ${{ env.RELEASE_TAG }}
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq flatpak flatpak-builder
@@ -98,21 +124,32 @@ jobs:
         with:
           name: xml2ustx-gui-${{ matrix.name }}
           path: xml2ustx-gui-${{ matrix.name }}.zip
+          retention-days: 14
+          if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         if: matrix.name == 'linux-x64'
         with:
           name: xml2ustx-gui-${{ matrix.name }}-appimage
           path: xml2ustx-gui-${{ matrix.name }}.AppImage
+          retention-days: 14
+          if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         if: matrix.name == 'linux-x64'
         with:
           name: xml2ustx-gui-${{ matrix.name }}-flatpak
           path: xml2ustx-gui-${{ matrix.name }}.flatpak
+          retention-days: 14
+          if-no-files-found: error
 
   publish:
-    if: ${{ startsWith(github.event.release.tag_name, 'v') }}
+    if: >-
+      ${{
+        needs.build-gui.result == 'success' &&
+        startsWith(github.event.release.tag_name || github.event.inputs.tag_name || '', 'v') &&
+        (github.event_name == 'release' || github.event.inputs.publish_assets != 'false')
+      }}
     needs: [build-gui]
     runs-on: ubuntu-latest
     steps:
@@ -134,9 +171,10 @@ jobs:
       - name: Upload assets to release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.release.tag_name }}
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             xml2ustx-gui-*.zip
             xml2ustx-gui-*.AppImage
             xml2ustx-gui-*.flatpak
             CHECKSUMS.sha256
+          fail_on_unmatched_files: true
