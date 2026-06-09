@@ -6,7 +6,8 @@
 #   ./scripts/release/bump_tag.sh minor --push
 #   ./scripts/release/bump_tag.sh major --push
 #
-# Pushing the tag alone does not run CI. Publish a GitHub Release to start builds.
+# Pushing a v* tag starts the Release workflow, which builds assets and
+# publishes the GitHub Release automatically.
 set -euo pipefail
 
 BUMP="${1:-}"
@@ -62,16 +63,8 @@ echo "Created tag $new_tag"
 
 if [ "$PUSH" -eq 1 ]; then
   git push origin "$new_tag"
-  if command -v gh >/dev/null 2>&1; then
-    gh release create "$new_tag" --title "xml2ustx $new_tag" --generate-notes
-    echo "Published $new_tag (Release workflow will build and attach assets)."
-  else
-    echo "Pushed $new_tag."
-    echo "Publish a GitHub Release for this tag to start CI builds:"
-    echo "  gh release create $new_tag --title \"xml2ustx $new_tag\" --generate-notes"
-  fi
+  echo "Pushed $new_tag — Release workflow will build assets and publish the GitHub Release."
 else
-  echo "Push and publish with:"
+  echo "Push to start the release build:"
   echo "  git push origin $new_tag"
-  echo "  gh release create $new_tag --title \"xml2ustx $new_tag\" --generate-notes"
 fi

@@ -1,10 +1,11 @@
-# Build and publish GUI assets when a GitHub Release is published (semver tag vX.Y.Z).
+# Build and publish GUI release assets for semver tags (vX.Y.Z).
 # OpenUtau sidecar zips are not built in CI — see docs/DISTRIBUTION.md.
 name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       tag_name:
@@ -21,11 +22,11 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
+  RELEASE_TAG: ${{ github.event.inputs.tag_name || github.ref_name }}
 
 jobs:
   build-gui:
-    if: ${{ startsWith(github.event.release.tag_name || github.event.inputs.tag_name || '', 'v') }}
+    if: ${{ startsWith(github.event.inputs.tag_name || github.ref_name, 'v') }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -147,8 +148,8 @@ jobs:
     if: >-
       ${{
         needs.build-gui.result == 'success' &&
-        startsWith(github.event.release.tag_name || github.event.inputs.tag_name || '', 'v') &&
-        (github.event_name == 'release' || github.event.inputs.publish_assets != 'false')
+        startsWith(github.event.inputs.tag_name || github.ref_name, 'v') &&
+        (github.event_name == 'push' || github.event.inputs.publish_assets != 'false')
       }}
     needs: [build-gui]
     runs-on: ubuntu-latest
@@ -168,10 +169,12 @@ jobs:
           sha256sum xml2ustx-* > CHECKSUMS.sha256
           cat CHECKSUMS.sha256
 
-      - name: Upload assets to release
+      - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
+          name: xml2ustx ${{ env.RELEASE_TAG }}
+          generate_release_notes: true
           files: |
             xml2ustx-gui-*.zip
             xml2ustx-gui-*.AppImage
