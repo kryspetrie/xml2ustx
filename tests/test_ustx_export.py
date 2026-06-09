@@ -25,7 +25,7 @@ def test_build_document_from_domain_project() -> None:
     project = single_track_project(
         name='Component Test',
         tick_resolution=480,
-        notes=[(0.0, 1.0, 60, 'la'), (1.0, 0.5, 62, '')],
+        notes=[(0.0, 1.0, 60, 'la'), (1.0, 0.5, 62, 'doo')],
         bpm=120,
     )
     document = build_ustx_document(project)
@@ -35,7 +35,7 @@ def test_build_document_from_domain_project() -> None:
     assert len(document.tracks) == 1
     assert len(document.voice_parts) == 1
     assert len(document.voice_parts[0].notes) == 2
-    assert document.voice_parts[0].notes[1].lyric == 'doo'
+    assert document.voice_parts[0].notes[1].lyric == 'doo'  # explicit per-note lyric
 
 
 def test_multi_track_project_exports_all_voice_parts() -> None:

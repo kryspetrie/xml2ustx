@@ -46,10 +46,10 @@ def test_expression_omits_missing_flag_key() -> None:
     assert 'flag' not in expression.to_mapping()
 
 
-def test_note_from_domain_uses_default_lyric() -> None:
+def test_note_from_domain_keeps_empty_lyric_without_fallback() -> None:
     note = Note(position=0.0, duration=1.0, tone=60, lyrics='')
     ustx_note = UstxNote.from_domain(note, tick_resolution=100, default_lyric='doo')
-    assert ustx_note.lyric == 'doo'
+    assert ustx_note.lyric == ''
     assert ustx_note.position == 0
     assert ustx_note.duration == 100
 

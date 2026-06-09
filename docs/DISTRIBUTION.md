@@ -7,7 +7,7 @@ This document covers install options, release artifacts, CI builds, verification
 | Audience | Recommended install |
 |----------|---------------------|
 | End users (GUI) | Download `xml2ustx-gui-<platform>.zip` or the Linux AppImage from [GitHub Releases](https://github.com/kryspetrie/xml2ustx/releases) |
-| End users (CLI / OpenUtau sidecar) | Download `xml2ustx-<platform>.zip` from releases |
+| CLI users | `pipx install .` or Poetry / `xml2ustx-cli` from source |
 | Python users (dev or daily use) | `pipx install .` from a clone, or `pipx install git+https://github.com/kryspetrie/xml2ustx.git@vX.Y.Z` |
 | Contributors | `poetry install`, then `source .venv/bin/activate` or `./run_native_ui.sh` |
 
@@ -102,17 +102,17 @@ Workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 | Job | Runner matrix | Output |
 |-----|---------------|--------|
 | `build-gui` | `windows-latest` (x64, x86), `windows-11-arm` (arm64), `ubuntu-latest` (x64), `ubuntu-24.04-arm` (arm64), `macos-15-intel` (x64 + arm64 cross-build) | `xml2ustx-gui-<platform>.zip` (+ AppImage and Flatpak for `linux-x64`) |
-| `build-sidecar` | Same platform matrix | `xml2ustx-<platform>.zip` (CLI sidecar + `default-config.yml`) |
-| `publish` | `ubuntu-latest` | Uploads all artifacts + `CHECKSUMS.sha256` to the release |
+| `publish` | `ubuntu-latest` | Uploads GUI artifacts + `CHECKSUMS.sha256` to the release |
 
 **Build scripts:**
 
 - GUI: [`scripts/ci/build_gui_package.sh`](../scripts/ci/build_gui_package.sh) (Linux/macOS), [`scripts/ci/build_gui_package.ps1`](../scripts/ci/build_gui_package.ps1) (Windows)
 - Flatpak (Linux x64, after GUI build): [`scripts/ci/build_flatpak.sh`](../scripts/ci/build_flatpak.sh) — manifest in [`packaging/flatpak/`](../packaging/flatpak/)
-- Sidecar: [`scripts/ci/build_and_package_sidecar.sh`](../scripts/ci/build_and_package_sidecar.sh) / `.ps1`
-- Local equivalent: [`scripts/build_gui.sh`](../scripts/build_gui.sh), [`scripts/build_sidecar.sh`](../scripts/build_sidecar.sh)
+- Local equivalent: [`scripts/build_gui.sh`](../scripts/build_gui.sh)
 
-PyInstaller specs: [`xml2ustx-gui.spec`](../xml2ustx-gui.spec) (GUI), [`xml2ustx.spec`](../xml2ustx.spec) (CLI sidecar).
+PyInstaller spec: [`xml2ustx-gui.spec`](../xml2ustx-gui.spec) (GUI).
+
+> **Sidecar builds are disabled in CI** until the OpenUtau fork that consumes them is published. Scripts remain under `scripts/build_sidecar.sh` and `scripts/ci/build_and_package_sidecar.*` for [`integration/openutau/`](../integration/openutau/) development.
 
 Version embedded in builds comes from the release tag via `scripts/ci/prepare_version.sh` and `XML2USTX_VERSION`.
 
@@ -122,7 +122,6 @@ Published GitHub releases include:
 
 | Artifact | Description |
 |----------|-------------|
-| `xml2ustx-<platform>.zip` | CLI sidecar (PyInstaller) + bundled `default-config.yml` |
 | `xml2ustx-gui-<platform>.zip` | Native Qt GUI (PyInstaller) + `install.sh` / `install.ps1` |
 | `xml2ustx-gui-linux-x64.AppImage` | Linux GUI AppImage (x64 only) |
 | `xml2ustx-gui-linux-x64.flatpak` | Linux GUI Flatpak bundle (x64 only) |
@@ -146,16 +145,6 @@ shasum -a 256 -c CHECKSUMS.sha256
 
 Only install or run binaries whose checksum matches the published value.
 
-## Sidecar smoke test (local)
-
-After building a sidecar zip:
-
-```bash
-./scripts/ci/smoke_sidecar.sh xml2ustx-linux-x64.zip
-```
-
-This converts `tests/fixtures/minimal.musicxml` and checks basic USTX output.
-
 ## Code signing and notarization
 
 Release CI builds are **unsigned** by default. For public distribution:
@@ -175,20 +164,6 @@ Release CI builds are **unsigned** by default. For public distribution:
 
 - AppImage and zip bundles are typically distributed unsigned.
 - Publish SHA256 checksums (included in releases) and optionally GPG-sign `CHECKSUMS.sha256`.
-
-## OpenUtau sidecar paths
-
-OpenUtau resolves the sidecar in this order (downloaded copy wins over bundled):
-
-| Source | Typical path |
-|--------|----------------|
-| Downloaded sidecar | `~/.local/share/OpenUtau/xml2ustx/sidecar/xml2ustx` (Linux) |
-| Bundled in Lunai fork build | `{OpenUtau app}/tools/xml2ustx/xml2ustx` |
-| User config | `~/.local/share/OpenUtau/xml2ustx/config.yml` (Linux) |
-
-macOS uses `~/Library/OpenUtau/xml2ustx/…`; Windows uses `%LOCALAPPDATA%\OpenUtau\xml2ustx\…`.
-
-Set `OPENUTAU_TOOLS_DIR` when running `scripts/ci/build_and_package_sidecar.sh` to copy a freshly built sidecar into a local OpenUtau fork tree (`tools/xml2ustx/`).
 
 ## Session logs
 

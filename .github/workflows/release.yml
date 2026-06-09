@@ -1,4 +1,5 @@
-# Build and publish assets when a GitHub Release is published (semver tag vX.Y.Z).
+# Build and publish GUI assets when a GitHub Release is published (semver tag vX.Y.Z).
+# OpenUtau sidecar zips are not built in CI — see docs/DISTRIBUTION.md.
 name: Release
 
 on:
@@ -110,73 +111,9 @@ jobs:
           name: xml2ustx-gui-${{ matrix.name }}-flatpak
           path: xml2ustx-gui-${{ matrix.name }}.flatpak
 
-  build-sidecar:
-    if: ${{ startsWith(github.event.release.tag_name, 'v') }}
-    runs-on: ${{ matrix.runs-on }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: win-x64
-            runs-on: windows-latest
-            python-arch: x64
-          - name: win-x86
-            runs-on: windows-latest
-            python-arch: x86
-          - name: win-arm64
-            runs-on: windows-11-arm
-            python-arch: arm64
-          - name: linux-x64
-            runs-on: ubuntu-latest
-          - name: linux-arm64
-            runs-on: ubuntu-24.04-arm
-          - name: osx-x64
-            runs-on: macos-15-intel
-            target-arch: x64
-          - name: osx-arm64
-            runs-on: macos-15-intel
-            target-arch: arm64
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name }}
-          fetch-depth: 0
-
-      - uses: actions/setup-python@v5
-        if: runner.os == 'Windows'
-        with:
-          python-version: "3.12"
-          architecture: ${{ matrix.python-arch }}
-
-      - uses: actions/setup-python@v5
-        if: runner.os != 'Windows'
-        with:
-          python-version: "3.12"
-
-      - name: Build sidecar (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./scripts/ci/build_and_package_sidecar.ps1 -ArtifactName xml2ustx-${{ matrix.name }}
-
-      - name: Build sidecar (macOS)
-        if: runner.os == 'macOS'
-        env:
-          TARGET_ARCH: ${{ matrix.target-arch }}
-        run: ./scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.name }} "$GITHUB_WORKSPACE"
-
-      - name: Build sidecar (Linux)
-        if: runner.os == 'Linux'
-        run: ./scripts/ci/build_and_package_sidecar.sh xml2ustx-${{ matrix.name }} "$GITHUB_WORKSPACE"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: xml2ustx-${{ matrix.name }}
-          path: xml2ustx-${{ matrix.name }}.zip
-
   publish:
     if: ${{ startsWith(github.event.release.tag_name, 'v') }}
-    needs: [build-gui, build-sidecar]
+    needs: [build-gui]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -202,5 +139,4 @@ jobs:
             xml2ustx-gui-*.zip
             xml2ustx-gui-*.AppImage
             xml2ustx-gui-*.flatpak
-            xml2ustx-*.zip
             CHECKSUMS.sha256

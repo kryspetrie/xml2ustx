@@ -34,16 +34,20 @@ def test_config_tab_starts_clean(config_tab: ConfigTab) -> None:
 
 
 def test_config_tab_marks_dirty_on_edit(config_tab: ConfigTab, qtbot) -> None:
-    config_tab.editor_tabs.setCurrentIndex(1)
+    config_tab.editor_tabs.setCurrentIndex(config_tab._SOURCE_TAB)
     config_tab.config_editor.insertPlainText('\n# test')
     qtbot.waitUntil(config_tab.is_dirty)
     assert config_tab.is_dirty() is True
 
 
-def test_config_tab_has_visual_and_source_editors(config_tab: ConfigTab) -> None:
-    assert config_tab.editor_tabs.count() == 2
-    assert config_tab.editor_tabs.tabText(0) == 'Visual editor'
-    assert config_tab.editor_tabs.tabText(1) == 'Edit file'
+def test_config_tab_has_flat_editor_pages(config_tab: ConfigTab) -> None:
+    tabs = config_tab.editor_tabs
+    assert tabs.count() == 5
+    assert tabs.tabText(0) == 'General'
+    assert tabs.tabText(1) == 'Rhythm'
+    assert tabs.tabText(2) == 'Voices'
+    assert tabs.tabText(3) == 'Tracks'
+    assert tabs.tabText(4) == 'Edit file'
 
 
 def test_config_tab_visual_edit_marks_dirty(config_tab: ConfigTab, qtbot) -> None:
@@ -54,7 +58,7 @@ def test_config_tab_visual_edit_marks_dirty(config_tab: ConfigTab, qtbot) -> Non
 
 def test_config_tab_syncs_visual_to_source(config_tab: ConfigTab) -> None:
     config_tab.form_editor.default_lyric.setText('mm')
-    config_tab.editor_tabs.setCurrentIndex(1)
+    config_tab.editor_tabs.setCurrentIndex(config_tab._SOURCE_TAB)
     assert 'default_lyric: mm' in config_tab.config_editor.toPlainText()
 
 
@@ -81,6 +85,72 @@ def test_convert_tab_collect_single_file(convert_tab: ConvertTab, minimal_xml: P
     options = convert_tab.collect_options()
     assert options.input_files == [str(minimal_xml)]
     assert options.open_in_openutau is False
+
+
+def test_convert_tab_rhythm_presets_in_form_state(convert_tab: ConvertTab, minimal_xml: Path) -> None:
+    convert_tab.mode_single.setChecked(True)
+    convert_tab.file_list.addItem(str(minimal_xml))
+
+    heavy_index = convert_tab.swing_preset.findText('heavy')
+    if heavy_index >= 0:
+        convert_tab.swing_preset.setCurrentIndex(heavy_index)
+
+    groove_index = convert_tab.groove_preset.findText('eighth-triplet')
+    if groove_index >= 0:
+        convert_tab.groove_preset.setCurrentIndex(groove_index)
+
+    convert_tab.force_swing.setChecked(True)
+    state = convert_tab.form_state()
+    options = convert_tab.collect_options()
+
+    if heavy_index >= 0:
+        assert state.swing_preset_id == 'heavy'
+        assert options.swing_preset_id == 'heavy'
+    if groove_index >= 0:
+        assert state.groove_preset_id == 'eighth-triplet'
+        assert options.groove_preset_id == 'eighth-triplet'
+    assert state.force_swing is True
+    assert options.force_swing is True
+
+
+def test_convert_tab_rhythm_disabled_clears_preset_controls(convert_tab: ConvertTab) -> None:
+    convert_tab.rhythm_disabled.setChecked(True)
+    assert convert_tab.swing_preset.isEnabled() is False
+    assert convert_tab.groove_preset.isEnabled() is False
+    assert convert_tab.force_swing.isEnabled() is False
+    assert convert_tab.force_groove.isEnabled() is False
+
+
+def test_convert_tab_form_controls_keep_visible_height(convert_tab: ConvertTab, qtbot) -> None:
+    convert_tab.resize(960, 960)
+    qtbot.wait(10)
+    assert convert_tab.project_name.height() > 0
+    assert convert_tab.track_preset.height() > 0
+    assert convert_tab.swing_preset.height() > 0
+    assert convert_tab.groove_preset.height() > 0
+
+
+def test_convert_tab_uses_two_column_options_layout(convert_tab: ConvertTab, qtbot) -> None:
+    assert convert_tab.project_group.parentWidget() is convert_tab._options_left
+    assert convert_tab.custom_tracks_group.parentWidget() is convert_tab._options_right
+    assert convert_tab.input_group.parentWidget() is convert_tab
+    convert_tab.show()
+    qtbot.wait(10)
+    assert convert_tab._options_right.geometry().x() > convert_tab._options_left.geometry().x()
+
+
+def test_conversion_log_window_shows_buffered_lines(qtbot) -> None:
+    from src.ui.native.conversion_log import ConversionLog, ConversionLogWindow
+
+    log = ConversionLog()
+    log.append('first line')
+    window = ConversionLogWindow(log)
+    qtbot.addWidget(window)
+    window.show()
+
+    assert 'first line' in window._editor.toPlainText()
+    log.append('second line')
+    assert 'second line' in window._editor.toPlainText()
 
 
 def test_convert_tab_custom_tracks_require_row(convert_tab: ConvertTab, minimal_xml: Path) -> None:

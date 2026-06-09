@@ -5,6 +5,15 @@ from dataclasses import dataclass, field
 
 import yaml
 
+from src.domain.rhythm_config import (
+    DEFAULT_GROOVE_PRESETS,
+    DEFAULT_SWING_PRESETS,
+    GroovePreset,
+    SwingPreset,
+    parse_groove_presets,
+    parse_swing_presets,
+)
+
 
 @dataclass
 class VoiceConfigRow:
@@ -35,12 +44,44 @@ class TrackPresetRow:
 
 
 @dataclass
+class SwingPresetRow:
+    """One named swing intensity preset."""
+
+    preset_id: str
+    intensity: int = 67
+
+
+@dataclass
+class GroovePresetRow:
+    """One named custom groove preset."""
+
+    preset_id: str
+    rules: str = ''
+
+
+@dataclass
 class ConfigDocument:
     """Editable representation of ``config.yml``."""
 
     voices: list[VoiceConfigRow] = field(default_factory=list)
     track_presets: list[TrackPresetRow] = field(default_factory=list)
     default_lyric: str = 'doo'
+    swing_presets: list[SwingPresetRow] = field(default_factory=list)
+    groove_presets: list[GroovePresetRow] = field(default_factory=list)
+
+
+def _default_swing_preset_rows() -> list[SwingPresetRow]:
+    return [
+        SwingPresetRow(preset.preset_id, preset.intensity)
+        for preset in DEFAULT_SWING_PRESETS
+    ]
+
+
+def _default_groove_preset_rows() -> list[GroovePresetRow]:
+    return [
+        GroovePresetRow(preset.preset_id, preset.rules)
+        for preset in DEFAULT_GROOVE_PRESETS
+    ]
 
 
 def parse_config_document(text: str) -> ConfigDocument:
@@ -80,7 +121,22 @@ def parse_config_document(text: str) -> ConfigDocument:
         ))
 
     default_lyric = str(data.get('default_lyric', 'doo') or 'doo')
-    return ConfigDocument(voices=voices, track_presets=track_presets, default_lyric=default_lyric)
+    swing_presets = [
+        SwingPresetRow(preset.preset_id, preset.intensity)
+        for preset in parse_swing_presets(data)
+    ]
+    groove_presets = [
+        GroovePresetRow(preset.preset_id, preset.rules)
+        for preset in parse_groove_presets(data)
+    ]
+
+    return ConfigDocument(
+        voices=voices,
+        track_presets=track_presets,
+        default_lyric=default_lyric,
+        swing_presets=swing_presets or _default_swing_preset_rows(),
+        groove_presets=groove_presets or _default_groove_preset_rows(),
+    )
 
 
 def serialize_config_document(document: ConfigDocument) -> str:
@@ -110,9 +166,24 @@ def serialize_config_document(document: ConfigDocument) -> str:
             tracks.append(item)
         track_config.append({'id': preset.preset_id, 'tracks': tracks})
 
+    swing_presets: list[dict[str, object]] = []
+    for preset in document.swing_presets:
+        swing_presets.append({'id': preset.preset_id, 'intensity': preset.intensity})
+
+    groove_presets: list[dict[str, str]] = []
+    for preset in document.groove_presets:
+        item: dict[str, str] = {'id': preset.preset_id}
+        if preset.rules.strip():
+            item['rules'] = preset.rules.rstrip() + '\n'
+        else:
+            item['rules'] = ''
+        groove_presets.append(item)
+
     payload = {
         'voice_config': voice_config,
         'track_config': track_config,
         'default_lyric': document.default_lyric,
+        'swing_presets': swing_presets,
+        'groove_presets': groove_presets,
     }
     return yaml.dump(payload, sort_keys=False, allow_unicode=True, default_flow_style=False)

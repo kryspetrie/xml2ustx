@@ -33,13 +33,13 @@ class ConfigTab(QWidget):
     dirty_changed = Signal(bool)
     config_saved = Signal(str)
 
-    _FORM_TAB = 0
-    _SOURCE_TAB = 1
+    _SOURCE_TAB = 4
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self._dirty = False
         self._block_tab_sync = False
+        self._previous_tab_index = 0
         self._build_ui()
         self._reload_editor()
 
@@ -63,7 +63,16 @@ class ConfigTab(QWidget):
         self.editor_tabs = QTabWidget()
         self.form_editor = ConfigFormEditor()
         self.form_editor.changed.connect(self._mark_dirty)
-        self.editor_tabs.addTab(self.form_editor, self.tr('Visual editor'))
+        self.editor_tabs.addTab(
+            self.form_editor.wrap_scroll_page(self.form_editor.general_page),
+            self.tr('General'),
+        )
+        self.editor_tabs.addTab(
+            self.form_editor.wrap_scroll_page(self.form_editor.rhythm_page),
+            self.tr('Rhythm'),
+        )
+        self.editor_tabs.addTab(self.form_editor.voices_page, self.tr('Voices'))
+        self.editor_tabs.addTab(self.form_editor.tracks_page, self.tr('Tracks'))
 
         self.config_editor = QPlainTextEdit()
         self.config_editor.setObjectName('configEditor')
@@ -152,9 +161,9 @@ class ConfigTab(QWidget):
             self.dirty_changed.emit(dirty)
 
     def _editor_text(self) -> str:
-        if self.editor_tabs.currentIndex() == self._FORM_TAB:
-            return self.form_editor.to_text()
-        return self.config_editor.toPlainText()
+        if self.editor_tabs.currentIndex() == self._SOURCE_TAB:
+            return self.config_editor.toPlainText()
+        return self.form_editor.to_text()
 
     def _set_editor_text(self, text: str) -> None:
         self.config_editor.blockSignals(True)
@@ -192,13 +201,15 @@ class ConfigTab(QWidget):
         if self._block_tab_sync:
             return
 
-        previous = self._SOURCE_TAB if index == self._FORM_TAB else self._FORM_TAB
+        previous = self._previous_tab_index
+        self._previous_tab_index = index
         self._block_tab_sync = True
         try:
-            if previous == self._FORM_TAB and index == self._SOURCE_TAB:
+            if previous != self._SOURCE_TAB and index == self._SOURCE_TAB:
                 self._sync_to_source()
-            elif previous == self._SOURCE_TAB and index == self._FORM_TAB:
+            elif previous == self._SOURCE_TAB and index != self._SOURCE_TAB:
                 if not self._sync_to_form():
+                    self._previous_tab_index = self._SOURCE_TAB
                     self.editor_tabs.setCurrentIndex(self._SOURCE_TAB)
         finally:
             self._block_tab_sync = False

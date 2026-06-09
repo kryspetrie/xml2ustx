@@ -6,6 +6,11 @@ from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QMainWindow, QWidget
 
 from src.ui.native.theme import THEME_SYSTEM, normalize_theme
+from src.ui.native.window_constraints import (
+    DEFAULT_MAIN_WINDOW_HEIGHT,
+    DEFAULT_MAIN_WINDOW_WIDTH,
+    clamp_main_window_size,
+)
 
 
 class UiSettings:
@@ -19,12 +24,13 @@ class UiSettings:
         return self._settings
 
     def restore_window(self, window: QMainWindow) -> None:
-        """Restore window geometry, falling back when off-screen."""
+        """Restore window geometry, falling back when off-screen or too small."""
         geometry = self._settings.value('geometry')
         if geometry is not None:
             window.restoreGeometry(geometry)
+        clamp_main_window_size(window)
         if not _is_window_visible(window):
-            window.resize(720, 680)
+            window.resize(DEFAULT_MAIN_WINDOW_WIDTH, DEFAULT_MAIN_WINDOW_HEIGHT)
             window.move(100, 100)
 
     def save_window(self, window: QMainWindow) -> None:

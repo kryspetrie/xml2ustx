@@ -1,5 +1,6 @@
 from typing import List
 
+from src.domain.dynamics_parser import DynamicBreakpoint
 from src.domain.models.Event import Event
 from src.domain.TrackHelpers import find_unique_tempos_and_changes, find_unique_time_signatures
 from src.domain.models.TimeSignature import TimeSignature
@@ -14,12 +15,14 @@ class Project:
             tick_resolution: int,
             tracks: List[Track],
             project_events: List[Event],
-            default_lyric: str):
+            default_lyric: str,
+            dynamics_breakpoints: List[DynamicBreakpoint] | None = None):
         self.name = name
         self.tick_resolution = tick_resolution
         self.tracks = tracks
         self.project_events = project_events
         self.default_lyric = default_lyric
+        self.dynamics_breakpoints = dynamics_breakpoints or []
 
     def find_unique_time_signatures(self) -> List[TimeSignature]:
         return find_unique_time_signatures(self.project_events)

@@ -3,8 +3,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import QModelIndex, QSize
 from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QStyledItemDelegate, QWidget
+
+_NUMERIC_EDITOR_MIN_WIDTH = 88
+_COMBO_EDITOR_MIN_WIDTH = 100
 
 
 class VoiceIdDelegate(QStyledItemDelegate):
@@ -18,6 +21,7 @@ class VoiceIdDelegate(QStyledItemDelegate):
         combo = QComboBox(parent)
         combo.addItems(self._voice_ids_provider())
         combo.setEditable(False)
+        combo.setMinimumWidth(_COMBO_EDITOR_MIN_WIDTH)
         return combo
 
     def setEditorData(self, editor: QWidget, index: QModelIndex) -> None:
@@ -29,6 +33,13 @@ class VoiceIdDelegate(QStyledItemDelegate):
     def setModelData(self, editor: QWidget, model, index: QModelIndex) -> None:
         if isinstance(editor, QComboBox):
             model.setData(index, editor.currentText())
+
+    def sizeHint(self, option, index: QModelIndex) -> QSize:  # noqa: ARG002
+        base = super().sizeHint(option, index)
+        return QSize(max(base.width(), _COMBO_EDITOR_MIN_WIDTH), base.height())
+
+    def updateEditorGeometry(self, editor: QWidget, option, index: QModelIndex) -> None:  # noqa: ARG002
+        editor.setGeometry(option.rect)
 
 
 class DoubleSpinDelegate(QStyledItemDelegate):
@@ -47,6 +58,8 @@ class DoubleSpinDelegate(QStyledItemDelegate):
         spin = QDoubleSpinBox(parent)
         spin.setRange(self._minimum, self._maximum)
         spin.setDecimals(1)
+        spin.setMinimumWidth(_NUMERIC_EDITOR_MIN_WIDTH)
+        spin.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.UpDownArrows)
         return spin
 
     def setEditorData(self, editor: QWidget, index: QModelIndex) -> None:
@@ -58,3 +71,10 @@ class DoubleSpinDelegate(QStyledItemDelegate):
     def setModelData(self, editor: QWidget, model, index: QModelIndex) -> None:
         if isinstance(editor, QDoubleSpinBox):
             model.setData(index, editor.value())
+
+    def sizeHint(self, option, index: QModelIndex) -> QSize:  # noqa: ARG002
+        base = super().sizeHint(option, index)
+        return QSize(max(base.width(), _NUMERIC_EDITOR_MIN_WIDTH), base.height())
+
+    def updateEditorGeometry(self, editor: QWidget, option, index: QModelIndex) -> None:  # noqa: ARG002
+        editor.setGeometry(option.rect)

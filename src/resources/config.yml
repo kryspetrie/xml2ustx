@@ -75,3 +75,21 @@ track_config:
     pan: 10.0
     volume: 6.0
 default_lyric: doo
+swing_presets:
+- id: default
+  intensity: 67
+- id: light
+  intensity: 40
+- id: heavy
+  intensity: 85
+- id: triplet
+  intensity: 100
+groove_presets:
+- id: eighth-triplet
+  rules: '8th: 2/3 1/3
+
+    '
+- id: sixteenth-shuffle
+  rules: '16th: 0.6 0.4 0.4 0.6
+
+    '

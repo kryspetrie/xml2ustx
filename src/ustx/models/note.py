@@ -104,11 +104,10 @@ class UstxNote:
             tick_resolution: int,
             default_lyric: str) -> Self:
         """Build a USTX note from a domain :class:`~src.domain.models.Note.Note`."""
-        lyric = (
-            note.lyric
-            if note.lyric is not None and note.lyric.strip() != ''
-            else default_lyric
-        )
+        lyric = note.lyric if note.lyric is not None else ''
+        note_expressions: tuple[dict[str, int | str], ...] = ()
+        if note.volume is not None:
+            note_expressions = ({'abbr': 'vol', 'value': note.volume},)
         return cls(
             position=int(note.position * tick_resolution),
             duration=int(note.duration * tick_resolution),
@@ -116,6 +115,7 @@ class UstxNote:
             lyric=cls.sanitize_lyric(lyric),
             pitch=UstxPitchCurve.default(),
             vibrato=UstxVibrato.default(),
+            note_expressions=note_expressions,
         )
 
     def to_mapping(self) -> dict[str, Any]:

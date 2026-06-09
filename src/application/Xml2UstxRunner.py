@@ -72,6 +72,7 @@ def run_job(
                 project_name=job.name,
                 track_configs=job.track_configs,
                 default_lyric=job.default_lyric,
+                rhythm_config=job.rhythm_config,
                 debug=job.debug,
                 log_fn=job_log,
                 should_cancel=should_cancel,

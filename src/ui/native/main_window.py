@@ -5,18 +5,29 @@ import sys
 
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QAction, QActionGroup, QCloseEvent, QDesktopServices, QDragEnterEvent, QDropEvent, QKeySequence
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QTabWidget
+from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel, QMainWindow, QMessageBox, QTabWidget, QVBoxLayout
 
 from src.application.version import get_version
 from src.ui.native.app_icon import load_app_icon
-from src.ui.native.application_style import apply_application_style
 from src.ui.native.config_tab import ConfigTab
 from src.ui.native.constants import mime_has_supported_paths, paths_from_mime
+from src.ui.native.conversion_log import ConversionLog, ConversionLogWindow
 from src.ui.native.conversion_presenter import ConversionPresenter
 from src.ui.native.convert_tab import ConvertTab
 from src.ui.native.openutau_path_dialog import OpenUtauPathDialog
-from src.ui.native.theme import THEME_DARK, THEME_LABELS, THEME_LIGHT, THEME_SYSTEM, apply_theme
+from src.ui.native.theme import (
+    THEME_DARK,
+    THEME_LABELS,
+    THEME_LIGHT,
+    THEME_SYSTEM,
+    apply_theme,
+    bind_system_theme_updates,
+    normalize_theme,
+)
 from src.ui.native.ui_settings import UiSettings
+from src.ui.native.window_constraints import apply_main_window_constraints
+
+PROJECT_GITHUB_URL = 'https://github.com/kryspetrie/xml2ustx'
 
 
 class MainWindow(QMainWindow):
@@ -26,9 +37,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(f'xml2ustx {get_version()}')
         self.setWindowIcon(load_app_icon())
-        self.setMinimumSize(720, 680)
+        apply_main_window_constraints(self)
 
         self._settings = settings or UiSettings()
+        self._conversion_log = ConversionLog(self)
+        self._log_window: ConversionLogWindow | None = None
         self._convert_tab_index = 0
         self._config_tab_index = 1
         self._last_tab_index = self._convert_tab_index
@@ -45,7 +58,11 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self._tabs)
 
         self.config_tab = ConfigTab()
-        self.convert_tab = ConvertTab(self.config_tab.config_file_path, self._settings)
+        self.convert_tab = ConvertTab(
+            self.config_tab.config_file_path,
+            self._settings,
+            conversion_log=self._conversion_log,
+        )
         self._tabs.addTab(self.convert_tab, self.tr('Convert'))
         self._tabs.addTab(self.config_tab, self.tr('Configuration'))
 
@@ -99,6 +116,10 @@ class MainWindow(QMainWindow):
         view_menu = self.menuBar().addMenu(self.tr('&View'))
         self._build_theme_menu(view_menu)
 
+        log_action = QAction(self.tr('Conversion &log…'), self)
+        log_action.triggered.connect(self._show_log_window)
+        view_menu.addAction(log_action)
+
         file_menu.addSeparator()
 
         quit_action = QAction(self.tr('&Quit'), self)
@@ -113,7 +134,7 @@ class MainWindow(QMainWindow):
 
         docs_action = QAction(self.tr('Project &documentation'), self)
         docs_action.triggered.connect(
-            lambda: QDesktopServices.openUrl(QUrl('https://github.com/kryspetrie/xml2ustx'))
+            lambda: QDesktopServices.openUrl(QUrl(PROJECT_GITHUB_URL)),
         )
         help_menu.addAction(docs_action)
 
@@ -145,9 +166,14 @@ class MainWindow(QMainWindow):
 
         self._theme_group.triggered.connect(self._on_theme_selected)
 
+    def _show_log_window(self) -> None:
+        if self._log_window is None:
+            self._log_window = ConversionLogWindow(self._conversion_log, self)
+        self._log_window.show_and_raise()
+
     def _on_theme_selected(self, action: QAction) -> None:
-        theme = action.data()
-        if not theme or theme == self._settings.get_theme():
+        theme = normalize_theme(str(action.data() or ''))
+        if theme == self._settings.get_theme():
             return
 
         app = QApplication.instance()
@@ -240,15 +266,27 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(message)
 
     def _show_about(self) -> None:
-        QMessageBox.about(
-            self,
-            self.tr('About xml2ustx'),
+        dialog = QDialog(self)
+        dialog.setWindowTitle(self.tr('About xml2ustx'))
+        layout = QVBoxLayout(dialog)
+
+        label = QLabel(
             self.tr(
                 '<h3>xml2ustx {version}</h3>'
                 '<p>Convert MusicXML vocal parts to OpenUtau USTX projects.</p>'
                 '<p>CLI: <code>xml2ustx-cli</code> &nbsp; GUI: <code>xml2ustx</code></p>'
-            ).format(version=get_version()),
+                '<p><a href="{url}">Project on GitHub</a></p>',
+            ).format(version=get_version(), url=PROJECT_GITHUB_URL),
         )
+        label.setTextFormat(Qt.TextFormat.RichText)
+        label.setOpenExternalLinks(True)
+        label.setWordWrap(True)
+        layout.addWidget(label)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        buttons.accepted.connect(dialog.accept)
+        layout.addWidget(buttons)
+        dialog.exec()
 
     def _restore_settings(self) -> None:
         self._settings.restore_window(self)
@@ -300,7 +338,7 @@ def run_app() -> int:
     app.setWindowIcon(load_app_icon())
     settings = UiSettings()
     apply_theme(app, settings.get_theme())
-    apply_application_style(app)
+    bind_system_theme_updates(app)
     window = MainWindow(settings)
     window.show()
     return app.exec()

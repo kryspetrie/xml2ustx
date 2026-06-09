@@ -20,3 +20,8 @@ class NativeUiOptions:
     debug: bool = False
     open_in_openutau: bool = False
     openutau_path: Optional[str] = None
+    swing_preset_id: Optional[str] = None
+    groove_preset_id: Optional[str] = None
+    rhythm_disabled: bool = False
+    force_swing: bool = False
+    force_groove: bool = False

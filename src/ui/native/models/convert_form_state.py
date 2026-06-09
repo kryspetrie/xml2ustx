@@ -29,3 +29,8 @@ class ConvertFormState:
     custom_tracks: list[CustomTrackRow] = field(default_factory=list)
     debug: bool = False
     open_in_openutau: bool = False
+    swing_preset_id: str | None = None
+    groove_preset_id: str | None = None
+    rhythm_disabled: bool = False
+    force_swing: bool = False
+    force_groove: bool = False

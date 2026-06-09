@@ -11,7 +11,23 @@ from src.Utils import dumps
 from collections.abc import Callable
 
 from src.application.conversion_errors import ConversionCancelledError
+from src.application.conversion_limitations import warn_unsupported_score_features
 from src.application.conversion_log import LogFn, emit_log
+from src.domain.dynamics_parser import nearest_vol_at_position, parse_dynamics
+from src.domain.lyric_helpers import (
+    extract_note_lyric,
+    fill_missing_lyrics,
+    merge_syllabic_lyrics_in_part,
+    merge_tied_lyrics_in_place,
+)
+from src.domain.groove_parser import apply_groove_rules
+from src.domain.score_rhythm_detection import (
+    parse_swing_intensity_from_score,
+    resolve_rhythm_rules,
+    score_has_groove_annotation,
+    score_has_swing_annotation,
+)
+from src.domain.rhythm_config import RhythmConfig
 from src.domain.models.Event import Event
 from src.domain.models.Tempo import Tempo
 from src.domain.models.TimeSignature import TimeSignature
@@ -83,9 +99,11 @@ def parse(
         project_name: str,
         track_configs: list[TrackConfig],
         default_lyric: str,
+        rhythm_config: RhythmConfig | None = None,
         debug: bool = False,
         log_fn: LogFn | None = None,
         should_cancel: Callable[[], bool] | None = None):
+    rhythm = rhythm_config or RhythmConfig()
     __raise_if_cancelled(should_cancel)
     stream = music21.converter.parse(input_file)
 
@@ -97,14 +115,14 @@ def parse(
     # Unroll notated repeats
     stream = stream.expandRepeats()
 
-    # TODO: rewrite durations and positions for swing
-
     # Unfortunately, Music21 does not provide us with a good mechanism to parse tempos changes.
     # We need to get these lines to inform us how to deal with "rit." and "accel." text elements.
     # We also need to get tempo markers at this point, since those are also stripped out.
     # These are stripped out of the stream by stream.voicesToParts() for some reason.
     flattened = stream.flatten()
     lines: list[music21.spanner.Line] = [it for it in flattened.parts.srcStreamElements if isinstance(it, music21.spanner.Line)]
+
+    warn_unsupported_score_features(flattened, log_fn=log_fn)
 
     # Loop over the events first to get the tempo and time signature details
     project_events = []
@@ -121,7 +139,10 @@ def parse(
 
         if isinstance(event, music21.tempo.MetronomeMark):
             metronome_event: music21.tempo.MetronomeMark = cast(music21.tempo.MetronomeMark, event)
-            tempo: Tempo = Tempo(position=metronome_event.offset, beats_per_minute=metronome_event.number)
+            tempo: Tempo = Tempo(
+                position=metronome_event.offset,
+                beats_per_minute=_quarter_note_bpm(metronome_event),
+            )
             project_events.append(tempo)
             continue
 
@@ -149,8 +170,41 @@ def parse(
                 project_events.append(parsed)
             continue
 
+    dynamics_breakpoints = parse_dynamics(flattened)
+    has_swing = score_has_swing_annotation(stream, flattened)
+    has_groove = score_has_groove_annotation(stream, flattened)
+    score_swing_intensity = parse_swing_intensity_from_score(stream, flattened)
+    rhythm_rules = resolve_rhythm_rules(
+        rhythm,
+        has_swing_annotation=has_swing,
+        has_groove_annotation=has_groove,
+        score_swing_intensity=score_swing_intensity,
+    )
+
     # Flatten all the different voices to distinct parts
     stream = stream.voicesToParts()
+
+    if rhythm_rules:
+        if rhythm.groove.strip() and has_groove:
+            emit_log('Applying groove from score marking.', log_fn=log_fn)
+        elif rhythm.groove.strip() and rhythm.force_groove:
+            emit_log('Applying forced groove.', log_fn=log_fn)
+        elif has_swing:
+            emit_log(
+                f'Applying swing from score marking ({score_swing_intensity or rhythm.swing_intensity}% intensity).',
+                log_fn=log_fn,
+            )
+        elif rhythm.force_swing:
+            emit_log(
+                f'Applying forced swing ({rhythm.swing_intensity}% intensity).',
+                log_fn=log_fn,
+            )
+        for part in stream.parts:
+            apply_groove_rules(part, rhythm_rules)
+
+    merge_tied_lyrics_in_place(stream)
+    for part in stream.parts:
+        merge_syllabic_lyrics_in_part(part)
 
     # Extend all tied notes into joined objects (e.g. ignore measure divisions)
     stream.stripTies(matchByPitch=True, inPlace=True)
@@ -166,10 +220,13 @@ def parse(
             # Add note events
             if isinstance(event, music21.note.Note) and event.isNote:
                 note_event: music21.note.Note = cast(music21.note.Note, event)
-                note: Note = Note(position=note_event.offset,
-                                  duration=note_event.quarterLength,
-                                  tone=note_event.pitch.midi,
-                                  lyrics=note_event.lyric)
+                note: Note = Note(
+                    position=note_event.offset,
+                    duration=note_event.quarterLength,
+                    tone=note_event.pitch.midi,
+                    lyrics=extract_note_lyric(note_event),
+                    volume=nearest_vol_at_position(dynamics_breakpoints, note_event.offset),
+                )
                 track_events.append(note)
                 continue
 
@@ -191,14 +248,24 @@ def parse(
             events=track_events)
         tracks.append(track)
 
+    fill_missing_lyrics(tracks, default_lyric)
+
     project = Project(
         name=project_name,
         tick_resolution=tick_resolution,
         tracks=tracks,
         project_events=project_events,
-        default_lyric=default_lyric)
+        default_lyric=default_lyric,
+        dynamics_breakpoints=dynamics_breakpoints)
 
     if debug:
         emit_log(f'Parsed the following project:\n{dumps(project)}\n', log_fn=log_fn)
 
     return project
+
+
+def _quarter_note_bpm(mark: music21.tempo.MetronomeMark) -> float:
+    """Normalize a metronome mark to quarter-note BPM."""
+    if hasattr(mark, 'getQuarterBPM'):
+        return float(mark.getQuarterBPM())
+    return float(mark.number)

@@ -153,6 +153,8 @@ def interpolate_tempos(
     # Convert to our internal format for interpolation
     changes = __to_tempo_changes(events)
 
+    __apply_endpoint_tempos(changes, events)
+
     # Fill in our start bpm and end bpm for all tempo changes
     __set_start_and_end_bpms_in_place(changes, tempo_change_amount)
 
@@ -256,3 +258,38 @@ def __prev_adjacent_bpm(changes: List[TempoChange], cur_idx: int) -> float | Non
         return None
     prev_change: TempoChange = changes[prev_idx]
     return prev_change.beats_per_minute_end
+
+
+def __apply_endpoint_tempos(changes: list[TempoChange], events: list[Event]) -> None:
+    """Use explicit tempo marks at rit/accel span ends when present."""
+    tempo_marks = [
+        event for event in events
+        if isinstance(event, Tempo)
+    ]
+    if not tempo_marks:
+        return
+
+    for change in changes:
+        if change.duration is None or change.duration <= 0:
+            continue
+        if change.change_type not in (
+                TempoChange.ChangeType.TEMPO_UP,
+                TempoChange.ChangeType.TEMPO_DOWN,
+        ):
+            continue
+
+        end_position = change.position + change.duration
+        endpoint = _nearest_tempo_at_or_after(tempo_marks, end_position)
+        if endpoint is None:
+            continue
+        change.beats_per_minute_end = endpoint.beats_per_minute
+
+
+def _nearest_tempo_at_or_after(tempos: list[Tempo], position: float) -> Tempo | None:
+    candidates = [
+        tempo for tempo in tempos
+        if tempo.position >= position - 0.001
+    ]
+    if not candidates:
+        return None
+    return min(candidates, key=lambda tempo: tempo.position)

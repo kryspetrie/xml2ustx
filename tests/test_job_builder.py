@@ -1,8 +1,9 @@
 """JobBuilder unit tests."""
 from __future__ import annotations
 
-from src.application.JobBuilder import build_cli, to_output_file
+from src.application.JobBuilder import build_cli, build_native, to_output_file
 from src.application.models.CommandLineOptions import CommandLineOptions
+from src.application.models.NativeUiOptions import NativeUiOptions
 
 
 def test_to_output_file_replaces_extension():
@@ -30,3 +31,17 @@ def test_build_cli_single_input_file():
     assert job.output_files == ['out.ustx']
     assert job.name == 'Test Project'
     assert len(job.track_configs) == 1
+
+
+def test_build_native_uses_convert_tab_rhythm_selection() -> None:
+    options = NativeUiOptions(
+        input_files=['tests/fixtures/minimal.musicxml'],
+        track_config_id='default',
+        swing_preset_id='heavy',
+        groove_preset_id='eighth-triplet',
+        force_swing=True,
+    )
+    job = build_native(options)
+    assert job.rhythm_config.swing_intensity == 85
+    assert job.rhythm_config.groove.startswith('8th:')
+    assert job.rhythm_config.force_swing is True

@@ -40,6 +40,7 @@ def build_native_ui_options(
             raise ValueError(f'OpenUtau executable not found: {openutau}')
 
     track_config_id, voices, pans, volumes, tracks = _resolve_track_settings(state, config_path)
+    _validate_rhythm_settings(state, config_path)
 
     if state.batch_mode:
         input_dir = state.input_path.strip()
@@ -59,6 +60,11 @@ def build_native_ui_options(
             debug=state.debug,
             open_in_openutau=state.open_in_openutau,
             openutau_path=openutau,
+            swing_preset_id=state.swing_preset_id,
+            groove_preset_id=state.groove_preset_id,
+            rhythm_disabled=state.rhythm_disabled,
+            force_swing=state.force_swing,
+            force_groove=state.force_groove,
         )
 
     files = list(state.input_files)
@@ -101,7 +107,22 @@ def build_native_ui_options(
         debug=state.debug,
         open_in_openutau=state.open_in_openutau,
         openutau_path=openutau,
+        swing_preset_id=state.swing_preset_id,
+        groove_preset_id=state.groove_preset_id,
+        rhythm_disabled=state.rhythm_disabled,
+        force_swing=state.force_swing,
+        force_groove=state.force_groove,
     )
+
+
+def _validate_rhythm_settings(state: ConvertFormState, config_path: str) -> None:
+    config = parse_config(config_path)
+    swing_id = state.swing_preset_id or ''
+    groove_id = state.groove_preset_id or ''
+    if swing_id and not any(preset.preset_id == swing_id for preset in config.swing_presets):
+        raise ValueError(f"Unknown swing preset '{swing_id}' in config.")
+    if groove_id and not any(preset.preset_id == groove_id for preset in config.groove_presets):
+        raise ValueError(f"Unknown groove preset '{groove_id}' in config.")
 
 
 def _resolve_track_settings(

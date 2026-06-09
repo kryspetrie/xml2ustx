@@ -3,8 +3,15 @@ from src.domain.models.Event import Event
 
 class Note(Event):
 
-    def __init__(self, position: float, duration: float, tone: int, lyrics: str):
+    def __init__(
+            self,
+            position: float,
+            duration: float,
+            tone: int,
+            lyrics: str,
+            volume: int | None = None):
         super().__init__(position)
         self.duration = duration
         self.tone = tone
         self.lyric = lyrics
+        self.volume = volume

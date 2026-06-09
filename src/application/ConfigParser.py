@@ -4,6 +4,7 @@ from typing import Dict, Tuple, List
 from src.domain.models.TrackConfig import TrackConfig
 from src.domain.models.Voice import Voice
 from src.application.ApplicationConfig import ApplicationConfig
+from src.domain.rhythm_config import RhythmConfig, parse_groove_presets, parse_swing_presets
 
 
 def __parse_voice_config_tuple(voice_config_dict: Dict) -> Tuple[str, Voice]:
@@ -62,6 +63,9 @@ def parse(file: str) -> ApplicationConfig:
     track_config_map = dict((id, tracks) for id, tracks in track_configs_tuple)
 
     default_lyric = config_yaml['default_lyric'] if 'default_lyric' in config_yaml else None
+    swing_presets = parse_swing_presets(config_yaml)
+    groove_presets = parse_groove_presets(config_yaml)
+    rhythm_config = RhythmConfig.from_mapping(config_yaml)
 
     if 'default' not in voice_config_map:
         raise RuntimeError('Did not find \'default\' voice in config file.')
@@ -69,4 +73,11 @@ def parse(file: str) -> ApplicationConfig:
     if 'default' not in track_config_map:
         raise RuntimeError('Did not find \'default\' track config in config file.')
 
-    return ApplicationConfig(voice_config_map=voice_config_map, track_config_map=track_config_map, default_lyric=default_lyric)
+    return ApplicationConfig(
+        voice_config_map=voice_config_map,
+        track_config_map=track_config_map,
+        default_lyric=default_lyric,
+        rhythm_config=rhythm_config,
+        swing_presets=swing_presets,
+        groove_presets=groove_presets,
+    )

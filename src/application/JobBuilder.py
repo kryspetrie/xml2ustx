@@ -9,6 +9,7 @@ from src.application.ConfigParser import parse as parse_config
 from src.application.ConfigPaths import resolve_config_file
 from src.domain.models.Job import Job
 from src.domain.models.TrackConfig import TrackConfig
+from src.domain.rhythm_config import RhythmConfig
 
 # Job defaults, when not specified
 DEFAULT_PROJECT_NAME = 'New Project'
@@ -117,6 +118,7 @@ def build_cli(options: CommandLineOptions) -> Job:
         name=project_name,
         track_configs=track_configs,
         default_lyric=default_lyric,
+        rhythm_config=application_config.rhythm_config,
         debug=options.debug)
 
     return job
@@ -194,6 +196,19 @@ def build_native(options: NativeUiOptions) -> Job:
         name=project_name,
         track_configs=track_configs,
         default_lyric=default_lyric,
+        rhythm_config=_build_rhythm_config(options, application_config),
         debug=options.debug,
+    )
+
+
+def _build_rhythm_config(options: NativeUiOptions, application_config) -> RhythmConfig:
+    return RhythmConfig.from_presets(
+        application_config.swing_presets,
+        application_config.groove_presets,
+        swing_preset_id=options.swing_preset_id or '',
+        groove_preset_id=options.groove_preset_id or '',
+        rhythm_disabled=options.rhythm_disabled,
+        force_swing=options.force_swing,
+        force_groove=options.force_groove,
     )
 

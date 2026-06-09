@@ -9,7 +9,7 @@ Target fork: **[keirokeer/OpenUtau-DiffSinger-Lunai](https://github.com/keirokee
 | **File → Import from MuseScore (MusicXML)...** | Converts via xml2ustx; prompts to download sidecar if missing; prompts to remap missing singers to installed voices |
 | **Tools → Download MusicXML Converter...** | Manual download of platform zip from GitHub releases |
 | **Tools → Edit MusicXML Import Config...** | YAML editor for voice/track presets |
-| **CI** | Each OS matrix job builds Python via `scripts/ci/build_and_package_sidecar.*`; release includes `xml2ustx-{platform}.zip` and copies binary into `OpenUtau/tools/xml2ustx/` |
+| **CI** | Sidecar packaging is **deferred** until an OpenUtau release ships this integration. Scripts remain under `scripts/ci/build_and_package_sidecar.*` for fork development. |
 | **Bundled default config** | `tools/xml2ustx/default-config.yml` ships with the app (Lunai voices) |
 
 ## Download sources (automatic)
@@ -36,9 +36,10 @@ The **Test** workflow (`.github/workflows/test.yml`) runs on push/PR to `main`:
 
 - **ruff** lint (`src`, `tests`)
 - **pytest** on Python 3.12 and 3.13 (Qt tests use `QT_QPA_PLATFORM=offscreen`)
-- **sidecar-smoke** — builds a Linux sidecar zip and runs `scripts/ci/smoke_sidecar.sh`
 
-The **Release** workflow builds GUI and sidecar packages for all platforms when a semver release is published, and uploads **`CHECKSUMS.sha256`**. See [docs/DISTRIBUTION.md](../../docs/DISTRIBUTION.md).
+The **Release** workflow builds **GUI packages only** (no sidecar zips) when a semver release is published, and uploads **`CHECKSUMS.sha256`**. See [docs/DISTRIBUTION.md](../../docs/DISTRIBUTION.md).
+
+Sidecar smoke tests (`scripts/ci/smoke_sidecar.sh`) and release packaging can be run locally until the Lunai fork publishes a build that consumes them.
 
 ## Smoke test (xml2ustx repo)
 
@@ -56,7 +57,7 @@ After building a release zip locally:
 
 ## Publish releases (xml2ustx repo)
 
-Releases use semver git tags (`v0.1.0`, `v1.2.3`, …). Each published release includes sidecar zips (`xml2ustx-{platform}.zip`), native GUI packages, and **`CHECKSUMS.sha256`**.
+Releases use semver git tags (`v0.1.0`, `v1.2.3`, …). Published releases currently include native GUI packages and **`CHECKSUMS.sha256`** only — not sidecar zips (`xml2ustx-{platform}.zip`).
 
 ```bash
 ./scripts/release/bump_tag.sh patch --push   # push tag + publish release → starts CI

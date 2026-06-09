@@ -11,6 +11,7 @@ from src.ustx.models.document import (
     USTX_VERSION,
     UstxDocument,
 )
+from src.ustx.models.curve import UstxCurve
 from src.ustx.models.expression import UstxExpressionCatalog
 from src.ustx.models.part import UstxVoicePart
 from src.ustx.models.timing import UstxTempo, UstxTimeSignature
@@ -34,6 +35,11 @@ class UstxDocumentBuilder:
         tempo_events: list[Event] = project.find_unique_tempos_and_changes()
         tempos = interpolate_tempos(tempo_events)
 
+        dyn_curve = UstxCurve.from_dyn_breakpoints(
+            project.dynamics_breakpoints,
+            project.tick_resolution,
+        )
+
         voice_parts: list[UstxVoicePart] = []
         for index, track in enumerate(project.tracks):
             if not UstxVoicePart.track_has_notes(track):
@@ -44,6 +50,7 @@ class UstxDocumentBuilder:
                     track_number=index,
                     tick_resolution=project.tick_resolution,
                     default_lyric=project.default_lyric,
+                    dyn_curve=dyn_curve,
                 )
             )
 

@@ -9,14 +9,13 @@ This is a rewrite based on [nicolalandro/xml2ustx](https://github.com/nicolaland
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [CLI application](#cli-application)
-- [Sidecar](#sidecar)
 - [Configuration](#configuration)
 - [Native desktop app](#native-desktop-app)
 - [OpenUtau integration](#openutau-integration)
 - [Development and testing](#development-and-testing)
 - [Releases and versioning](#releases-and-versioning)
 - [Distribution](#distribution)
-- [Limitations](#limitations)
+- [MusicXML conversion notes](#musicxml-conversion-notes)
 
 ---
 
@@ -26,7 +25,7 @@ Choose one install path below:
 
 | Path | You need |
 |------|----------|
-| [Pre-built GUI / sidecar](#pre-built-executables-no-python) | Nothing (download from [GitHub Releases](https://github.com/kryspetrie/xml2ustx/releases)) |
+| [Pre-built GUI](#pre-built-executables-no-python) | Nothing (download from [GitHub Releases](https://github.com/kryspetrie/xml2ustx/releases)) |
 | [pipx](#pipx-recommended-for-python-users) | Python 3.12+ and [pipx](https://pipx.pypa.io/) |
 | [Poetry / virtualenv](#poetry-for-development) | Python 3.12+ and Poetry (or venv + Poetry) |
 
@@ -49,9 +48,10 @@ Published [GitHub Releases](https://github.com/kryspetrie/xml2ustx/releases) inc
 | `xml2ustx-gui-<platform>.zip` | Windows, Linux, macOS (x64 + ARM64) | Native Qt desktop app |
 | `xml2ustx-gui-linux-x64.AppImage` | Linux x64 | GUI without unpacking a zip |
 | `xml2ustx-gui-linux-x64.flatpak` | Linux x64 | GUI installable via Flatpak |
-| `xml2ustx-<platform>.zip` | Windows, Linux, macOS (x64 + ARM64) | CLI sidecar (OpenUtau / automation) |
 
 `<platform>` is one of: `win-x64`, `win-x86`, `win-arm64`, `linux-x64`, `linux-arm64`, `osx-x64`, `osx-arm64`.
+
+> **Note:** OpenUtau **sidecar** zips are not published in releases yet — the upstream OpenUtau integration that consumes them is still pending. Use the GUI, `pipx`, or `xml2ustx-cli` from source. Sidecar build scripts remain in the repo for future integration work ([`integration/openutau/`](integration/openutau/)).
 
 **Quick start (GUI):**
 
@@ -266,7 +266,7 @@ Session log: ~/.local/share/xml2ustx/logs/20260603-120000-My Project.log
 | macOS | `~/Library/Logs/xml2ustx/` |
 | Windows | `%LOCALAPPDATA%\xml2ustx\logs\` |
 
-In the native GUI, use **Copy log** or **Save log…** on the Convert tab. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) for release verification and packaging notes.
+In the native GUI, open **View → Conversion log…** for a live log window with copy/save/clear. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) for release verification and packaging notes.
 
 ### Open in OpenUtau
 
@@ -319,174 +319,12 @@ If the binary is not found, conversion still succeeds; use **File → Open** in 
 
 - **OpenUtau menu:** File → Open → pick the `.ustx`
 - **OpenUtau + integration:** File → Import from MuseScore (MusicXML)… (converts inside the app)
-- **Native GUI:** `xml2ustx` then use “Open output folder” or **Save log…**
+- **Native GUI:** `xml2ustx` then use “Open output folder” or **View → Conversion log…**
 
 Batch mode (`--input_dir --open`) tries to spawn one OpenUtau process per output file (subject to the single-instance limitation above).
 
 ---
 
-## Sidecar
-
-A **sidecar** is a standalone PyInstaller binary (`xml2ustx` or `xml2ustx.exe`) that embeds Python and dependencies. Host applications (especially OpenUtau) invoke it as a subprocess instead of requiring a system Python install.
-
-### What ships in a sidecar zip
-
-Release assets are named `xml2ustx-{platform}.zip`:
-
-| Platform | Zip name |
-|----------|----------|
-| Windows x64 | `xml2ustx-win-x64.zip` |
-| Windows x86 | `xml2ustx-win-x86.zip` |
-| Windows ARM64 | `xml2ustx-win-arm64.zip` |
-| macOS x64 | `xml2ustx-osx-x64.zip` |
-| macOS ARM64 | `xml2ustx-osx-arm64.zip` |
-| Linux x64 | `xml2ustx-linux-x64.zip` |
-| Linux ARM64 | `xml2ustx-linux-arm64.zip` |
-
-Each zip contains:
-
-```
-xml2ustx          # or xml2ustx.exe on Windows
-default-config.yml
-```
-
-Download from [GitHub Releases](https://github.com/kryspetrie/xml2ustx/releases) after a published semver release (`vX.Y.Z`).
-
-### Building the sidecar locally
-
-Build on the **target OS** (or use CI release artifacts):
-
-```bash
-# Binary only → dist/sidecar/
-./scripts/build_sidecar.sh
-
-# Packaged zip (same layout as GitHub releases)
-./scripts/ci/build_and_package_sidecar.sh xml2ustx-linux-x64 "$(pwd)"
-# → xml2ustx-linux-x64.zip in repo root
-```
-
-### Loading / installing the sidecar
-
-#### Option A — OpenUtau (automatic)
-
-For [OpenUtau-DiffSinger-Lunai](https://github.com/keirokeer/OpenUtau-DiffSinger-Lunai) with the integration applied ([guide](integration/openutau/README.md)):
-
-1. **Bundled at build time** — copy the sidecar into the app tree before building OpenUtau:
-
-   ```bash
-   OPENUTAU_TOOLS_DIR=/path/to/OpenUtau-DiffSinger-Lunai/tools/xml2ustx \
-     ./scripts/ci/build_and_package_sidecar.sh xml2ustx-linux-x64 "$(pwd)"
-   cd /path/to/OpenUtau-DiffSinger-Lunai
-   dotnet build OpenUtau
-   ```
-
-   Installed path: `{OpenUtau app}/tools/xml2ustx/xml2ustx`
-
-2. **Download at runtime** — in OpenUtau: **Tools → Download MusicXML Converter…**  
-   Fetches the latest release zip from GitHub and extracts to:
-
-   | OS | Path |
-   |----|------|
-   | Linux | `~/.local/share/OpenUtau/xml2ustx/sidecar/` |
-   | macOS | `~/Library/OpenUtau/xml2ustx/sidecar/` |
-   | Windows | `%LOCALAPPDATA%\OpenUtau\xml2ustx\sidecar\` |
-
-   Downloaded sidecar takes precedence over the bundled copy.
-
-#### Option B — Manual install (any host)
-
-```bash
-unzip xml2ustx-linux-x64.zip -d ~/.local/share/xml2ustx
-chmod +x ~/.local/share/xml2ustx/xml2ustx
-```
-
-Point your host at `~/.local/share/xml2ustx/xml2ustx` and a config file (see below).
-
-#### Option C — Run from build output (development)
-
-```bash
-./scripts/build_sidecar.sh
-./dist/sidecar/xml2ustx --help
-```
-
-### Using the sidecar
-
-The sidecar exposes the **same CLI** as `xml2ustx-cli`. Hosts should invoke it as a subprocess with no shell, capture stderr on failure, and pass absolute paths.
-
-**Minimal invocation**
-
-```bash
-./xml2ustx \
-  --input_file /path/to/score.musicxml \
-  --output_file /path/to/output.ustx \
-  --config_file /path/to/config.yml \
-  --project_name "My Project" \
-  --track_config default
-```
-
-**Environment variables**
-
-| Variable | Purpose |
-|----------|---------|
-| `XML2USTX_CONFIG` | Default config path when `--config_file` is omitted (OpenUtau sets this) |
-
-**OpenUtau invocation (reference)**
-
-OpenUtau runs the sidecar equivalent to:
-
-```bash
-cd "{sidecar_directory}"
-XML2USTX_CONFIG="{user_config.yml}" \
-  ./xml2ustx \
-  --input_file "{input.musicxml}" \
-  --output_file "{temp}.ustx" \
-  --config_file "{user_config.yml}" \
-  --project_name "{project name}" \
-  --track_config "{preset id}"
-```
-
-- **Sidecar directory**: `tools/xml2ustx/` (bundled) or `{DataPath}/xml2ustx/sidecar/` (downloaded)
-- **User config**: `{DataPath}/xml2ustx/config.yml` (created from `default-config.yml` on first use)
-- **Working directory**: sidecar directory (so bundled resources resolve correctly)
-- On success, OpenUtau loads the temp `.ustx` and deletes it
-
-**Manual sidecar test (matches OpenUtau)**
-
-```bash
-SIDECAR=./dist/sidecar
-CONFIG=/tmp/xml2ustx-config.yml
-cp "$SIDECAR/default-config.yml" "$CONFIG"
-
-export XML2USTX_CONFIG="$CONFIG"
-"$SIDECAR/xml2ustx" \
-  --input_file tests/fixtures/minimal.musicxml \
-  --output_file /tmp/test.ustx \
-  --config_file "$CONFIG" \
-  --project_name "Sidecar test" \
-  --track_config default
-```
-
-**Automated smoke test**
-
-```bash
-./scripts/test_integration.sh
-./scripts/test_integration.sh --openutau-dir /path/to/OpenUtau-DiffSinger-Lunai
-./scripts/test_integration.sh --skip-sidecar-build   # CLI only
-```
-
-### Integrating another host application
-
-To call xml2ustx from your own app:
-
-1. Ship or download the platform zip for your OS/arch.
-2. Store user config separately (copy `default-config.yml` → `config.yml` on first run).
-3. Spawn `{sidecar}/xml2ustx` with the arguments above; set `XML2USTX_CONFIG`.
-4. Parse `--list_track_configs` output to populate preset dropdowns.
-5. Load the resulting `.ustx` in OpenUtau, or parse it yourself (OpenUtau project format).
-
-See `integration/openutau/OpenUtau.Core/Format/Xml2ustx.cs` for a complete C# reference implementation.
-
----
 
 ## Configuration
 
@@ -579,13 +417,9 @@ CI builds for all major platforms are described in [docs/DISTRIBUTION.md](docs/D
 
 ## OpenUtau integration
 
-Bundled sidecar + menu items for [OpenUtau-DiffSinger-Lunai](https://github.com/keirokeer/OpenUtau-DiffSinger-Lunai):
+A patch kit for [OpenUtau-DiffSinger-Lunai](https://github.com/keirokeer/OpenUtau-DiffSinger-Lunai) lives in **[integration/openutau/](integration/openutau/)** (import menu, config editor, sidecar wiring). It is **not** part of published releases yet — upstream OpenUtau builds that ship the integration are still pending.
 
-- **File → Import from MuseScore (MusicXML)...**
-- **Tools → Download MusicXML Converter...**
-- **Tools → Edit MusicXML Import Config...**
-
-Apply the patch kit and full details: **[integration/openutau/README.md](integration/openutau/README.md)**
+Until then, convert with the **GUI** or **`xml2ustx-cli`**, then open the `.ustx` in OpenUtau manually.
 
 ---
 
@@ -611,15 +445,15 @@ QT_QPA_PLATFORM=offscreen poetry run pytest -q
 poetry run ruff check src tests
 ```
 
-CI (`.github/workflows/test.yml`) runs ruff, pytest on Python 3.12 and 3.13, and a Linux sidecar smoke build.
+CI (`.github/workflows/test.yml`) runs ruff and pytest on Python 3.12 and 3.13.
 
 ### Integration smoke test
 
 ```bash
-./scripts/test_integration.sh --skip-sidecar-build   # CLI only (fast)
-./scripts/test_integration.sh                        # CLI + PyInstaller sidecar
-./scripts/ci/smoke_sidecar.sh xml2ustx-linux-x64.zip   # after building a release zip
+./scripts/test_integration.sh --skip-sidecar-build
 ```
+
+Sidecar build steps in that script are optional and disabled in CI until OpenUtau integration releases resume.
 
 ---
 
@@ -641,7 +475,7 @@ git push origin v0.1.0
 gh release create v0.1.0 --title "xml2ustx v0.1.0" --generate-notes
 ```
 
-The **Release** workflow (GitHub Actions on `windows-latest`, `ubuntu-latest`, `ubuntu-24.04-arm`, `macos-15-intel`, and `windows-11-arm`) uploads PyInstaller **GUI** zips, **CLI sidecar** zips, a Linux x64 **AppImage**, a Linux x64 **Flatpak**, and **`CHECKSUMS.sha256`** to the release page. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md#ci-release-builds-github-actions).
+The **Release** workflow (GitHub Actions on `windows-latest`, `ubuntu-latest`, `ubuntu-24.04-arm`, `macos-15-intel`, and `windows-11-arm`) uploads PyInstaller **GUI** zips, a Linux x64 **AppImage**, a Linux x64 **Flatpak**, and **`CHECKSUMS.sha256`** to the release page. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md#ci-release-builds-github-actions).
 
 ```bash
 poetry version -s
@@ -654,21 +488,22 @@ Verify downloaded release assets with the checksum file — see [Distribution](#
 
 ## Distribution
 
-Install paths (pipx, pre-built GUI/sidecar, Poetry), CI build matrix, checksum verification, code-signing notes, and sidecar install paths are documented in **[docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)**.
+Install paths (pipx, pre-built GUI, Poetry), CI build matrix, checksum verification, and code-signing notes are documented in **[docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)**.
 
 ---
 
-## Limitations
+## MusicXML conversion notes
 
-**There are many limitations.**
-
-- No support for dynamics or volume changes in the score
-- No support for swing annotations
-- Gradual tempo: basic support for MuseScore `rit.` and `accel.` only
-- Tempos assumed to be quarter-note based
-- Lyrics must be defined on **all voices** on **all tracks** — no guessing from other staves
-- Lyrics spanning multiple notes or tied notes are not handled gracefully
-- Lyrics split across notes are phonemized as separate “words” (OpenUtau phonemizer limitation)
+| Topic | Behavior |
+|-------|----------|
+| **Dynamics / volume in score** | `Dynamic` markings and crescendo/diminuendo hairpins export as a `dyn` automation curve on each voice part. Per-note `vol` expressions are set from the nearest preceding dynamic. Track mixer volume still comes from `config.yml`. |
+| **Swing / groove** | **Convert** tab: choose **swing** and **groove** presets (or **(None)** to leave groove off), plus **Disable swing/groove**, **Force swing**, and **Force groove**. **Config** tab defines saved preset libraries only. Swing applies when a `Swing` text expression is present (excluding title and lyrics), or when forced. Groove applies when a `Groove` marking is present and a groove preset is selected, or when forced. Optional `Swing 66%` in the score overrides intensity. |
+| **Gradual tempo** | MuseScore-style `rit.` and `accel.` with spanner lines are interpolated into stepped tempos. A following metronome mark at the span end is used as the target BPM when present. |
+| **Tempo beat unit** | Metronome marks are normalized to quarter-note BPM (e.g. half note = 60 → 120 quarter BPM). |
+| **Lyrics** | Score lyrics are used when present. Missing lyrics are copied from other parts at the same beat, then filled from `default_lyric` in config (editable in the UI config tab). Continuation notes use OpenUtau’s `+` lyric. |
+| **Tied notes / multi-note lyrics** | Tie chains and begin/middle/end syllable groups are merged onto the first note; continuation notes are marked with `+`. |
+| **Other tempo text** | Expressions other than `rit.` and `accel.` are ignored with a warning. |
+| **Phonemization** | Merged lyrics are phonemized as one word; `+` continuation notes inherit timing from the merged syllable group. |
 
 ---
 
@@ -683,11 +518,8 @@ Install paths (pipx, pre-built GUI/sidecar, Poetry), CI build matrix, checksum v
 | `src/resources/config.yml` | Default voice/track presets |
 | `tests/fixtures/minimal.musicxml` | Small MusicXML fixture for integration tests |
 | `docs/DISTRIBUTION.md` | Release verification, signing, session log paths |
-| `xml2ustx.spec` | PyInstaller spec (CLI sidecar) |
 | `xml2ustx-gui.spec` | PyInstaller spec (GUI app) |
-| `scripts/build_sidecar.sh` | Local sidecar build |
-| `scripts/test_integration.sh` | CLI + sidecar smoke tests |
-| `scripts/ci/smoke_sidecar.sh` | Smoke-test a packaged sidecar zip |
-| `.github/workflows/test.yml` | CI: ruff, pytest matrix, sidecar smoke |
+| `scripts/test_integration.sh` | CLI integration smoke test |
+| `.github/workflows/test.yml` | CI: ruff, pytest matrix |
 | `.github/workflows/release.yml` | Release builds + checksum upload |
 | `integration/openutau/` | OpenUtau Lunai fork patch kit |
