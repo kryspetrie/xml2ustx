@@ -8,8 +8,6 @@ import yaml
 from src.domain.rhythm_config import (
     DEFAULT_GROOVE_PRESETS,
     DEFAULT_SWING_PRESETS,
-    GroovePreset,
-    SwingPreset,
     parse_groove_presets,
     parse_swing_presets,
 )

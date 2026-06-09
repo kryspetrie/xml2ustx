@@ -13,7 +13,6 @@ from src.domain.rhythm_config import RhythmConfig
 from src.domain.score_rhythm_detection import (
     is_rhythm_annotation_text,
     resolve_rhythm_rules,
-    score_has_groove_annotation,
     score_has_swing_annotation,
 )
 from src.ustx.UstxExport import write_to_string

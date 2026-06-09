@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox,
     QFormLayout,
     QFrame,
     QGroupBox,
