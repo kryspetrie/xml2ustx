@@ -34,5 +34,4 @@ modules:
       - type: file
         path: org.xml2ustx.xml2ustx.metainfo.xml
       - type: file
-        path: ../../src/resources/logo.png
-        dest: icon.png
+        path: icon.png

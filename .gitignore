@@ -12,3 +12,4 @@ build-flatpak/
 flatpak-repo/
 packaging/flatpak/staging/
 packaging/flatpak/org.xml2ustx.xml2ustx.metainfo.xml
+packaging/flatpak/icon.png
