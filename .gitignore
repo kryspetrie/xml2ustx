@@ -11,3 +11,4 @@ src/application/_version.py
 build-flatpak/
 flatpak-repo/
 packaging/flatpak/staging/
+packaging/flatpak/org.xml2ustx.xml2ustx.metainfo.xml

@@ -32,8 +32,7 @@ modules:
       - type: file
         path: org.xml2ustx.xml2ustx.desktop
       - type: file
-        path: staging/org.xml2ustx.xml2ustx.metainfo.xml
-        dest: org.xml2ustx.xml2ustx.metainfo.xml
+        path: org.xml2ustx.xml2ustx.metainfo.xml
       - type: file
         path: ../../src/resources/logo.png
         dest: icon.png

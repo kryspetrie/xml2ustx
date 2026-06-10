@@ -20,12 +20,13 @@ fi
 source "$ROOT/scripts/ci/prepare_version.sh"
 
 STAGING="$ROOT/packaging/flatpak/staging"
+METAINFO="$ROOT/packaging/flatpak/org.xml2ustx.xml2ustx.metainfo.xml"
 BUILD_DIR="$ROOT/build-flatpak"
 REPO_DIR="$ROOT/flatpak-repo"
 OUTPUT="$ROOT/${ARTIFACT_NAME}.flatpak"
 RELEASE_DATE="$(date -u +%Y-%m-%d)"
 
-rm -rf "$STAGING" "$BUILD_DIR" "$REPO_DIR" "$OUTPUT"
+rm -rf "$STAGING" "$BUILD_DIR" "$REPO_DIR" "$OUTPUT" "$METAINFO"
 mkdir -p "$STAGING/binary"
 cp -a gui-pkg/xml2ustx/. "$STAGING/binary/"
 
@@ -33,7 +34,12 @@ sed \
   -e "s/@VERSION@/${XML2USTX_VERSION}/g" \
   -e "s/@DATE@/${RELEASE_DATE}/g" \
   "$ROOT/packaging/flatpak/org.xml2ustx.xml2ustx.metainfo.xml.in" \
-  > "$STAGING/org.xml2ustx.xml2ustx.metainfo.xml"
+  > "$METAINFO"
+
+if [ ! -f "$METAINFO" ]; then
+  echo "Failed to generate $METAINFO" >&2
+  exit 1
+fi
 
 if ! command -v flatpak-builder >/dev/null 2>&1; then
   echo "flatpak-builder is required (e.g. apt install flatpak flatpak-builder)" >&2
