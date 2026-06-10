@@ -72,7 +72,6 @@ flatpak-builder \
   "$ROOT/packaging/flatpak/org.xml2ustx.xml2ustx.yml"
 
 flatpak build-bundle \
-  --user \
   "$REPO_DIR" \
   "$OUTPUT" \
   "$FLATPAK_ID" \
